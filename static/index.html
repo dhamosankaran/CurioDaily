@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurioDaily: Your Daily Dose of Interesting</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header { background: #333; color: #fff; padding: 1rem 0; }
+        header h1 { margin: 0; }
+        nav { display: flex; justify-content: space-between; align-items: center; }
+        .subscribe-btn { background: #f4f4f4; color: #333; padding: 0.5rem 1rem; text-decoration: none; border-radius: 5px; }
+        .subscribe-btn:hover { background: #ddd; }
+        .topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 2rem; }
+        .topic-section { background: #f4f4f4; padding: 20px; border-radius: 5px; }
+        .topic-section h2 { margin-top: 0; }
+        .article-list { list-style-type: none; padding: 0; }
+        .article-list li { margin-bottom: 10px; }
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+        .close:hover,
+        .close:focus { color: black; text-decoration: none; cursor: pointer; }
+        #subscribeForm { display: flex; flex-direction: column; }
+        #subscribeForm input[type="email"] { margin-bottom: 10px; padding: 5px; }
+        .topic-choices { display: flex; flex-wrap: wrap; margin-bottom: 10px; }
+        .topic-choices label { margin-right: 10px; }
+        #subscribeForm button { background: #333; color: #fff; border: none; padding: 10px; cursor: pointer; }
+        #subscribeForm button:hover { background: #555; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <h1>CurioDaily: Your Daily Dose of Interesting</h1>
+                <a href="#" class="subscribe-btn" id="subscribeBtn">Subscribe</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="topic-grid" id="topicGrid">
+            <!-- Topic sections will be dynamically inserted here -->
+        </div>
+    </main>
+
+    <div id="subscribeModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Subscribe to CurioDaily</h2>
+            <form id="subscribeForm">
+                <input type="email" id="emailInput" placeholder="Enter your email" required>
+                <div class="topic-choices">
+                    <label><input type="checkbox" name="topics" value="1"> AI</label>
+                    <label><input type="checkbox" name="topics" value="2"> Tech</label>
+                    <label><input type="checkbox" name="topics" value="3"> Business</label>
+                    <label><input type="checkbox" name="topics" value="4"> Science</label>
+                </div>
+                <button type="submit">Subscribe</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Fetch topics and articles from the backend
+        async function fetchTopicsAndArticles() {
+            try {
+                const topicsResponse = await fetch('/topics');
+                const topics = await topicsResponse.json();
+    
+                const topicGrid = document.getElementById('topicGrid');
+                for (const topic of topics) {
+                    const articlesResponse = await fetch(`/newsletters/topic/${topic.id}`);
+                    const articles = await articlesResponse.json();
+    
+                    const section = document.createElement('section');
+                    section.className = 'topic-section';
+                    section.innerHTML = `
+                        <h2>${topic.name}</h2>
+                        <ul class="article-list">
+                            ${articles.map(article => `
+                                <li>
+                                    <h3>${article.title}</h3>
+                                    <p>${article.content.substring(0, 100)}...</p>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    `;
+                    topicGrid.appendChild(section);
+                }
+            } catch (error) {
+                console.error('Error fetching topics and articles:', error);
+            }
+        }
+
+        // Modal functionality
+        const modal = document.getElementById('subscribeModal');
+        const btn = document.getElementById('subscribeBtn');
+        const span = document.getElementsByClassName('close')[0];
+    
+        btn.onclick = function() {
+            modal.style.display = 'block';
+        }
+    
+        span.onclick = function() {
+            modal.style.display = 'none';
+        }
+    
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    
+    document.getElementById('subscribeForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('emailInput').value;
+    const selectedTopicIds = Array.from(document.querySelectorAll('input[name="topics"]:checked')).map(el => parseInt(el.value));
+    
+    console.log('Subscription attempt:', { email, topic_ids: selectedTopicIds });
+
+    try {
+        const response = await fetch('/subscriptions/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                topic_ids: selectedTopicIds
+            }),
+        });
+        
+        const data = await response.json();
+        console.log('Server response:', {
+            status: response.status,
+            statusText: response.statusText,
+            data: data
+        });
+
+        if (!response.ok) {
+            throw new Error(data.detail || 'Subscription failed');
+        }
+        
+        console.log('Subscription successful:', data);
+        modal.style.display = 'none';
+        alert('Thank you for subscribing!');
+    } catch (error) {
+        console.error('Subscription error:', error);
+        alert(`An error occurred: ${error.message}`);
+    }
+};
+        
+    
+        // Initialize the page
+        fetchTopicsAndArticles();
+    </script>
+</body>
+</html>

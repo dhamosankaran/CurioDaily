@@ -1,0 +1,17 @@
+-- Check subscriptions
+SELECT * FROM subscriptions ORDER BY id DESC LIMIT 5;
+
+-- Check subscription_topics junction table
+SELECT * FROM subscription_topics ORDER BY subscription_id DESC LIMIT 10;
+
+-- Check topics
+SELECT * FROM topics;
+
+-- Join query to see subscriptions with their topics
+SELECT s.id, s.email, array_agg(t.name) as topics
+FROM subscriptions s
+JOIN subscription_topics st ON s.id = st.subscription_id
+JOIN topics t ON st.topic_id = t.id
+GROUP BY s.id, s.email
+ORDER BY s.id DESC
+LIMIT 5;
