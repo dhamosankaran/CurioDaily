@@ -1,9 +1,9 @@
-from api.api import api_router
 import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
+from app.api.api import api_router
 from app.core.config import settings
 from app.db.base import Base
 from app.db.session import engine
@@ -85,4 +85,4 @@ async def log_requests(request: Request, call_next):
 if __name__ == "__main__":
     import uvicorn
     logger.info("Starting the application")
-    uvicorn.run(app, host="0.0.0.0", port=8010)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
