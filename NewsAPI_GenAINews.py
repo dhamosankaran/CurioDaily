@@ -234,7 +234,189 @@ Published at: {published_at}
         summary = self.generate_summary(article)
         return f"{formatted_article}\n\nSummarized Content for LinkedIn/Newsletter:\n{summary}\n"
 
-    
+    def generate_html_page(self, image_url, highlights, articles):
+        html_content = f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>AI News Highlights</title>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }}
+                .header {{
+                    text-align: center;
+                    margin-bottom: 20px;
+                }}
+                .header img {{
+                    max-width: 100%;
+                    height: auto;
+                }}
+                .highlights {{
+                    border: 2px solid #4CAF50;
+                    border-radius: 5px;
+                    padding: 20px;
+                    margin-bottom: 30px;
+                    background-color: #f0f8f0;
+                }}
+                .highlights h2 {{
+                    color: #4CAF50;
+                    margin-top: 0;
+                }}
+                .highlights ul {{
+                    list-style-type: none;
+                    padding-left: 0;
+                }}
+                .highlights li {{
+                    margin-bottom: 10px;
+                    padding-left: 20px;
+                    position: relative;
+                }}
+                .highlights li:before {{
+                    content: "🔹";
+                    position: absolute;
+                    left: 0;
+                }}
+                .featured-articles {{
+                    border: 2px solid #2196F3;
+                    border-radius: 5px;
+                    padding: 20px;
+                    background-color: #f0f8ff;
+                }}
+                .featured-articles h2 {{
+                    color: #2196F3;
+                    margin-top: 0;
+                }}
+                .article {{
+                    background-color: #ffffff;
+                    border-radius: 5px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                }}
+                .article h3 {{
+                    color: #2196F3;
+                    margin-top: 0;
+                }}
+                .summary-section {{
+                    margin-bottom: 15px;
+                }}
+                .summary-section h4 {{
+                    color: #e74c3c;
+                    margin-bottom: 5px;
+                }}
+                .key-takeaways {{
+                    list-style-type: none;
+                    padding-left: 0;
+                }}
+                .key-takeaways li:before {{
+                    content: "• ";
+                    color: #3498db;
+                }}
+                .deep-dive {{
+                    font-style: italic;
+                }}
+                .tags {{
+                    color: #7f8c8d;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <img src="{image_url}" alt="AI News Highlights">
+                <h1>Today's AI & Tech Highlights</h1>
+            </div>
+            
+            <div class="highlights">
+                <h2>🌟 Key Highlights</h2>
+                {self.format_highlights(highlights)}
+            </div>
+            
+            <div class="featured-articles">
+                <h2>📰 Featured Articles</h2>
+                {''.join(self.generate_article_html(article) for article in articles)}
+            </div>
+        </body>
+        </html>
+        """
+        return html_content
+
+    def format_highlights(self, highlights):
+        # Split the highlights into individual points
+        highlight_points = highlights.split('\n')
+        # Remove any empty strings and the separator line
+        highlight_points = [point.strip() for point in highlight_points if point.strip() and not point.startswith('=')]
+        
+        # Format the highlights as an unordered list
+        formatted_highlights = "<ul>\n"
+        for point in highlight_points:
+            if point.startswith('🌟'):  # Skip the title if it's there
+                continue
+            formatted_highlights += f"    <li>{point}</li>\n"
+        formatted_highlights += "</ul>"
+        
+        return formatted_highlights
+
+    def generate_article_html(self, article):
+        summary = self.generate_summary(article)
+        
+        # Parse the summary into sections
+        sections = summary.split('\n\n')
+        title = sections[0].strip('🔥 *')
+        innovation_spotlight = sections[1].replace('🚀 **Innovation Spotlight:**', '').strip()
+        key_takeaways = sections[2].replace('💡 **Key Takeaways:**', '').strip().split('\n')
+        impact_significance = sections[3].replace('🌍 **Impact & Significance:**', '').strip()
+        future_implications = sections[4].replace('🔮 **Future Implications:**', '').strip()
+        deep_dive = sections[5].replace('🔗 **Deep Dive:**', '').strip()
+        tags = sections[6].strip()
+
+        return f"""
+        <div class="article">
+            <h3>{article['title']}</h3>
+            
+            <div class="summary-section">
+                <h4>🔥 {title}</h4>
+            </div>
+            
+            <div class="summary-section">
+                <h4>🚀 Innovation Spotlight:</h4>
+                <p>{innovation_spotlight}</p>
+            </div>
+            
+            <div class="summary-section">
+                <h4>💡 Key Takeaways:</h4>
+                <ul class="key-takeaways">
+                    {''.join(f'<li>{takeaway.strip("• ")}</li>' for takeaway in key_takeaways)}
+                </ul>
+            </div>
+            
+            <div class="summary-section">
+                <h4>🌍 Impact & Significance:</h4>
+                <p>{impact_significance}</p>
+            </div>
+            
+            <div class="summary-section">
+                <h4>🔮 Future Implications:</h4>
+                <p>{future_implications}</p>
+            </div>
+            
+            <p class="deep-dive">🔗 Deep Dive: {deep_dive}</p>
+            
+            <p class="tags">{tags}</p>
+        </div>
+        """
+
+    def save_html_page(self, html_content, filename="ai_news_highlights.html"):
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(html_content)
+        logger.info(f"HTML page saved as {filename}")
 
 
 def main():
@@ -271,21 +453,22 @@ def main():
         # Rephrase highlights
         logger.info("Rephrasing highlights...")
         rephrased_highlights = fetcher.rephrase_highlights(highlights)
-        print(rephrased_highlights)
 
         # Generate image based on rephrased highlights
         logger.info("Generating image based on highlights...")
         image_prompt = f"Create an image that represents the following AI and tech news highlights:\n\n{rephrased_highlights}"
         image_url = fetcher.generate_image(image_prompt)
-        print(f"Generated image URL: {image_url}")
 
-        logger.info(f"Found {len(all_articles)} unique articles:")
-        for index, article in enumerate(all_articles, start=1):
-            print(fetcher.format_article_with_summary(article, index))
+        # Generate HTML page
+        logger.info("Generating HTML page...")
+        html_content = fetcher.generate_html_page(image_url, rephrased_highlights, all_articles[:5])  # Use top 5 articles
+        fetcher.save_html_page(html_content)
+
+        logger.info(f"Found {len(all_articles)} unique articles. HTML page generated with top 5 articles.")
     else:
         logger.info("No articles found for the given criteria.")
 
-    logger.info("News fetching, summarization, and image generation complete.")
+    logger.info("News fetching, summarization, and HTML generation complete.")
 
 if __name__ == "__main__":
     main()
