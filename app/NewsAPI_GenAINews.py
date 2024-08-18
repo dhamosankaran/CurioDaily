@@ -153,7 +153,7 @@ Published at: {published_at}
         {highlights}
 
         Generate a title in the format: "AI [Theme]: [Specific Detail]"
-        For example: "AI Breakthroughs: Language Models Achieve Human-Level Understanding"
+        For example: AI Breakthroughs: Language Models Achieve Human-Level Understanding
         """
 
         try:
@@ -252,7 +252,7 @@ Published at: {published_at}
 
         try:
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "You are a tech-savvy AI assistant that creates engaging summaries of AI and technology news for social media and newsletters."},
                     {"role": "user", "content": prompt}
@@ -292,10 +292,11 @@ Published at: {published_at}
                     --background-color: #f5f5f5;
                     --text-color: #212121;
                     --accent-color: #ff4081;
+                    --highlight-box-color: #e8eaf6;
                 }}
                 body {{
                     font-family: 'Roboto', sans-serif;
-                    line-height: 1.6;
+                    line-height: 1.4;
                     color: var(--text-color);
                     background-color: var(--background-color);
                     margin: 0;
@@ -311,134 +312,107 @@ Published at: {published_at}
                     color: #fff;
                     padding: 10px 0;
                     text-align: center;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    height: 90px;
-                }}
-                .header-content {{
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 100%;
-                }}
-                .header img {{
-                    height: 70px;
-                    width: auto;
-                    margin-right: 20px;
-                    border-radius: 5px;
                 }}
                 .header h1 {{
                     margin: 0;
                     font-size: 1.8em;
                     font-weight: 700;
                 }}
-                .highlights, .featured-articles {{
-                    background-color: #fff;
+                .highlights {{
+                    background-color: var(--highlight-box-color);
                     border-radius: 10px;
-                    padding: 20px;
+                    padding: 15px;
                     margin-top: 20px;
                     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                    width: 100%;
                 }}
-                .highlights h2, .featured-articles h2 {{
+                .highlights h2 {{
                     color: var(--secondary-color);
-                    font-size: 1.6em;
-                    margin-top: 0;
+                    font-size: 1.4em;
+                    margin: 0 0 10px 0;
                     text-align: center;
                 }}
                 .highlights ul {{
                     list-style-type: none;
                     padding: 0;
+                    margin: 0;
                 }}
                 .highlights li {{
-                    margin-bottom: 15px;
-                    padding: 15px;
-                    background-color: var(--background-color);
-                    border-radius: 5px;
-                    transition: transform 0.3s ease;
+                    padding: 8px 10px;
+                    background-color: #fff;
+                    border-bottom: 1px solid #e0e0e0;
                 }}
-                .highlights li:hover {{
-                    transform: translateY(-5px);
+                .highlights li:last-child {{
+                    border-bottom: none;
                 }}
                 .article {{
                     background-color: #fff;
                     border-radius: 10px;
-                    padding: 20px;
-                    margin-bottom: 30px;
+                    padding: 15px;
+                    margin-top: 20px;
                     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                    transition: transform 0.3s ease;
                 }}
-                .article:hover {{
-                    transform: translateY(-5px);
-                }}
-                .summary-section {{
-                    margin-bottom: 20px;
-                }}
-                .summary-section h3 {{
+                .article h3 {{
                     color: var(--secondary-color);
                     font-size: 1.3em;
-                    margin-bottom: 10px;
+                    margin: 0 0 10px 0;
                 }}
-                .summary-section h4 {{
+                .article h4 {{
                     color: var(--accent-color);
                     font-size: 1.1em;
-                    margin-bottom: 5px;
+                    margin: 15px 0 5px 0;
                 }}
                 .key-takeaways {{
-                    list-style-type: none;
-                    padding-left: 0;
-                }}
-                .key-takeaways li {{
-                    margin-bottom: 10px;
                     padding-left: 20px;
-                    position: relative;
                 }}
-                .key-takeaways li:before {{
-                    content: "•";
-                    color: var(--secondary-color);
-                    position: absolute;
-                    left: 0;
-                    font-weight: bold;
-                }}
-                .deep-dive {{
-                    text-align: right;
-                    margin-top: 15px;
-                }}
-                .deep-dive a {{
+                .read-more {{
+                    display: inline-block;
+                    margin-top: 10px;
                     color: var(--secondary-color);
                     text-decoration: none;
                     font-weight: bold;
-                    transition: color 0.3s ease;
                 }}
-                .deep-dive a:hover {{
-                    color: var(--accent-color);
+                .modal {{
+                    display: none;
+                    position: fixed;
+                    z-index: 1;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    height: 100%;
+                    overflow: auto;
+                    background-color: rgba(0,0,0,0.4);
                 }}
-                @media (max-width: 600px) {{
-                    .container {{
-                        padding: 10px;
-                    }}
-                    .header {{
-                        height: 70px;
-                    }}
-                    .header img {{
-                        height: 50px;
-                    }}
-                    .header h1 {{
-                        font-size: 1.5em;
-                    }}
-                    .highlights h2, .featured-articles h2 {{
-                        font-size: 1.4em;
-                    }}
+                .modal-content {{
+                    background-color: #fefefe;
+                    margin: 15% auto;
+                    padding: 20px;
+                    border: 1px solid #888;
+                    width: 80%;
+                    max-width: 800px;
+                }}
+                .close {{
+                    color: #aaa;
+                    float: right;
+                    font-size: 28px;
+                    font-weight: bold;
+                    cursor: pointer;
+                }}
+                .close:hover,
+                .close:focus {{
+                    color: #000;
+                    text-decoration: none;
+                    cursor: pointer;
+                }}
+                #embedded-content {{
+                    width: 100%;
+                    height: 600px;
+                    border: none;
                 }}
             </style>
         </head>
         <body>
             <header class="header">
-                <div class="header-content">
-                    <img src="static/AI_updates.jpeg" alt="AI News Highlights">
-                    <h1>{dynamic_title}</h1>
-                </div>
+                <h1>{dynamic_title}</h1>
             </header>
             
             <main class="container">
@@ -448,10 +422,39 @@ Published at: {published_at}
                 </section>
                 
                 <section class="featured-articles">
-                    <h2>Featured AI Innovations</h2>
                     {''.join(self.generate_article_html(article) for article in articles)}
                 </section>
             </main>
+
+            <div id="modal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <iframe id="embedded-content"></iframe>
+                </div>
+            </div>
+
+            <script>
+                var modal = document.getElementById('modal');
+                var embeddedContent = document.getElementById('embedded-content');
+                var span = document.getElementsByClassName('close')[0];
+
+                function openModal(url) {{
+                    embeddedContent.src = url;
+                    modal.style.display = 'block';
+                }}
+
+                span.onclick = function() {{
+                    modal.style.display = 'none';
+                    embeddedContent.src = '';
+                }}
+
+                window.onclick = function(event) {{
+                    if (event.target == modal) {{
+                        modal.style.display = 'none';
+                        embeddedContent.src = '';
+                    }}
+                }}
+            </script>
         </body>
         </html>
         """
@@ -465,7 +468,6 @@ Published at: {published_at}
         formatted_highlights += "</ul>"
         return formatted_highlights
 
-
     def generate_article_html(self, article):
         summary = self.generate_summary(article)
         
@@ -479,82 +481,21 @@ Published at: {published_at}
 
         return f"""
         <article class="article">
-            <div class="summary-section">
-                <h3>{title}</h3>
-            </div>
-            
-            <div class="summary-section">
-                <h4>🚀 Innovation Spotlight</h4>
-                <p>{innovation_spotlight}</p>
-            </div>
-            
-            <div class="summary-section">
-                <h4>💡 Key Takeaways</h4>
-                <ul class="key-takeaways">
-                    {''.join(f'<li>{takeaway.strip("• ")}</li>' for takeaway in key_takeaways)}
-                </ul>
-            </div>
-            
-            <div class="summary-section">
-                <h4>🌍 Impact & Significance</h4>
-                <p>{impact_significance}</p>
-            </div>
-            
-            <div class="summary-section">
-                <h4>🔮 Future Implications</h4>
-                <p>{future_implications}</p>
-            </div>
-            
-            <div class="deep-dive">
-                <a href="{deep_dive}" target="_blank">Read Full Article</a>
-            </div>
+            <h3>{title}</h3>
+            <p>{innovation_spotlight}</p>
+            <h4>Key Takeaways</h4>
+            <ul class="key-takeaways">
+                {''.join(f'<li>{takeaway.strip("• ")}</li>' for takeaway in key_takeaways)}
+            </ul>
+            <h4>Impact & Significance</h4>
+            <p>{impact_significance}</p>
+            <h4>Future Implications</h4>
+            <p>{future_implications}</p>
+            <a href="javascript:void(0);" onclick="openModal('{deep_dive}')" class="read-more">Read Full Article</a>
         </article>
         """
 
-    def generate_article_html(self, article):
-        summary = self.generate_summary(article)
-        
-        sections = summary.split('\n\n')
-        title = sections[0].strip('🔥 *')
-        innovation_spotlight = sections[1].replace('🚀 **Innovation Spotlight:**', '').strip()
-        key_takeaways = sections[2].replace('💡 **Key Takeaways:**', '').strip().split('\n')
-        impact_significance = sections[3].replace('🌍 **Impact & Significance:**', '').strip()
-        future_implications = sections[4].replace('🔮 **Future Implications:**', '').strip()
-        deep_dive = sections[5].replace('🔗 **Deep Dive:**', '').strip()
-
-        return f"""
-        <article class="article">
-            <div class="summary-section">
-                <h3>{title}</h3>
-            </div>
-            
-            <div class="summary-section">
-                <h4>🚀 Innovation Spotlight</h4>
-                <p>{innovation_spotlight}</p>
-            </div>
-            
-            <div class="summary-section">
-                <h4>💡 Key Takeaways</h4>
-                <ul class="key-takeaways">
-                    {''.join(f'<li>{takeaway.strip("• ")}</li>' for takeaway in key_takeaways)}
-                </ul>
-            </div>
-            
-            <div class="summary-section">
-                <h4>🌍 Impact & Significance</h4>
-                <p>{impact_significance}</p>
-            </div>
-            
-            <div class="summary-section">
-                <h4>🔮 Future Implications</h4>
-                <p>{future_implications}</p>
-            </div>
-            
-            <div class="deep-dive">
-                <a href="{deep_dive}" target="_blank">Read Full Article</a>
-            </div>
-        </article>
-        """
+ 
 
     def save_html_page(self, html_content, filename="ai_news_highlights.html"):
         with open(filename, "w", encoding="utf-8") as f:
@@ -604,15 +545,15 @@ def main():
 
     # Initialize articles lists
     popular_articles = []
-    relevant_articles = []
+    #relevant_articles = []
 
     # Fetch popular articles
     logger.info(f"Fetching top 10 popular AI-related news articles from {yesterday} to {today}...")
     popular_articles = fetcher.fetch_news(keywords, yesterday, today, sort_by='popularity')
 
     # Fetch relevant articles
-    logger.info(f"Fetching top 10 relevant AI-related news articles from {yesterday} to {today}...")
-    relevant_articles = fetcher.fetch_news(keywords, yesterday, today, sort_by='relevancy')
+    #logger.info(f"Fetching top 10 relevant AI-related news articles from {yesterday} to {today}...")
+    #relevant_articles = fetcher.fetch_news(keywords, yesterday, today, sort_by='relevancy')
 
     # Combine and deduplicate articles
     all_articles = list({article['url']: article for article in popular_articles + relevant_articles}.values())
