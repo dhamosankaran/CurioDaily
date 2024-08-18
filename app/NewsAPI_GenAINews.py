@@ -5,10 +5,16 @@ from dotenv import load_dotenv
 import logging
 from textwrap import wrap
 from openai import OpenAI
+import psycopg2
+from psycopg2 import sql
+import re
+from collections import Counter
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+
 
 # Load environment variables
 load_dotenv()
@@ -32,6 +38,9 @@ class AINewsFetcher:
             'Amazon', 'Boston Dynamics', 'Tesla', 'Google'
         ]
         #openai.api_key = self.openai_api_key
+        self.db_url = os.getenv('DATABASE_URL')
+        if not self.db_url:
+            raise ValueError("DATABASE_URL not found in environment variables")
 
     def fetch_news(self, keywords, from_date, to_date, language='en', sort_by='relevancy'):
         all_keywords = keywords + self.preferred_entities
@@ -128,12 +137,41 @@ Published at: {published_at}
 
 
     def generate_highlights(self, articles):
-        highlights = "🌟 **Today's AI & Tech Highlights** 🌟\n\n"
+        highlights = ""
         for index, article in enumerate(articles, start=1):
             title = article.get('title', 'Untitled Article')
-            highlights += f"{index}. {title}\n"
-        highlights += "\n" + "=" * 50 + "\n"
-        return highlights
+            highlights += f"{index}. {title[:77]}{'...' if len(title) > 80 else ''}\n"
+        return highlights.strip()
+
+    def generate_dynamic_title(self, highlights):
+        prompt = f"""
+        Based on the following AI news highlights, generate a catchy and informative title 
+        that summarizes the main themes or most significant developments. The title should 
+        be engaging and specific to AI advancements mentioned in the highlights.
+
+        Highlights:
+        {highlights}
+
+        Generate a title in the format: "AI [Theme]: [Specific Detail]"
+        For example: "AI Breakthroughs: Language Models Achieve Human-Level Understanding"
+        """
+
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are an AI assistant that creates engaging titles for AI news summaries."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=100,
+                n=1,
+                stop=None,
+                temperature=0.7,
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            logger.error(f"Error generating title with OpenAI: {e}")
+            return "Today's AI Highlights"
 
     def rephrase_highlights(self, highlights):
         prompt = f"""
@@ -148,7 +186,7 @@ Published at: {published_at}
 
         try:
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "You are an AI assistant that rephrases news highlights to make them more impactful and engaging."},
                     {"role": "user", "content": prompt}
@@ -165,9 +203,11 @@ Published at: {published_at}
 
     def generate_image(self, prompt, size="1024x1024", quality="standard"):
         try:
+            # Remove any special characters from the prompt
+            clean_prompt = ''.join(e for e in prompt if e.isalnum() or e.isspace())
             response = client.images.generate(
                 model="dall-e-3",
-                prompt=prompt,
+                prompt=clean_prompt,
                 size=size,
                 quality=quality,
                 n=1,
@@ -204,8 +244,6 @@ Published at: {published_at}
 
         🔗 **Deep Dive:** {url}
 
-        #AI #TechNews #Innovation
-
         Use the article's content to fill in the brackets. Be concise, informative, and engaging. Use relevant emojis where appropriate.
 
         Article Title: {title}
@@ -214,7 +252,7 @@ Published at: {published_at}
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a tech-savvy AI assistant that creates engaging summaries of AI and technology news for social media and newsletters."},
                     {"role": "user", "content": prompt}
@@ -228,146 +266,209 @@ Published at: {published_at}
         except Exception as e:
             logger.error(f"Error generating summary with OpenAI: {e}")
             return "Error generating summary."
+            logger.error(f"Error generating summary with OpenAI: {e}")
+            return "Error generating summary."
 
     def format_article_with_summary(self, article, index):
         formatted_article = self.format_article(article, index)
         summary = self.generate_summary(article)
         return f"{formatted_article}\n\nSummarized Content for LinkedIn/Newsletter:\n{summary}\n"
 
-    def generate_html_page(self, image_url, highlights, articles):
+
+    def generate_html_page(self, highlights, articles):
+        dynamic_title = self.generate_dynamic_title(highlights)
         html_content = f"""
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>AI News Highlights</title>
+            <title>{dynamic_title}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
             <style>
+                :root {{
+                    --primary-color: #1a237e;
+                    --secondary-color: #3f51b5;
+                    --background-color: #f5f5f5;
+                    --text-color: #212121;
+                    --accent-color: #ff4081;
+                }}
                 body {{
-                    font-family: Arial, sans-serif;
+                    font-family: 'Roboto', sans-serif;
                     line-height: 1.6;
-                    color: #333;
-                    max-width: 800px;
+                    color: var(--text-color);
+                    background-color: var(--background-color);
+                    margin: 0;
+                    padding: 0;
+                }}
+                .container {{
+                    max-width: 1000px;
                     margin: 0 auto;
                     padding: 20px;
                 }}
                 .header {{
+                    background-color: var(--primary-color);
+                    color: #fff;
+                    padding: 10px 0;
                     text-align: center;
-                    margin-bottom: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 90px;
+                }}
+                .header-content {{
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
                 }}
                 .header img {{
-                    max-width: 100%;
-                    height: auto;
-                }}
-                .highlights {{
-                    border: 2px solid #4CAF50;
+                    height: 70px;
+                    width: auto;
+                    margin-right: 20px;
                     border-radius: 5px;
-                    padding: 20px;
-                    margin-bottom: 30px;
-                    background-color: #f0f8f0;
                 }}
-                .highlights h2 {{
-                    color: #4CAF50;
+                .header h1 {{
+                    margin: 0;
+                    font-size: 1.8em;
+                    font-weight: 700;
+                }}
+                .highlights, .featured-articles {{
+                    background-color: #fff;
+                    border-radius: 10px;
+                    padding: 20px;
+                    margin-top: 20px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    width: 100%;
+                }}
+                .highlights h2, .featured-articles h2 {{
+                    color: var(--secondary-color);
+                    font-size: 1.6em;
                     margin-top: 0;
+                    text-align: center;
                 }}
                 .highlights ul {{
                     list-style-type: none;
-                    padding-left: 0;
+                    padding: 0;
                 }}
                 .highlights li {{
-                    margin-bottom: 10px;
-                    padding-left: 20px;
-                    position: relative;
-                }}
-                .highlights li:before {{
-                    content: "🔹";
-                    position: absolute;
-                    left: 0;
-                }}
-                .featured-articles {{
-                    border: 2px solid #2196F3;
+                    margin-bottom: 15px;
+                    padding: 15px;
+                    background-color: var(--background-color);
                     border-radius: 5px;
-                    padding: 20px;
-                    background-color: #f0f8ff;
+                    transition: transform 0.3s ease;
                 }}
-                .featured-articles h2 {{
-                    color: #2196F3;
-                    margin-top: 0;
+                .highlights li:hover {{
+                    transform: translateY(-5px);
                 }}
                 .article {{
-                    background-color: #ffffff;
-                    border-radius: 5px;
+                    background-color: #fff;
+                    border-radius: 10px;
                     padding: 20px;
-                    margin-bottom: 20px;
-                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                    margin-bottom: 30px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    transition: transform 0.3s ease;
                 }}
-                .article h3 {{
-                    color: #2196F3;
-                    margin-top: 0;
+                .article:hover {{
+                    transform: translateY(-5px);
                 }}
                 .summary-section {{
-                    margin-bottom: 15px;
+                    margin-bottom: 20px;
+                }}
+                .summary-section h3 {{
+                    color: var(--secondary-color);
+                    font-size: 1.3em;
+                    margin-bottom: 10px;
                 }}
                 .summary-section h4 {{
-                    color: #e74c3c;
+                    color: var(--accent-color);
+                    font-size: 1.1em;
                     margin-bottom: 5px;
                 }}
                 .key-takeaways {{
                     list-style-type: none;
                     padding-left: 0;
                 }}
+                .key-takeaways li {{
+                    margin-bottom: 10px;
+                    padding-left: 20px;
+                    position: relative;
+                }}
                 .key-takeaways li:before {{
-                    content: "• ";
-                    color: #3498db;
+                    content: "•";
+                    color: var(--secondary-color);
+                    position: absolute;
+                    left: 0;
+                    font-weight: bold;
                 }}
                 .deep-dive {{
-                    font-style: italic;
+                    text-align: right;
+                    margin-top: 15px;
                 }}
-                .tags {{
-                    color: #7f8c8d;
+                .deep-dive a {{
+                    color: var(--secondary-color);
+                    text-decoration: none;
+                    font-weight: bold;
+                    transition: color 0.3s ease;
+                }}
+                .deep-dive a:hover {{
+                    color: var(--accent-color);
+                }}
+                @media (max-width: 600px) {{
+                    .container {{
+                        padding: 10px;
+                    }}
+                    .header {{
+                        height: 70px;
+                    }}
+                    .header img {{
+                        height: 50px;
+                    }}
+                    .header h1 {{
+                        font-size: 1.5em;
+                    }}
+                    .highlights h2, .featured-articles h2 {{
+                        font-size: 1.4em;
+                    }}
                 }}
             </style>
         </head>
         <body>
-            <div class="header">
-                <img src="{image_url}" alt="AI News Highlights">
-                <h1>Today's AI & Tech Highlights</h1>
-            </div>
+            <header class="header">
+                <div class="header-content">
+                    <img src="static/AI_updates.jpeg" alt="AI News Highlights">
+                    <h1>{dynamic_title}</h1>
+                </div>
+            </header>
             
-            <div class="highlights">
-                <h2>🌟 Key Highlights</h2>
-                {self.format_highlights(highlights)}
-            </div>
-            
-            <div class="featured-articles">
-                <h2>📰 Featured Articles</h2>
-                {''.join(self.generate_article_html(article) for article in articles)}
-            </div>
+            <main class="container">
+                <section class="highlights">
+                    <h2>Key AI Highlights</h2>
+                    {self.format_highlights(highlights)}
+                </section>
+                
+                <section class="featured-articles">
+                    <h2>Featured AI Innovations</h2>
+                    {''.join(self.generate_article_html(article) for article in articles)}
+                </section>
+            </main>
         </body>
         </html>
         """
         return html_content
 
     def format_highlights(self, highlights):
-        # Split the highlights into individual points
         highlight_points = highlights.split('\n')
-        # Remove any empty strings and the separator line
-        highlight_points = [point.strip() for point in highlight_points if point.strip() and not point.startswith('=')]
-        
-        # Format the highlights as an unordered list
         formatted_highlights = "<ul>\n"
         for point in highlight_points:
-            if point.startswith('🌟'):  # Skip the title if it's there
-                continue
             formatted_highlights += f"    <li>{point}</li>\n"
         formatted_highlights += "</ul>"
-        
         return formatted_highlights
+
 
     def generate_article_html(self, article):
         summary = self.generate_summary(article)
         
-        # Parse the summary into sections
         sections = summary.split('\n\n')
         title = sections[0].strip('🔥 *')
         innovation_spotlight = sections[1].replace('🚀 **Innovation Spotlight:**', '').strip()
@@ -375,48 +476,118 @@ Published at: {published_at}
         impact_significance = sections[3].replace('🌍 **Impact & Significance:**', '').strip()
         future_implications = sections[4].replace('🔮 **Future Implications:**', '').strip()
         deep_dive = sections[5].replace('🔗 **Deep Dive:**', '').strip()
-        tags = sections[6].strip()
 
         return f"""
-        <div class="article">
-            <h3>{article['title']}</h3>
-            
+        <article class="article">
             <div class="summary-section">
-                <h4>🔥 {title}</h4>
+                <h3>{title}</h3>
             </div>
             
             <div class="summary-section">
-                <h4>🚀 Innovation Spotlight:</h4>
+                <h4>🚀 Innovation Spotlight</h4>
                 <p>{innovation_spotlight}</p>
             </div>
             
             <div class="summary-section">
-                <h4>💡 Key Takeaways:</h4>
+                <h4>💡 Key Takeaways</h4>
                 <ul class="key-takeaways">
                     {''.join(f'<li>{takeaway.strip("• ")}</li>' for takeaway in key_takeaways)}
                 </ul>
             </div>
             
             <div class="summary-section">
-                <h4>🌍 Impact & Significance:</h4>
+                <h4>🌍 Impact & Significance</h4>
                 <p>{impact_significance}</p>
             </div>
             
             <div class="summary-section">
-                <h4>🔮 Future Implications:</h4>
+                <h4>🔮 Future Implications</h4>
                 <p>{future_implications}</p>
             </div>
             
-            <p class="deep-dive">🔗 Deep Dive: {deep_dive}</p>
+            <div class="deep-dive">
+                <a href="{deep_dive}" target="_blank">Read Full Article</a>
+            </div>
+        </article>
+        """
+
+    def generate_article_html(self, article):
+        summary = self.generate_summary(article)
+        
+        sections = summary.split('\n\n')
+        title = sections[0].strip('🔥 *')
+        innovation_spotlight = sections[1].replace('🚀 **Innovation Spotlight:**', '').strip()
+        key_takeaways = sections[2].replace('💡 **Key Takeaways:**', '').strip().split('\n')
+        impact_significance = sections[3].replace('🌍 **Impact & Significance:**', '').strip()
+        future_implications = sections[4].replace('🔮 **Future Implications:**', '').strip()
+        deep_dive = sections[5].replace('🔗 **Deep Dive:**', '').strip()
+
+        return f"""
+        <article class="article">
+            <div class="summary-section">
+                <h3>{title}</h3>
+            </div>
             
-            <p class="tags">{tags}</p>
-        </div>
+            <div class="summary-section">
+                <h4>🚀 Innovation Spotlight</h4>
+                <p>{innovation_spotlight}</p>
+            </div>
+            
+            <div class="summary-section">
+                <h4>💡 Key Takeaways</h4>
+                <ul class="key-takeaways">
+                    {''.join(f'<li>{takeaway.strip("• ")}</li>' for takeaway in key_takeaways)}
+                </ul>
+            </div>
+            
+            <div class="summary-section">
+                <h4>🌍 Impact & Significance</h4>
+                <p>{impact_significance}</p>
+            </div>
+            
+            <div class="summary-section">
+                <h4>🔮 Future Implications</h4>
+                <p>{future_implications}</p>
+            </div>
+            
+            <div class="deep-dive">
+                <a href="{deep_dive}" target="_blank">Read Full Article</a>
+            </div>
+        </article>
         """
 
     def save_html_page(self, html_content, filename="ai_news_highlights.html"):
         with open(filename, "w", encoding="utf-8") as f:
             f.write(html_content)
         logger.info(f"HTML page saved as {filename}")
+    
+    def store_newsletter(self, title, content):
+        """
+        Store the newsletter information in the database.
+        
+        Args:
+        title (str): The title of the newsletter.
+        content (str): The HTML content of the newsletter.
+        
+        Returns:
+        int: The ID of the inserted row, or None if the insertion failed.
+        """
+        try:
+            with psycopg2.connect(self.db_url) as conn:
+                with conn.cursor() as cur:
+                    insert_query = sql.SQL("""
+                        INSERT INTO newsletters (title, content, topic_id)
+                        VALUES (%s, %s, %s)
+                        RETURNING id
+                    """)
+                    cur.execute(insert_query, (title, content, 1))
+                    inserted_id = cur.fetchone()[0]
+                    conn.commit()
+                    logger.info(f"Newsletter stored in database with ID: {inserted_id}")
+                    return inserted_id
+        except Exception as e:
+            logger.error(f"Error storing newsletter in database: {e}")
+            return None
 
 
 def main():
@@ -450,25 +621,35 @@ def main():
         # Generate highlights
         highlights = fetcher.generate_highlights(all_articles)
         
-        # Rephrase highlights
-        logger.info("Rephrasing highlights...")
-        rephrased_highlights = fetcher.rephrase_highlights(highlights)
+        # Generate image based on highlights
+        #logger.info("Generating image based on highlights...")
+        #image_prompt = f"Create an abstract image representing AI news highlights: {highlights}"
+        #image_url = fetcher.generate_image(image_prompt)
 
-        # Generate image based on rephrased highlights
-        logger.info("Generating image based on highlights...")
-        image_prompt = f"Create an image that represents the following AI and tech news highlights:\n\n{rephrased_highlights}"
-        image_url = fetcher.generate_image(image_prompt)
-
-        # Generate HTML page
+        # Generate HTML page with dynamic title
         logger.info("Generating HTML page...")
-        html_content = fetcher.generate_html_page(image_url, rephrased_highlights, all_articles[:5])  # Use top 5 articles
+        html_content = fetcher.generate_html_page(highlights, all_articles[:5])  # Use top 5 articles
+        
+        # Extract dynamic title for database storage
+        dynamic_title = fetcher.generate_dynamic_title(highlights)
+        
+        # Store newsletter in database
+        logger.info("Storing newsletter in database...")
+        inserted_id = fetcher.store_newsletter(dynamic_title, html_content)
+        if inserted_id:
+            logger.info(f"Newsletter stored successfully with ID: {inserted_id}")
+        else:
+            logger.error("Failed to store newsletter in database")
+
         fetcher.save_html_page(html_content)
 
-        logger.info(f"Found {len(all_articles)} unique articles. HTML page generated with top 5 articles.")
+        logger.info(f"Found {len(all_articles)} unique articles. HTML page generated with top 5 articles and stored in database.")
     else:
         logger.info("No articles found for the given criteria.")
 
-    logger.info("News fetching, summarization, and HTML generation complete.")
+    logger.info("AI news fetching, summarization, HTML generation, and database storage complete.")
+
+
 
 if __name__ == "__main__":
     main()
