@@ -71,7 +71,7 @@ class AINewsFetcher:
     def filter_and_sort_articles(self, articles):
         unique_articles = self.remove_duplicates(articles)
         sorted_articles = self.sort_articles_by_preference(unique_articles)
-        return sorted_articles[:2]
+        return sorted_articles[:6]
 
     def remove_duplicates(self, articles):
         unique_articles = []
@@ -201,22 +201,6 @@ Published at: {published_at}
             logger.error(f"Error rephrasing highlights with OpenAI: {e}")
             return highlights  # Return original highlights if there's an error
 
-    def generate_image(self, prompt, size="1024x1024", quality="standard"):
-        try:
-            # Remove any special characters from the prompt
-            clean_prompt = ''.join(e for e in prompt if e.isalnum() or e.isspace())
-            response = client.images.generate(
-                model="dall-e-3",
-                prompt=clean_prompt,
-                size=size,
-                quality=quality,
-                n=1,
-            )
-            image_url = response.data[0].url
-            return image_url
-        except Exception as e:
-            logger.error(f"Error generating image: {e}")
-            return f"An error occurred: {e}"
 
     def generate_summary(self, article):
         title = article.get('title', 'No title available')
@@ -545,7 +529,7 @@ def main():
 
     # Initialize articles lists
     popular_articles = []
-    #relevant_articles = []
+    relevant_articles = []
 
     # Fetch popular articles
     logger.info(f"Fetching top 10 popular AI-related news articles from {yesterday} to {today}...")
@@ -557,6 +541,8 @@ def main():
 
     # Combine and deduplicate articles
     all_articles = list({article['url']: article for article in popular_articles + relevant_articles}.values())
+    all_articles = list({article['url']: article for article in popular_articles}.values())
+
 
     if all_articles:
         # Generate highlights
@@ -569,7 +555,7 @@ def main():
 
         # Generate HTML page with dynamic title
         logger.info("Generating HTML page...")
-        html_content = fetcher.generate_html_page(highlights, all_articles[:5])  # Use top 5 articles
+        html_content = fetcher.generate_html_page(highlights, all_articles[:6])  # Use top 5 articles
         
         # Extract dynamic title for database storage
         dynamic_title = fetcher.generate_dynamic_title(highlights)
