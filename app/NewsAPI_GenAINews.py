@@ -7,14 +7,10 @@ from textwrap import wrap
 from openai import OpenAI
 import psycopg2
 from psycopg2 import sql
-import re
-from collections import Counter
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-
 
 # Load environment variables
 load_dotenv()
@@ -23,21 +19,14 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 class AINewsFetcher:
     def __init__(self):
         self.news_api_key = os.getenv('NEWS_API_KEY')
-        #self.openai_api_key = os.getenv('OPENAI_API_KEY')
-        # Initialize the client with your API key
-        
-        
         if not self.news_api_key:
             raise ValueError("NEWS_API_KEY not found in environment variables")
-        #if not client:
-            #raise ValueError("OPENAI_API_KEY not found in environment variables")
         self.base_url = "https://newsapi.org/v2/everything"
         self.preferred_entities = [
             'OpenAI', 'DeepMind', 'Microsoft', 'MIT', 'Mistral', 
             'Anthropic', 'Meta', 'IBM', 'NVIDIA', 'Intel', 'Apple', 
             'Amazon', 'Boston Dynamics', 'Tesla', 'Google'
         ]
-        #openai.api_key = self.openai_api_key
         self.db_url = os.getenv('DATABASE_URL')
         if not self.db_url:
             raise ValueError("DATABASE_URL not found in environment variables")
@@ -71,7 +60,7 @@ class AINewsFetcher:
     def filter_and_sort_articles(self, articles):
         unique_articles = self.remove_duplicates(articles)
         sorted_articles = self.sort_articles_by_preference(unique_articles)
-        return sorted_articles[:6]
+        return sorted_articles[:6]  # Return top 6 articles for 3x2 grid
 
     def remove_duplicates(self, articles):
         unique_articles = []
@@ -111,31 +100,6 @@ class AINewsFetcher:
 
         return sorted(articles, key=preference_score, reverse=True)
 
-    @staticmethod
-    def format_article(article, index):
-        title = article.get('title', 'No title available')
-        description = article.get('description', 'No description available.')
-        source = article['source'].get('name', 'Unknown source')
-        url = article.get('url', 'No URL available')
-        published_at = article.get('publishedAt', 'Unknown publication date')
-        if published_at != 'Unknown publication date':
-            published_at = datetime.fromisoformat(published_at.replace('Z', '+00:00')).strftime('%Y-%m-%d %H:%M:%S UTC')
-
-        formatted_article = f"""
-{'-'*100}
-{index}. {title}
-
-Description:
-{os.linesep.join(wrap(description, width=200))}
-
-Source: {source}
-URL: {url}
-Published at: {published_at}
-{'-'*100}
-"""
-        return formatted_article
-
-
     def generate_highlights(self, articles):
         highlights = ""
         for index, article in enumerate(articles, start=1):
@@ -173,35 +137,6 @@ Published at: {published_at}
             logger.error(f"Error generating title with OpenAI: {e}")
             return "Today's AI Highlights"
 
-    def rephrase_highlights(self, highlights):
-        prompt = f"""
-        Rephrase the following AI and tech news highlights to make them more impactful and engaging. 
-        Maintain the numbering and overall structure, but make each highlight more compelling:
-
-        {highlights}
-
-        Focus on the most groundbreaking or significant aspects of each highlight. Use powerful language 
-        and emphasize the potential impact or innovation of each item.
-        """
-
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "You are an AI assistant that rephrases news highlights to make them more impactful and engaging."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=1000,
-                n=1,
-                stop=None,
-                temperature=0.7,
-            )
-            return response.choices[0].message.content.strip()
-        except Exception as e:
-            logger.error(f"Error rephrasing highlights with OpenAI: {e}")
-            return highlights  # Return original highlights if there's an error
-
-
     def generate_summary(self, article):
         title = article.get('title', 'No title available')
         description = article.get('description', 'No description available')
@@ -213,18 +148,11 @@ Published at: {published_at}
         🔥 **[CATCHY TITLE]: [Subtitle]**
 
         🚀 **Innovation Spotlight:**
-        [2-3 sentences highlighting the key innovation, development, or news]
+        [1-2 sentences highlighting the key innovation, development, or news]
 
         💡 **Key Takeaways:**
         • [First key point]
         • [Second key point]
-        • [Third key point]
-
-        🌍 **Impact & Significance:**
-        [2-3 sentences on why this matters and its potential impact]
-
-        🔮 **Future Implications:**
-        [1-2 sentences on potential future developments or applications]
 
         🔗 **Deep Dive:** {url}
 
@@ -241,7 +169,7 @@ Published at: {published_at}
                     {"role": "system", "content": "You are a tech-savvy AI assistant that creates engaging summaries of AI and technology news for social media and newsletters."},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=500,
+                max_tokens=300,
                 n=1,
                 stop=None,
                 temperature=0.7,
@@ -250,14 +178,6 @@ Published at: {published_at}
         except Exception as e:
             logger.error(f"Error generating summary with OpenAI: {e}")
             return "Error generating summary."
-            logger.error(f"Error generating summary with OpenAI: {e}")
-            return "Error generating summary."
-
-    def format_article_with_summary(self, article, index):
-        formatted_article = self.format_article(article, index)
-        summary = self.generate_summary(article)
-        return f"{formatted_article}\n\nSummarized Content for LinkedIn/Newsletter:\n{summary}\n"
-
 
     def generate_html_page(self, highlights, articles):
         dynamic_title = self.generate_dynamic_title(highlights)
@@ -287,7 +207,7 @@ Published at: {published_at}
                     padding: 0;
                 }}
                 .container {{
-                    max-width: 1000px;
+                    max-width: 1200px;
                     margin: 0 auto;
                     padding: 20px;
                 }}
@@ -328,11 +248,16 @@ Published at: {published_at}
                 .highlights li:last-child {{
                     border-bottom: none;
                 }}
+                .article-grid {{
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 20px;
+                    margin-top: 20px;
+                }}
                 .article {{
                     background-color: #fff;
                     border-radius: 10px;
                     padding: 15px;
-                    margin-top: 20px;
                     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                 }}
                 .article h3 {{
@@ -405,7 +330,7 @@ Published at: {published_at}
                     {self.format_highlights(highlights)}
                 </section>
                 
-                <section class="featured-articles">
+                <section class="article-grid">
                     {''.join(self.generate_article_html(article) for article in articles)}
                 </section>
             </main>
@@ -457,11 +382,11 @@ Published at: {published_at}
         
         sections = summary.split('\n\n')
         title = sections[0].strip('🔥 *')
+        # Limit title to 50 characters
+        title = title[:47] + '...' if len(title) > 50 else title
         innovation_spotlight = sections[1].replace('🚀 **Innovation Spotlight:**', '').strip()
         key_takeaways = sections[2].replace('💡 **Key Takeaways:**', '').strip().split('\n')
-        impact_significance = sections[3].replace('🌍 **Impact & Significance:**', '').strip()
-        future_implications = sections[4].replace('🔮 **Future Implications:**', '').strip()
-        deep_dive = sections[5].replace('🔗 **Deep Dive:**', '').strip()
+        deep_dive = sections[3].replace('🔗 **Deep Dive:**', '').strip()
 
         return f"""
         <article class="article">
@@ -471,14 +396,9 @@ Published at: {published_at}
             <ul class="key-takeaways">
                 {''.join(f'<li>{takeaway.strip("• ")}</li>' for takeaway in key_takeaways)}
             </ul>
-            <h4>Impact & Significance</h4>
-            <p>{impact_significance}</p>
-            <h4>Future Implications</h4>
-            <p>{future_implications}</p>
             <a href="javascript:void(0);" onclick="openModal('{deep_dive}')" class="read-more">Read Full Article</a>
         </article>
         """
-
  
 
     def save_html_page(self, html_content, filename="ai_news_highlights.html"):
