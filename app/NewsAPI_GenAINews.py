@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+
 class AINewsFetcher:
     def __init__(self):
         self.news_api_key = os.getenv('NEWS_API_KEY')
@@ -31,18 +32,104 @@ class AINewsFetcher:
         if not self.db_url:
             raise ValueError("DATABASE_URL not found in environment variables")
 
-    def fetch_news(self, keywords, from_date, to_date, language='en', sort_by='relevancy'):
-        all_keywords = keywords + self.preferred_entities
-        query = ' OR '.join(f'"{keyword}"' for keyword in all_keywords[:20])  # Limit to 20 keywords
+                # List of trusted sources
+        self.trusted_sources = [
+            # Major Tech News Sites
+            'techcrunch.com', 'wired.com', 'technologyreview.com', 'theverge.com',
+            'arstechnica.com', 'venturebeat.com', 'zdnet.com', 'engadget.com',
+            'cnet.com', 'techmeme.com', 'thenextweb.com', 'protocol.com',
+            
+            # Scientific Publications
+            'nature.com', 'sciencemag.org', 'ieee.org', 'sciencedaily.com',
+            'newscientist.com', 'scientificamerican.com', 'phys.org',
+            
+            # Business and General News
+            'forbes.com', 'bloomberg.com', 'reuters.com', 'nytimes.com',
+            'wsj.com', 'washingtonpost.com', 'bbc.com', 'theguardian.com',
+            'economist.com', 'ft.com',
+            
+            # AI-Focused News Sites
+            'artificialintelligence-news.com', 'ai.stanford.edu', 'aitrends.com',
+            'deeplearning.ai', 'lexology.com/ai', 'bdtechtalks.com',
+            
+            # AI Company Official Blogs and Websites
+            'openai.com', 'blog.google', 'ai.googleblog.com', 'deepmind.com',
+            'blog.bing.com', 'blogs.microsoft.com', 'research.ibm.com',
+            'ai.facebook.com', 'blog.twitter.com', 'amazon.science',
+            'blogs.nvidia.com', 'intel.com/content/www/us/en/artificial-intelligence',
+            'anthropic.com', 'mistral.ai', 'x.ai', 'stability.ai',
+            
+            # AI Research Institutions
+            'ai.mit.edu', 'humancompatible.ai', 'cset.georgetown.edu',
+            'futureoflife.org', 'cser.ac.uk', 'fhi.ox.ac.uk',
+            
+            # Tech Giants' AI Pages
+            'ai.google', 'azure.microsoft.com/en-us/solutions/ai',
+            'aws.amazon.com/machine-learning', 'www.ibm.com/watson',
+            
+            # AI Ethics and Policy
+            'aiethicslab.com', 'ainowinstitute.org', 'partnershiponai.org',
+            'caidp.org', 'hai.stanford.edu',
+            
+            # AI in Specific Domains
+            'healthitanalytics.com', 'aiin.healthcare', 'emerj.com'
+        ]
+        self.focus_companies = [
+            # Major AI Research Companies
+            'OpenAI', 'DeepMind', 'Anthropic', 'X.AI', 'Google AI', 'Microsoft Research',
+            'IBM Watson', 'Facebook AI Research', 'Amazon AI', 'Apple Machine Learning',
+            
+            # AI Chip Companies
+            'NVIDIA', 'Intel AI', 'AMD AI', 'Graphcore',
+            
+            # AI in Cloud Services
+            'Google Cloud AI', 'AWS AI', 'Azure AI', 'IBM Cloud AI',
+            
+            # Specialized AI Companies
+            'Databricks', 'Palantir', 'C3.ai', 'DataRobot', 'H2O.ai',
+            
+            # AI in Robotics
+            'Boston Dynamics', 'iRobot', 'ABB Robotics',
+            
+            # AI Ethics and Safety Organizations
+            'AI Safety Center', 'Center for AI Safety', 'Machine Intelligence Research Institute',
+            'Future of Humanity Institute', 'AI Alignment', 'Center for Human-Compatible AI',
+            
+            # AI Governance and Policy
+            'Partnership on AI', 'AI Now Institute', 'OpenAI Policy Team', 'DeepMind Ethics & Society',
+            
+            # Emerging AI Startups
+            'Cohere', 'Hugging Face', 'Stability AI', 'Midjourney', 'Inflection AI',
+            
+            # AI in Healthcare
+            'DeepMind Health', 'IBM Watson Health', 'Google Health AI',
+            
+            # AI in Finance
+            'Two Sigma', 'Citadel AI', 'JPMorgan AI Research',
+            
+            # AI in Autonomous Vehicles
+            'Waymo', 'Tesla AI', 'Cruise Automation', 'Argo AI',
+            
+            # AI Research Institutes
+            'Allen Institute for AI', 'MIT AI Lab', 'Stanford AI Lab', 'Berkeley AI Research'
+        ]
+
+    def fetch_news(self, keywords, date, language='en', sort_by='relevancy'):
+
+        all_keywords = keywords
+        #logger.info (f"all keywords: {all_keywords}")
+        query = ' OR '.join(f'"{keyword}"' for keyword in all_keywords[:20])  # Increased limit to include more focus companies
+        logger.info (f"query:........ {query}")
 
         params = {
             'q': query,
-            'from': from_date.isoformat(),
-            'to': to_date.isoformat(),
+            'from': date.isoformat(),
+            'to': (date + timedelta(days=1)).isoformat(),  # End of the day
             'language': language,
             'sortBy': sort_by,
             'pageSize': 100,
-            'apiKey': self.news_api_key
+            'apiKey': self.news_api_key,
+            'domains': ','.join(self.trusted_sources)  # Only fetch from trusted sources
         }
 
         try:
@@ -59,8 +146,13 @@ class AINewsFetcher:
 
     def filter_and_sort_articles(self, articles):
         unique_articles = self.remove_duplicates(articles)
-        sorted_articles = self.sort_articles_by_preference(unique_articles)
-        return sorted_articles[:6]  # Return top 6 articles for 3x2 grid
+        #trusted_articles = [article for article in unique_articles if self.is_trusted_source(article)]
+        #sorted_articles = self.sort_articles_by_preference(trusted_articles)
+        return unique_articles[:6]  # Return top 6 articles for 3x2 grid
+
+    def is_trusted_source(self, article):
+        source_url = article.get('url', '')
+        return any(trusted_domain in source_url for trusted_domain in self.trusted_sources)
 
     def remove_duplicates(self, articles):
         unique_articles = []
@@ -84,6 +176,9 @@ class AINewsFetcher:
             description = article.get('description', '') or ''
             content = (title + ' ' + description).lower()
 
+            company_score = sum(content.count(company.lower()) for company in self.focus_companies) * 5
+
+
             entity_score = sum(content.count(entity.lower()) for entity in self.preferred_entities)
 
             ai_keywords = ['artificial intelligence', 'machine learning', 'deep learning', 'neural network']
@@ -94,11 +189,12 @@ class AINewsFetcher:
             genai_score = sum(content.count(keyword) for keyword in genai_keywords)
             robot_score = sum(content.count(keyword) for keyword in robot_keywords)
 
-            total_score = (entity_score * 2) + (ai_score * 1.5) + (genai_score * 2) + (robot_score * 2.5)
+            total_score = company_score + (entity_score * 2) + (ai_score * 1.5) + (genai_score * 2) + (robot_score * 2.5)
 
             return total_score
 
         return sorted(articles, key=preference_score, reverse=True)
+
 
     def generate_highlights(self, articles):
         highlights = ""
@@ -317,6 +413,18 @@ class AINewsFetcher:
                     height: 600px;
                     border: none;
                 }}
+                               /* ... (previous styles remain the same) ... */
+                .read-more {{
+                    display: inline-block;
+                    margin-top: 10px;
+                    color: var(--secondary-color);
+                    text-decoration: none;
+                    font-weight: bold;
+                    transition: color 0.3s ease;
+                }}
+                .read-more:hover {{
+                    color: var(--accent-color);
+                }}
             </style>
         </head>
         <body>
@@ -334,36 +442,6 @@ class AINewsFetcher:
                     {''.join(self.generate_article_html(article) for article in articles)}
                 </section>
             </main>
-
-            <div id="modal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <iframe id="embedded-content"></iframe>
-                </div>
-            </div>
-
-            <script>
-                var modal = document.getElementById('modal');
-                var embeddedContent = document.getElementById('embedded-content');
-                var span = document.getElementsByClassName('close')[0];
-
-                function openModal(url) {{
-                    embeddedContent.src = url;
-                    modal.style.display = 'block';
-                }}
-
-                span.onclick = function() {{
-                    modal.style.display = 'none';
-                    embeddedContent.src = '';
-                }}
-
-                window.onclick = function(event) {{
-                    if (event.target == modal) {{
-                        modal.style.display = 'none';
-                        embeddedContent.src = '';
-                    }}
-                }}
-            </script>
         </body>
         </html>
         """
@@ -381,25 +459,42 @@ class AINewsFetcher:
         summary = self.generate_summary(article)
         
         sections = summary.split('\n\n')
-        title = sections[0].strip('🔥 *')
+        
+        title = "Untitled Article"
+        innovation_spotlight = ""
+        key_takeaways = []
+        deep_dive = article.get('url', '#')  # Default to '#' if no URL is available
+
+        for section in sections:
+            if section.startswith('🔥'):
+                title = section.strip('🔥 *')
+            elif section.startswith('🚀'):
+                innovation_spotlight = section.replace('🚀 **Innovation Spotlight:**', '').strip()
+            elif section.startswith('💡'):
+                key_takeaways = section.replace('💡 **Key Takeaways:**', '').strip().split('\n')
+            elif section.startswith('🔗'):
+                deep_dive = section.replace('🔗 **Deep Dive:**', '').strip() or deep_dive
+
         # Limit title to 50 characters
         title = title[:47] + '...' if len(title) > 50 else title
-        innovation_spotlight = sections[1].replace('🚀 **Innovation Spotlight:**', '').strip()
-        key_takeaways = sections[2].replace('💡 **Key Takeaways:**', '').strip().split('\n')
-        deep_dive = sections[3].replace('🔗 **Deep Dive:**', '').strip()
+
+        key_takeaways_html = ""
+        if key_takeaways:
+            key_takeaways_html = f"""
+            <h4>Key Takeaways</h4>
+            <ul class="key-takeaways">
+                {''.join(f'<li>{takeaway.strip("• ")}</li>' for takeaway in key_takeaways)}
+            </ul>
+            """
 
         return f"""
         <article class="article">
             <h3>{title}</h3>
             <p>{innovation_spotlight}</p>
-            <h4>Key Takeaways</h4>
-            <ul class="key-takeaways">
-                {''.join(f'<li>{takeaway.strip("• ")}</li>' for takeaway in key_takeaways)}
-            </ul>
-            <a href="javascript:void(0);" onclick="openModal('{deep_dive}')" class="read-more">Read Full Article</a>
+            {key_takeaways_html}
+            <a href="{deep_dive}" target="_blank" rel="noopener noreferrer" class="read-more">Read Full Article</a>
         </article>
         """
- 
 
     def save_html_page(self, html_content, filename="ai_news_highlights.html"):
         with open(filename, "w", encoding="utf-8") as f:
@@ -434,7 +529,6 @@ class AINewsFetcher:
             logger.error(f"Error storing newsletter in database: {e}")
             return None
 
-
 def main():
     fetcher = AINewsFetcher()
     
@@ -442,45 +536,25 @@ def main():
     yesterday = today - timedelta(days=1)
     
     keywords = [
-        'artificial intelligence', 'machine learning', 'deep learning',
-        'GPT', 'LLM', 'generative AI', 'robot', 'humanoid', 'AI ethics',
-        'AI breakthrough', 'robotic breakthrough', 'humanoid development'
+        'artificial intelligence', 'generative AI', 'large language models', 'AI humanoids',
+        'GPT-4', 'ChatGPT', 'AI breakthroughs', 'AI ethics', 'AI governance', 'AI safety',
+        'AI regulation', 'conversational AI', 'AI assistants', 'multimodal AI', 'AI in robotics',
+        'AI-human interaction', 'neural networks', 'AI policy', 'AGI development', 'AI startups'
     ]
 
-    # Initialize articles lists
-    popular_articles = []
-    relevant_articles = []
+    logger.info(f"Fetching top AI-related news articles for {yesterday}...")
+    articles = fetcher.fetch_news(keywords, yesterday, sort_by='relevancy')
 
-    # Fetch popular articles
-    logger.info(f"Fetching top 10 popular AI-related news articles from {yesterday} to {today}...")
-    popular_articles = fetcher.fetch_news(keywords, yesterday, today, sort_by='popularity')
+    logger.info(f"Fetching top AI-related news articles for {yesterday}...")
+    articles = fetcher.fetch_news(keywords, yesterday, sort_by='relevancy')
 
-    # Fetch relevant articles
-    #logger.info(f"Fetching top 10 relevant AI-related news articles from {yesterday} to {today}...")
-    #relevant_articles = fetcher.fetch_news(keywords, yesterday, today, sort_by='relevancy')
-
-    # Combine and deduplicate articles
-    all_articles = list({article['url']: article for article in popular_articles + relevant_articles}.values())
-    all_articles = list({article['url']: article for article in popular_articles}.values())
-
-
-    if all_articles:
-        # Generate highlights
-        highlights = fetcher.generate_highlights(all_articles)
-        
-        # Generate image based on highlights
-        #logger.info("Generating image based on highlights...")
-        #image_prompt = f"Create an abstract image representing AI news highlights: {highlights}"
-        #image_url = fetcher.generate_image(image_prompt)
-
-        # Generate HTML page with dynamic title
+    if articles:
+        highlights = fetcher.generate_highlights(articles)
         logger.info("Generating HTML page...")
-        html_content = fetcher.generate_html_page(highlights, all_articles[:6])  # Use top 5 articles
+        html_content = fetcher.generate_html_page(highlights, articles)
         
-        # Extract dynamic title for database storage
         dynamic_title = fetcher.generate_dynamic_title(highlights)
         
-        # Store newsletter in database
         logger.info("Storing newsletter in database...")
         inserted_id = fetcher.store_newsletter(dynamic_title, html_content)
         if inserted_id:
@@ -490,13 +564,11 @@ def main():
 
         fetcher.save_html_page(html_content)
 
-        logger.info(f"Found {len(all_articles)} unique articles. HTML page generated with top 5 articles and stored in database.")
+        logger.info(f"Found {len(articles)} unique articles from trusted sources for {yesterday}. HTML page generated and stored in database.")
     else:
-        logger.info("No articles found for the given criteria.")
+        logger.info(f"No articles found from trusted sources for {yesterday}.")
 
     logger.info("AI news fetching, summarization, HTML generation, and database storage complete.")
-
-
 
 if __name__ == "__main__":
     main()
