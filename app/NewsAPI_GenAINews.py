@@ -275,8 +275,10 @@ class AINewsFetcher:
             logger.error(f"Error generating summary with OpenAI: {e}")
             return "Error generating summary."
 
+
     def generate_html_page(self, highlights, articles):
         dynamic_title = self.generate_dynamic_title(highlights)
+        today_date = datetime.now().strftime("%b %d, %Y") 
         html_content = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -346,7 +348,7 @@ class AINewsFetcher:
                 }}
                 .article-grid {{
                     display: grid;
-                    grid-template-columns: repeat(3, 1fr);
+                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                     gap: 20px;
                     margin-top: 20px;
                 }}
@@ -375,55 +377,46 @@ class AINewsFetcher:
                     color: var(--secondary-color);
                     text-decoration: none;
                     font-weight: bold;
-                }}
-                .modal {{
-                    display: none;
-                    position: fixed;
-                    z-index: 1;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                    height: 100%;
-                    overflow: auto;
-                    background-color: rgba(0,0,0,0.4);
-                }}
-                .modal-content {{
-                    background-color: #fefefe;
-                    margin: 15% auto;
-                    padding: 20px;
-                    border: 1px solid #888;
-                    width: 80%;
-                    max-width: 800px;
-                }}
-                .close {{
-                    color: #aaa;
-                    float: right;
-                    font-size: 28px;
-                    font-weight: bold;
-                    cursor: pointer;
-                }}
-                .close:hover,
-                .close:focus {{
-                    color: #000;
-                    text-decoration: none;
-                    cursor: pointer;
-                }}
-                #embedded-content {{
-                    width: 100%;
-                    height: 600px;
-                    border: none;
-                }}
-                               /* ... (previous styles remain the same) ... */
-                .read-more {{
-                    display: inline-block;
-                    margin-top: 10px;
-                    color: var(--secondary-color);
-                    text-decoration: none;
-                    font-weight: bold;
                     transition: color 0.3s ease;
                 }}
                 .read-more:hover {{
                     color: var(--accent-color);
+                }}
+                .date {{
+                    font-size: 0.8em;
+                    color: var(--text-color);
+                    font-weight: normal;
+                    margin-left: 10px;
+                }}
+                .embedded-content {{
+                    display: flex;
+                    align-items: center;
+                    margin-top: 15px;
+                    background-color: #f8f9fa;
+                    border: 1px solid #e9ecef;
+                    border-radius: 8px;
+                    overflow: hidden;
+                }}
+                .article-image {{
+                    width: 100px;
+                    height: 100px;
+                    object-fit: cover;
+                }}
+                .embedded-text {{
+                    padding: 10px;
+                    flex-grow: 1;
+                }}
+                .article-source {{
+                    font-size: 0.8em;
+                    color: #6c757d;
+                }}
+                .embed-container {{
+                    margin-top: 15px;
+                }}
+                .embed-container iframe {{
+                    width: 100%;
+                    height: 600px;
+                    border: none;
                 }}
             </style>
         </head>
@@ -434,7 +427,7 @@ class AINewsFetcher:
             
             <main class="container">
                 <section class="highlights">
-                    <h2>Key AI Highlights</h2>
+                    <h2>Key AI Highlights <span class="date">{today_date}</span></h2>
                     {self.format_highlights(highlights)}
                 </section>
                 
@@ -442,6 +435,19 @@ class AINewsFetcher:
                     {''.join(self.generate_article_html(article) for article in articles)}
                 </section>
             </main>
+
+            <script>
+            function toggleEmbed(embedId, url) {{
+                var container = document.getElementById(embedId);
+                if (container.style.display === "none") {{
+                    container.style.display = "block";
+                    container.querySelector('iframe').src = url;
+                }} else {{
+                    container.style.display = "none";
+                    container.querySelector('iframe').src = "about:blank";
+                }}
+            }}
+            </script>
         </body>
         </html>
         """
@@ -487,12 +493,24 @@ class AINewsFetcher:
             </ul>
             """
 
+        # Generate a unique ID for this article's embedded content
+        embed_id = f"embed-{hash(title)}"
+
         return f"""
         <article class="article">
             <h3>{title}</h3>
             <p>{innovation_spotlight}</p>
             {key_takeaways_html}
-            <a href="{deep_dive}" target="_blank" rel="noopener noreferrer" class="read-more">Read Full Article</a>
+            <div class="embedded-content">
+                <img src="{article.get('urlToImage', '/api/placeholder/400/300')}" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="#" onclick="toggleEmbed('{embed_id}', '{deep_dive}'); return false;" class="read-more">Read Full Article</a>
+                    <p class="article-source">{article.get('source', {}).get('name', 'Unknown Source')}</p>
+                </div>
+            </div>
+            <div id="{embed_id}" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+            </div>
         </article>
         """
 
