@@ -16,34 +16,88 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-class TechNewsFetcher:
+class ScienceNewsFetcher:
     def __init__(self):
         self.news_api_key = os.getenv('NEWS_API_KEY')
         if not self.news_api_key:
             raise ValueError("NEWS_API_KEY not found in environment variables")
         self.base_url = "https://newsapi.org/v2/everything"
         self.preferred_entities = [
-            'Apple', 'Google', 'Microsoft', 'Amazon', 'Facebook', 'Tesla',
-            'SpaceX', 'Samsung', 'Intel', 'NVIDIA', 'AMD', 'Sony', 'IBM',
-            'Oracle', 'Cisco', 'Qualcomm', 'Netflix', 'Uber', 'Twitter'
+            'NASA', 'ESA', 'CERN', 'NIH', 'WHO', 'CDC', 'NOAA', 
+            'Nature', 'Science', 'Cell', 'Lancet', 'NEJM', 
+            'SpaceX', 'Blue Origin', 'Virgin Galactic', 'Boston Dynamics',
+            'MIT', 'Stanford', 'Harvard', 'Caltech', 'Oxford', 'Cambridge'
         ]
         self.db_url = os.getenv('DATABASE_URL')
         if not self.db_url:
             raise ValueError("DATABASE_URL not found in environment variables")
 
-        # List of trusted tech news sources
+        # List of trusted science news sources
         self.trusted_sources = [
-            'techcrunch.com', 'wired.com', 'theverge.com', 'arstechnica.com',
-            'engadget.com', 'cnet.com', 'zdnet.com', 'venturebeat.com',
-            'thenextweb.com', 'gizmodo.com', 'mashable.com', 'techradar.com',
-            'slashdot.org', 'techmeme.com', 'technologyreview.com',
-            'tomshardware.com', 'anandtech.com', 'macrumors.com', '9to5mac.com',
-            'androidcentral.com', 'xda-developers.com', 'digitaltrends.com',
-            'techspot.com', 'gsmarena.com', 'pcmag.com', 'techdirt.com'
+            # Major Science News Sites
+            'nature.com', 'sciencemag.org', 'newscientist.com', 'scientificamerican.com',
+            'phys.org', 'sciencedaily.com', 'livescience.com', 'popsci.com',
+            'sciencenews.org', 'eurekalert.org', 'physicsworld.com', 'chemistryworld.com',
+
+            # Medical and Health Science
+            'medicalnewstoday.com', 'healthline.com', 'webmd.com', 'nejm.org',
+            'thelancet.com', 'bmj.com', 'medscape.com',
+
+            # Space and Astronomy
+            'space.com', 'astronomy.com', 'skyandtelescope.org', 'universetoday.com',
+
+            # Environmental Science
+            'nationalgeographic.com', 'climatecentral.org', 'grist.org', 'treehugger.com',
+
+            # Technology and Engineering
+            'ieee.org', 'techxplore.com', 'extremetech.com', 'technologyreview.com',
+
+            # General News with Strong Science Reporting
+            'bbc.com/science', 'nytimes.com/section/science', 'theguardian.com/science',
+            'washingtonpost.com/science', 'reuters.com/science', 'apnews.com/science',
+
+            # Science Institutions and Organizations
+            'nasa.gov', 'esa.int', 'cern.ch', 'nih.gov', 'who.int', 'cdc.gov', 'noaa.gov',
+
+            # Academic Institutions
+            'mit.edu', 'stanford.edu', 'harvard.edu', 'caltech.edu', 'ox.ac.uk', 'cam.ac.uk'
         ]
 
-    def fetch_news(self, keywords, date, language='en', sort_by='popularity'):
-        query = ' OR '.join(f'"{keyword}"' for keyword in keywords[:20])
+        self.focus_areas = [
+            # Broad Scientific Fields
+            'Physics', 'Chemistry', 'Biology', 'Astronomy', 'Geology', 'Neuroscience',
+            'Genetics', 'Ecology', 'Climate Science', 'Oceanography', 'Paleontology',
+
+            # Emerging Technologies
+            'Artificial Intelligence', 'Quantum Computing', 'Nanotechnology', 'Biotechnology',
+            'Renewable Energy', 'Space Exploration', 'Robotics', 'CRISPR', 'Fusion Energy',
+
+            # Medical and Health Sciences
+            'Immunology', 'Virology', 'Oncology', 'Cardiology', 'Neurology', 'Epidemiology',
+            'Genomics', 'Precision Medicine', 'Stem Cell Research',
+
+            # Environmental Sciences
+            'Climate Change', 'Biodiversity', 'Conservation', 'Sustainable Energy',
+            'Marine Biology', 'Atmospheric Science', 'Geophysics',
+
+            # Space Sciences
+            'Astrophysics', 'Cosmology', 'Planetary Science', 'Exoplanets', 'Black Holes',
+            'Dark Matter', 'Dark Energy', 'Mars Exploration', 'Solar System Research',
+
+            # Cutting-edge Research Areas
+            'Quantum Biology', 'Synthetic Biology', 'Neurotechnology', 'Bioinformatics',
+            'Geoengineering', 'Astrobiology', 'Particle Physics', 'Materials Science',
+
+            # Interdisciplinary Fields
+            'Biophysics', 'Biochemistry', 'Psychophysics', 'Cognitive Science',
+            'Computational Biology', 'Systems Biology', 'Environmental Engineering'
+        ]
+
+    def fetch_news(self, keywords, date, language='en', sort_by='popular'):
+        all_keywords = keywords + self.focus_areas
+        query = ' OR '.join(f'"{keyword}"' for keyword in all_keywords[:20])
+        logger.info(f"Query: {query}")
+
         params = {
             'q': query,
             'from': date.isoformat(),
@@ -69,8 +123,7 @@ class TechNewsFetcher:
 
     def filter_and_sort_articles(self, articles):
         unique_articles = self.remove_duplicates(articles)
-        sorted_articles = self.sort_articles_by_preference(unique_articles)
-        return sorted_articles[:10]  # Return top 10 articles
+        return unique_articles[:10]
 
     def remove_duplicates(self, articles):
         unique_articles = []
@@ -88,24 +141,6 @@ class TechNewsFetcher:
 
         return unique_articles
 
-    def sort_articles_by_preference(self, articles):
-        def preference_score(article):
-            title = article.get('title', '') or ''
-            description = article.get('description', '') or ''
-            content = (title + ' ' + description).lower()
-
-            entity_score = sum(content.count(entity.lower()) for entity in self.preferred_entities)
-
-            tech_keywords = ['innovation', 'gadget', 'smartphone', 'computer', 'software',
-                             'hardware', 'cybersecurity', 'cloud', 'blockchain', 'IoT',
-                             '5G', 'virtual reality', 'augmented reality', 'robotics']
-            
-            tech_score = sum(content.count(keyword) for keyword in tech_keywords)
-
-            return entity_score * 2 + tech_score
-
-        return sorted(articles, key=preference_score, reverse=True)
-
     def generate_highlights(self, articles):
         highlights = ""
         for index, article in enumerate(articles, start=1):
@@ -115,22 +150,22 @@ class TechNewsFetcher:
 
     def generate_dynamic_title(self, highlights):
         prompt = f"""
-        Based on the following tech news highlights, generate a catchy and informative title 
+        Based on the following science news highlights, generate a catchy and informative title 
         that summarizes the main themes or most significant developments. The title should 
-        be engaging and specific to tech advancements mentioned in the highlights.
+        be engaging and specific to scientific advancements mentioned in the highlights.
 
         Highlights:
         {highlights}
 
-        Generate a title in the format: "Tech [Theme]: [Specific Detail]"
-        For example: "Tech Innovations: Next-Gen Smartphones Redefine Connectivity"
+        Generate a title in the format: "Science [Theme]: [Specific Detail]"
+        For example: "Science Breakthrough: New Particle Discovered at CERN"
         """
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are an AI assistant that creates engaging titles for tech news summaries."},
+                    {"role": "system", "content": "You are an AI assistant that creates engaging titles for science news summaries."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=100,
@@ -141,7 +176,7 @@ class TechNewsFetcher:
             return response.choices[0].message.content.strip()
         except Exception as e:
             logger.error(f"Error generating title with OpenAI: {e}")
-            return "Today's Tech Highlights"
+            return "Today's Science Highlights"
 
     def generate_summary(self, article):
         title = article.get('title', 'No title available')
@@ -149,18 +184,18 @@ class TechNewsFetcher:
         url = article.get('url', 'No URL available')
 
         prompt = f"""
-        Summarize the following tech article in this format:
+        Summarize the following scientific article in this format:
 
-        🚀 **[CATCHY TITLE]: [Subtitle]**
+        🔬 **[CATCHY TITLE]: [Subtitle]**
 
-        💡 **Innovation Spotlight:**
-        [1-2 sentences highlighting the key innovation, development, or news]
+        🚀 **Discovery Spotlight:**
+        [1-2 sentences highlighting the key scientific discovery or breakthrough]
 
-        🔑 **Key Points:**
+        💡 **Key Findings:**
         • [First key point]
         • [Second key point]
 
-        🔗 **Learn More:** {url}
+        🔗 **Further Reading:** {url}
 
         Use the article's content to fill in the brackets. Be concise, informative, and engaging. Use relevant emojis where appropriate.
 
@@ -170,9 +205,9 @@ class TechNewsFetcher:
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are a tech-savvy AI assistant that creates engaging summaries of technology news for social media and newsletters."},
+                    {"role": "system", "content": "You are a science-savvy AI assistant that creates engaging summaries of scientific news for social media and newsletters."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=300,
@@ -187,7 +222,7 @@ class TechNewsFetcher:
 
     def generate_html_page(self, highlights, articles):
         dynamic_title = self.generate_dynamic_title(highlights)
-        today_date = datetime.now().strftime("%b %d, %Y")
+        today_date = datetime.now().strftime("%b %d, %Y") 
         html_content = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -198,12 +233,12 @@ class TechNewsFetcher:
             <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
             <style>
                 :root {{
-                    --primary-color: #2c3e50;
-                    --secondary-color: #3498db;
-                    --background-color: #ecf0f1;
-                    --text-color: #34495e;
-                    --accent-color: #e74c3c;
-                    --highlight-box-color: #d5dbdb;
+                    --primary-color: #006064;
+                    --secondary-color: #00838f;
+                    --background-color: #e0f7fa;
+                    --text-color: #263238;
+                    --accent-color: #ffd54f;
+                    --highlight-box-color: #b2ebf2;
                 }}
                 body {{
                     font-family: 'Roboto', sans-serif;
@@ -250,7 +285,7 @@ class TechNewsFetcher:
                 .highlights li {{
                     padding: 8px 10px;
                     background-color: #fff;
-                    border-bottom: 1px solid #bdc3c7;
+                    border-bottom: 1px solid #b2dfdb;
                 }}
                 .highlights li:last-child {{
                     border-bottom: none;
@@ -277,7 +312,7 @@ class TechNewsFetcher:
                     font-size: 1.1em;
                     margin: 15px 0 5px 0;
                 }}
-                .key-points {{
+                .key-findings {{
                     padding-left: 20px;
                 }}
                 .read-more {{
@@ -301,8 +336,8 @@ class TechNewsFetcher:
                     display: flex;
                     align-items: center;
                     margin-top: 15px;
-                    background-color: #f8f9fa;
-                    border: 1px solid #e9ecef;
+                    background-color: #e0f2f1;
+                    border: 1px solid #b2dfdb;
                     border-radius: 8px;
                     overflow: hidden;
                 }}
@@ -317,7 +352,7 @@ class TechNewsFetcher:
                 }}
                 .article-source {{
                     font-size: 0.8em;
-                    color: #6c757d;
+                    color: #546e7a;
                 }}
             </style>
         </head>
@@ -328,7 +363,7 @@ class TechNewsFetcher:
             
             <main class="container">
                 <section class="highlights">
-                    <h2>Key Tech Highlights <span class="date">{today_date}</span></h2>
+                    <h2>Key Science Highlights <span class="date">{today_date}</span></h2>
                     {self.format_highlights(highlights)}
                 </section>
                 
@@ -355,48 +390,47 @@ class TechNewsFetcher:
         sections = summary.split('\n\n')
         
         title = "Untitled Article"
-        innovation_spotlight = ""
-        key_points = []
-        learn_more = article.get('url', '#')
+        discovery_spotlight = ""
+        key_findings = []
+        further_reading = article.get('url', '#')
 
         for section in sections:
-            if section.startswith('🚀'):
-                title = section.strip('🚀 *')
+            if section.startswith('🔬'):
+                title = section.strip('🔬 *')
+            elif section.startswith('🚀'):
+                discovery_spotlight = section.replace('🚀 **Discovery Spotlight:**', '').strip()
             elif section.startswith('💡'):
-                innovation_spotlight = section.replace('💡 **Innovation Spotlight:**', '').strip()
-            elif section.startswith('🔑'):
-                key_points = section.replace('🔑 **Key Points:**', '').strip().split('\n')
+                key_findings = section.replace('💡 **Key Findings:**', '').strip().split('\n')
             elif section.startswith('🔗'):
-                learn_more = section.replace('🔗 **Learn More:**', '').strip() or learn_more
+                further_reading = section.replace('🔗 **Further Reading:**', '').strip() or further_reading
 
-        # Limit title to 50 characters
         title = title[:55] + '...' if len(title) > 60 else title
 
-        key_points_html = ""
-        if key_points:
-            key_points_html = f"""
-            <h4>Key Points</h4>
-            <ul class="key-points">
-                {''.join(f'<li>{point.strip("• ")}</li>' for point in key_points)}
-                </ul>
+        key_findings_html = ""
+        if key_findings:
+            key_findings_html = f"""
+            <h4>Key Findings</h4>
+            <ul class="key-findings">
+                {''.join(f'<li>{finding.strip("• ")}</li>' for finding in key_findings)}
+            </ul>
             """
 
         return f"""
         <article class="article">
             <h3>{title}</h3>
-            <p>{innovation_spotlight}</p>
-            {key_points_html}
+            <p>{discovery_spotlight}</p>
+            {key_findings_html}
             <div class="embedded-content">
                 <img src="{article.get('urlToImage', '/api/placeholder/400/300')}" alt="Article image" class="article-image">
                 <div class="embedded-text">
-                    <a href="{learn_more}" target="_blank" rel="noopener noreferrer" class="read-more">Read Full Article</a>
+                    <a href="{further_reading}" target="_blank" rel="noopener noreferrer" class="read-more">Read Full Article</a>
                     <p class="article-source">{article.get('source', {}).get('name', 'Unknown Source')}</p>
                 </div>
             </div>
         </article>
         """
 
-    def save_html_page(self, html_content, filename="tech_news_highlights.html"):
+    def save_html_page(self, html_content, filename="science_news_highlights.html"):
         with open(filename, "w", encoding="utf-8") as f:
             f.write(html_content)
         logger.info(f"HTML page saved as {filename}")
@@ -420,7 +454,7 @@ class TechNewsFetcher:
                         VALUES (%s, %s, %s)
                         RETURNING id
                     """)
-                    cur.execute(insert_query, (title, content, 2))  # Assuming topic_id 2 for Tech
+                    cur.execute(insert_query, (title, content, 2))  # Assuming 2 is the topic_id for Science
                     inserted_id = cur.fetchone()[0]
                     conn.commit()
                     logger.info(f"Newsletter stored in database with ID: {inserted_id}")
@@ -430,20 +464,20 @@ class TechNewsFetcher:
             return None
 
 def main():
-    fetcher = TechNewsFetcher()
+    fetcher = ScienceNewsFetcher()
     
     today = datetime.now().date()
     yesterday = today - timedelta(days=1)
     
     keywords = [
-        'technology', 'innovation', 'gadgets', 'smartphones', 'computers',
-        'software', 'hardware', 'cybersecurity', 'cloud computing', 'blockchain',
-        'IoT', '5G', 'virtual reality', 'augmented reality', 'robotics',
-        'space technology', 'quantum computing', 'cryptocurrencies', 'electric vehicles',
-        'renewable energy'
+        'scientific discovery', 'research breakthrough', 'new study', 'scientific innovation',
+        'space exploration', 'climate research', 'medical advancement', 'technology breakthrough',
+        'biotech innovation', 'environmental science', 'physics discovery', 'chemistry breakthrough',
+        'neuroscience research', 'genetics study', 'archaeological find', 'quantum physics',
+        'renewable energy', 'AI in science', 'robotics advancement', 'materials science'
     ]
 
-    logger.info(f"Fetching top tech-related news articles for {yesterday}...")
+    logger.info(f"Fetching top science-related news articles for {yesterday}...")
     articles = fetcher.fetch_news(keywords, yesterday, sort_by='relevancy')
 
     if articles:
@@ -466,7 +500,7 @@ def main():
     else:
         logger.info(f"No articles found from trusted sources for {yesterday}.")
 
-    logger.info("Tech news fetching, summarization, HTML generation, and database storage complete.")
+    logger.info("Science news fetching, summarization, HTML generation, and database storage complete.")
 
 if __name__ == "__main__":
     main()

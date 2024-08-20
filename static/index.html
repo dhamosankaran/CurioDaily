@@ -95,68 +95,7 @@
     margin-top: 2rem; /* Adds additional space above the grid */
 }
 
-        .topic-section {
-            background: var(--card-bg-color);
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-        .topic-section:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        .topic-section h2 {
-            margin-top: 0;
-            color: var(--primary-color);
-            font-size: 1.8rem;
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .topic-section.ai .article-list {
-    font-size: 0.8rem;
-    list-style-type: disc;
-    padding-left: 20px;
-}
-
-.topic-section.ai .article-list li {
-    margin-bottom: 0.5rem;
-    padding-bottom: 0;
-    border-bottom: none;
-}
-
-.topic-section.ai .article-list h3 {
-    font-size: 0.9rem;
-    display: inline;
-    font-weight: normal;
-}
-
-.topic-section.ai .article-list p {
-    display: none;
-}
-
-.topic-section.ai .today-update,
-.topic-section.ai .previous-updates {
-    margin-bottom: 1.5rem;
-}
-
-.topic-section.ai h3 {
-    font-size: 1rem;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-}
-
-.topic-section.ai .article-date {
-    font-size: 0.8rem;
-    color: #666;
-    margin-left: 5px;
-}
-
-.topic-section.ai .read-more {
-    margin-left: 5px;
-    font-size: 0.8rem;
-}
+  
         .article-list {
             list-style-type: none;
             padding: 0;
@@ -312,6 +251,87 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .topic-section {
+    background: var(--card-bg-color);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.topic-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.topic-section h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.topic-section .article-list {
+    font-size: 0.8rem;
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.topic-section .article-list li {
+    margin-bottom: 0.5rem;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.topic-section .article-list h3 {
+    font-size: 0.9rem;
+    display: inline;
+    font-weight: normal;
+}
+
+.topic-section .today-update,
+.topic-section .previous-updates {
+    margin-bottom: 1.5rem;
+}
+
+.topic-section h3 {
+    font-size: 1rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.topic-section .article-date {
+    font-size: 0.8rem;
+    color: #666;
+    margin-left: 5px;
+}
+
+.topic-section .read-more {
+    margin-left: 5px;
+    font-size: 0.8rem;
+}
+
+.topic-section.ai .article-list,
+.topic-section.tech .article-list,
+.topic-section.business .article-list,
+.topic-section.science .article-list {
+    font-size: 0.8rem;
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.topic-section.ai .article-list li,
+.topic-section.tech .article-list li,
+.topic-section.business .article-list li,
+.topic-section.science .article-list li {
+    margin-bottom: 0.5rem;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
     </style>
 </head>
 <body>
@@ -354,6 +374,15 @@
                     <label><input type="checkbox" name="topics" value="2"> Tech</label>
                     <label><input type="checkbox" name="topics" value="3"> Business</label>
                     <label><input type="checkbox" name="topics" value="4"> Science</label>
+                    <label><input type="checkbox" name="topics" value="5"> Health</label>
+                    <label><input type="checkbox" name="topics" value="6"> Politics</label>
+                    <label><input type="checkbox" name="topics" value="7"> Finance</label>
+                    <label><input type="checkbox" name="topics" value="8"> Culture</label>
+                    <label><input type="checkbox" name="topics" value="9"> Education</label>
+                    <label><input type="checkbox" name="topics" value="10"> Space</label>
+                    <label><input type="checkbox" name="topics" value="11"> Psychology</label>
+                    <label><input type="checkbox" name="topics" value="12"> Sports</label>
+                    <label><input type="checkbox" name="topics" value="13"> Gadgets</label>
                 </div>
                 <button type="submit">Subscribe</button>
             </form>
@@ -366,62 +395,88 @@
 
     <script>
         // Fetch topics and articles from the backend
-        async function fetchTopicsAndArticles() {
+async function fetchTopicsAndArticles() {
     try {
         const topicsResponse = await fetch('/topics');
         const topics = await topicsResponse.json();
+        console.log('Fetched topics:', topics); // Log all fetched topics
 
         const topicGrid = document.getElementById('topicGrid');
+        const syncedTopics = ['AI', 'Tech', 'Business', 'Science'];
+
         for (const topic of topics) {
+            console.log(`Processing topic: ${topic.name}`); // Log each topic being processed
+
             const articlesResponse = await fetch(`/newsletters/topic/${topic.id}`);
             const articles = await articlesResponse.json();
+            console.log(`Fetched articles for ${topic.name}:`, articles); // Log articles for each topic
+
+            if (articles.length === 0) {
+                console.log(`No articles found for ${topic.name}`);
+                continue; // Skip topics with no articles
+            }
+
+            // Sort articles by created_at date in descending order (newest first)
+            articles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
             const section = document.createElement('section');
             section.className = `topic-section ${topic.name.toLowerCase()}`;
+            
+            if (syncedTopics.includes(topic.name)) {
+                console.log(`Applying expanded format for ${topic.name}`);
+                if (['AI', 'Tech', 'Business', 'Science'].includes(topic.name)) {
+                    const today = new Date();
+                    const formattedToday = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}`;
 
-            if (topic.name === 'AI') {
-                const today = new Date();
-                const formattedToday = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}`;
+                    const latestArticle = articles[0];
+                    const previousArticles = articles.slice(1, 6); // Get the next 5 articles
 
-                section.innerHTML = `
-                    <h2>${topic.name}</h2>
-                    <div class="today-update">
-                        <h3>Today's Update (${formattedToday})</h3>
-                        <ul class="article-list">
-                            <li>
-                                ${articles[0].title}
-                                <a href="#" class="read-more" data-article-id="0">Read More</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="previous-updates">
-                        <h3>Previous Updates</h3>
-                        <ul class="article-list">
-                            ${articles.slice(1).map((article, index) => `
+                    section.innerHTML = `
+                        <h2>${topic.name}</h2>
+                        <div class="today-update">
+                            <h3>Today's Update (${formattedToday})</h3>
+                            <ul class="article-list">
                                 <li>
-                                    ${article.title}
-                                    <a href="#" class="read-more" data-article-id="${index + 1}">Read More</a>
-                                    <span class="article-date">(${formatDate(article.created_at)})</span>
+                                    ${latestArticle.title}
+                                    <a href="#" class="read-more" data-article-id="0">Read More</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="previous-updates">
+                            <h3>Previous Updates</h3>
+                            <ul class="article-list">
+                                ${previousArticles.map((article, index) => `
+                                    <li>
+                                        ${article.title}
+                                        <a href="#" class="read-more" data-article-id="${index + 1}">Read More</a>
+                                        <span class="article-date">(${formatDate(article.created_at)})</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    section.innerHTML = `
+                        <h2>${topic.name}</h2>
+                        <ul class="article-list">
+                            ${articles.slice(0, 3).map((article, index) => `
+                                <li>
+                                    <h3>${article.title}</h3>
+                                    <a href="#" class="read-more" data-article-id="${index}">Read More</a>
                                 </li>
                             `).join('')}
                         </ul>
-                    </div>
-                `;
+                    `;
+                }
             } else {
-                section.innerHTML = `
-                    <h2>${topic.name}</h2>
-                    <ul class="article-list">
-                        ${articles.slice(0, 3).map((article, index) => `
-                            <li>
-                                <h3>${article.title}</h3>
-                                <a href="#" class="read-more" data-article-id="${index}">Read More</a>
-                            </li>
-                        `).join('')}
-                    </ul>
-                `;
+                console.log(`Applying standard format for ${topic.name}`);
+                // ... (standard format HTML generation)
             }
 
+            
+
             topicGrid.appendChild(section);
+            console.log(`Added ${topic.name} section to the grid`);
 
             // Add event listeners for "Read More" links
             section.querySelectorAll('.read-more').forEach(link => {
@@ -441,6 +496,7 @@ function formatDate(dateString) {
     const date = new Date(dateString);
     return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
 }
+
 
         function openArticle(article) {
         const articleContent = `

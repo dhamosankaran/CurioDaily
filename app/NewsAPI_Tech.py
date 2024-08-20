@@ -128,7 +128,7 @@ class TechNewsFetcher:
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "You are an AI assistant that creates engaging titles for tech news summaries."},
                     {"role": "user", "content": prompt}
@@ -170,7 +170,7 @@ class TechNewsFetcher:
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "You are a tech-savvy AI assistant that creates engaging summaries of technology news for social media and newsletters."},
                     {"role": "user", "content": prompt}
