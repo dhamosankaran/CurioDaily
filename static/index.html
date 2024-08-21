@@ -377,12 +377,16 @@
                     <label><input type="checkbox" name="topics" value="5"> Health</label>
                     <label><input type="checkbox" name="topics" value="6"> Politics</label>
                     <label><input type="checkbox" name="topics" value="7"> Finance</label>
-                    <label><input type="checkbox" name="topics" value="8"> Culture</label>
+                    <label><input type="checkbox" name="topics" value="8"> Entertainment</label>
                     <label><input type="checkbox" name="topics" value="9"> Education</label>
                     <label><input type="checkbox" name="topics" value="10"> Space</label>
                     <label><input type="checkbox" name="topics" value="11"> Psychology</label>
                     <label><input type="checkbox" name="topics" value="12"> Sports</label>
                     <label><input type="checkbox" name="topics" value="13"> Gadgets</label>
+                    <label><input type="checkbox" name="topics" value="14"> Games</label>
+                    <label><input type="checkbox" name="topics" value="15"> Travel</label>
+                    <label><input type="checkbox" name="topics" value="16"> SocialMedia Viral News</label>
+                    <label><input type="checkbox" name="topics" value="17"> Yoga</label>
                 </div>
                 <button type="submit">Subscribe</button>
             </form>
@@ -395,41 +399,36 @@
 
     <script>
         // Fetch topics and articles from the backend
-async function fetchTopicsAndArticles() {
-    try {
-        const topicsResponse = await fetch('/topics');
-        const topics = await topicsResponse.json();
-        console.log('Fetched topics:', topics); // Log all fetched topics
+        async function fetchTopicsAndArticles() {
+            try {
+                const topicsResponse = await fetch('/topics');
+                const topics = await topicsResponse.json();
+                console.log('Fetched topics:', topics);
 
-        const topicGrid = document.getElementById('topicGrid');
-        const syncedTopics = ['AI', 'Tech', 'Business', 'Science'];
+                const topicGrid = document.getElementById('topicGrid');
 
-        for (const topic of topics) {
-            console.log(`Processing topic: ${topic.name}`); // Log each topic being processed
+                for (const topic of topics) {
+                    console.log(`Processing topic: ${topic.name}`);
 
-            const articlesResponse = await fetch(`/newsletters/topic/${topic.id}`);
-            const articles = await articlesResponse.json();
-            console.log(`Fetched articles for ${topic.name}:`, articles); // Log articles for each topic
+                    const articlesResponse = await fetch(`/newsletters/topic/${topic.id}`);
+                    const articles = await articlesResponse.json();
+                    console.log(`Fetched articles for ${topic.name}:`, articles);
 
-            if (articles.length === 0) {
-                console.log(`No articles found for ${topic.name}`);
-                continue; // Skip topics with no articles
-            }
+                    if (articles.length === 0) {
+                        console.log(`No articles found for ${topic.name}`);
+                        continue;
+                    }
 
-            // Sort articles by created_at date in descending order (newest first)
-            articles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    articles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-            const section = document.createElement('section');
-            section.className = `topic-section ${topic.name.toLowerCase()}`;
-            
-            if (syncedTopics.includes(topic.name)) {
-                console.log(`Applying expanded format for ${topic.name}`);
-                if (['AI', 'Tech', 'Business', 'Science'].includes(topic.name)) {
+                    const section = document.createElement('section');
+                    section.className = `topic-section ${topic.name.toLowerCase()}`;
+                    
                     const today = new Date();
-                    const formattedToday = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}`;
+                    const formattedToday = formatDate(today);
 
                     const latestArticle = articles[0];
-                    const previousArticles = articles.slice(1, 6); // Get the next 5 articles
+                    const previousArticles = articles.slice(1, 5); // Get the next 5 articles
 
                     section.innerHTML = `
                         <h2>${topic.name}</h2>
@@ -455,65 +454,43 @@ async function fetchTopicsAndArticles() {
                             </ul>
                         </div>
                     `;
-                } else {
-                    section.innerHTML = `
-                        <h2>${topic.name}</h2>
-                        <ul class="article-list">
-                            ${articles.slice(0, 3).map((article, index) => `
-                                <li>
-                                    <h3>${article.title}</h3>
-                                    <a href="#" class="read-more" data-article-id="${index}">Read More</a>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    `;
+
+                    topicGrid.appendChild(section);
+                    console.log(`Added ${topic.name} section to the grid`);
+
+                    // Add event listeners for "Read More" links
+                    section.querySelectorAll('.read-more').forEach(link => {
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const articleId = e.target.getAttribute('data-article-id');
+                            openArticle(articles[articleId]);
+                        });
+                    });
                 }
-            } else {
-                console.log(`Applying standard format for ${topic.name}`);
-                // ... (standard format HTML generation)
+            } catch (error) {
+                console.error('Error fetching topics and articles:', error);
             }
-
-            
-
-            topicGrid.appendChild(section);
-            console.log(`Added ${topic.name} section to the grid`);
-
-            // Add event listeners for "Read More" links
-            section.querySelectorAll('.read-more').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const articleId = e.target.getAttribute('data-article-id');
-                    openArticle(articles[articleId]);
-                });
-            });
         }
-    } catch (error) {
-        console.error('Error fetching topics and articles:', error);
-    }
-}
 
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
-}
-
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+        }
 
         function openArticle(article) {
-        const articleContent = `
-        <!DOCTYPE html>
-        <html lang="en">
- 
-        <body>
-            <div>${article.content}</div>
-        </body>
-        </html>
-    `;
-    
-    // Open the article content in a new tab
-    const newTab = window.open('', '_blank');
-    newTab.document.write(articleContent);
-    newTab.document.close();
-}
+            const articleContent = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <body>
+                <div>${article.content}</div>
+            </body>
+            </html>
+            `;
+            
+            const newTab = window.open('', '_blank');
+            newTab.document.write(articleContent);
+            newTab.document.close();
+        }
 
         // Modal functionality
         const subscribeModal = document.getElementById('subscribeModal');
