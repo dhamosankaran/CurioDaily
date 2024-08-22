@@ -19,6 +19,12 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
     DATABASE_URL: Union[PostgresDsn, str, None] = None
+    # Email settings
+    SENDER_EMAIL: str
+    SENDER_PASSWORD: str
+    SMTP_SERVER: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587  # Changed to Gmail's SSL port
+    RECIPIENT_EMAIL: str = "dhamuksy@hotmail.com"
 
     @validator("DATABASE_URL", pre=True)
     def assemble_db_connection(cls, v: Union[str, None], values: dict[str, Any]) -> Any:

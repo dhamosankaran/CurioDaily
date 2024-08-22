@@ -16,43 +16,119 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-class TechNewsFetcher:
+
+class AINewsFetcher:
     def __init__(self):
         self.news_api_key = os.getenv('NEWS_API_KEY')
         if not self.news_api_key:
             raise ValueError("NEWS_API_KEY not found in environment variables")
         self.base_url = "https://newsapi.org/v2/everything"
         self.preferred_entities = [
-            'Apple', 'Google', 'Microsoft', 'Amazon', 'Facebook', 'Tesla',
-            'SpaceX', 'Samsung', 'Intel', 'NVIDIA', 'AMD', 'Sony', 'IBM',
-            'Oracle', 'Cisco', 'Qualcomm', 'Netflix', 'Uber', 'Twitter'
+            'OpenAI', 'DeepMind', 'Microsoft', 'MIT', 'Mistral', 
+            'Anthropic', 'Meta', 'IBM', 'NVIDIA', 'Intel', 'Apple', 
+            'Amazon', 'Boston Dynamics', 'Tesla', 'Google'
         ]
         self.db_url = os.getenv('DATABASE_URL')
         if not self.db_url:
             raise ValueError("DATABASE_URL not found in environment variables")
 
-        # List of trusted tech news sources
+                # List of trusted sources
         self.trusted_sources = [
-            'techcrunch.com', 'wired.com', 'theverge.com', 'arstechnica.com',
-            'engadget.com', 'cnet.com', 'zdnet.com', 'venturebeat.com',
-            'thenextweb.com', 'gizmodo.com', 'mashable.com', 'techradar.com',
-            'slashdot.org', 'techmeme.com', 'technologyreview.com',
-            'tomshardware.com', 'anandtech.com', 'macrumors.com', '9to5mac.com',
-            'androidcentral.com', 'xda-developers.com', 'digitaltrends.com',
-            'techspot.com', 'gsmarena.com', 'pcmag.com', 'techdirt.com'
+            # Major Tech News Sites
+            'techcrunch.com', 'wired.com', 'technologyreview.com', 'theverge.com',
+            'arstechnica.com', 'venturebeat.com', 'zdnet.com', 'engadget.com',
+            'cnet.com', 'techmeme.com', 'thenextweb.com', 'protocol.com',
+            
+            # Scientific Publications
+            'nature.com', 'sciencemag.org', 'ieee.org', 'sciencedaily.com',
+            'newscientist.com', 'scientificamerican.com', 'phys.org',
+            
+            # Business and General News
+            'forbes.com', 'bloomberg.com', 'reuters.com', 'nytimes.com',
+            'wsj.com', 'washingtonpost.com', 'bbc.com', 'theguardian.com',
+            'economist.com', 'ft.com',
+            
+            # AI-Focused News Sites
+            'artificialintelligence-news.com', 'ai.stanford.edu', 'aitrends.com',
+            'deeplearning.ai', 'lexology.com/ai', 'bdtechtalks.com',
+            
+            # AI Company Official Blogs and Websites
+            'openai.com', 'blog.google', 'ai.googleblog.com', 'deepmind.com',
+            'blog.bing.com', 'blogs.microsoft.com', 'research.ibm.com',
+            'ai.facebook.com', 'blog.twitter.com', 'amazon.science',
+            'blogs.nvidia.com', 'intel.com/content/www/us/en/artificial-intelligence',
+            'anthropic.com', 'mistral.ai', 'x.ai', 'stability.ai',
+            
+            # AI Research Institutions
+            'ai.mit.edu', 'humancompatible.ai', 'cset.georgetown.edu',
+            'futureoflife.org', 'cser.ac.uk', 'fhi.ox.ac.uk',
+            
+            # Tech Giants' AI Pages
+            'ai.google', 'azure.microsoft.com/en-us/solutions/ai',
+            'aws.amazon.com/machine-learning', 'www.ibm.com/watson',
+            
+            # AI Ethics and Policy
+            'aiethicslab.com', 'ainowinstitute.org', 'partnershiponai.org',
+            'caidp.org', 'hai.stanford.edu',
+            
+            # AI in Specific Domains
+            'healthitanalytics.com', 'aiin.healthcare', 'emerj.com'
+        ]
+        self.focus_companies = [
+            # Major AI Research Companies
+            'OpenAI', 'DeepMind', 'Anthropic', 'X.AI', 'Google AI', 'Microsoft Research',
+            'IBM Watson', 'Facebook AI Research', 'Amazon AI', 'Apple Machine Learning',
+            
+            # AI Chip Companies
+            'NVIDIA', 'Intel AI', 'AMD AI', 'Graphcore',
+            
+            # AI in Cloud Services
+            'Google Cloud AI', 'AWS AI', 'Azure AI', 'IBM Cloud AI',
+            
+            # Specialized AI Companies
+            'Databricks', 'Palantir', 'C3.ai', 'DataRobot', 'H2O.ai',
+            
+            # AI in Robotics
+            'Boston Dynamics', 'iRobot', 'ABB Robotics',
+            
+            # AI Ethics and Safety Organizations
+            'AI Safety Center', 'Center for AI Safety', 'Machine Intelligence Research Institute',
+            'Future of Humanity Institute', 'AI Alignment', 'Center for Human-Compatible AI',
+            
+            # AI Governance and Policy
+            'Partnership on AI', 'AI Now Institute', 'OpenAI Policy Team', 'DeepMind Ethics & Society',
+            
+            # Emerging AI Startups
+            'Cohere', 'Hugging Face', 'Stability AI', 'Midjourney', 'Inflection AI',
+            
+            # AI in Healthcare
+            'DeepMind Health', 'IBM Watson Health', 'Google Health AI',
+            
+            # AI in Finance
+            'Two Sigma', 'Citadel AI', 'JPMorgan AI Research',
+            
+            # AI in Autonomous Vehicles
+            'Waymo', 'Tesla AI', 'Cruise Automation', 'Argo AI',
+            
+            # AI Research Institutes
+            'Allen Institute for AI', 'MIT AI Lab', 'Stanford AI Lab', 'Berkeley AI Research'
         ]
 
-    def fetch_news(self, keywords, date, language='en', sort_by='popularity'):
-        query = ' OR '.join(f'"{keyword}"' for keyword in keywords[:20])
+    def fetch_news(self, keywords, date, language='en', sort_by='relevancy'):
+
+        all_keywords = keywords
+        #logger.info (f"all keywords: {all_keywords}")
+        query = ' OR '.join(f'"{keyword}"' for keyword in all_keywords[:20])  # Increased limit to include more focus companies
+        logger.info (f"query:........ {query}")
+
         params = {
             'q': query,
             'from': date.isoformat(),
-            'to': (date + timedelta(days=1)).isoformat(),
+            'to': (date + timedelta(days=1)).isoformat(),  # End of the day
             'language': language,
             'sortBy': sort_by,
             'pageSize': 100,
-            'apiKey': self.news_api_key,
-            'domains': ','.join(self.trusted_sources)
+            'apiKey': self.news_api_key
         }
 
         try:
@@ -69,8 +145,13 @@ class TechNewsFetcher:
 
     def filter_and_sort_articles(self, articles):
         unique_articles = self.remove_duplicates(articles)
-        sorted_articles = self.sort_articles_by_preference(unique_articles)
-        return sorted_articles[:10]  # Return top 10 articles
+        #trusted_articles = [article for article in unique_articles if self.is_trusted_source(article)]
+        #sorted_articles = self.sort_articles_by_preference(trusted_articles)
+        return unique_articles[:10]  # Return top 6 articles for 3x2 grid
+
+    def is_trusted_source(self, article):
+        source_url = article.get('url', '')
+        return any(trusted_domain in source_url for trusted_domain in self.trusted_sources)
 
     def remove_duplicates(self, articles):
         unique_articles = []
@@ -94,17 +175,25 @@ class TechNewsFetcher:
             description = article.get('description', '') or ''
             content = (title + ' ' + description).lower()
 
+            company_score = sum(content.count(company.lower()) for company in self.focus_companies) * 5
+
+
             entity_score = sum(content.count(entity.lower()) for entity in self.preferred_entities)
 
-            tech_keywords = ['innovation', 'gadget', 'smartphone', 'computer', 'software',
-                             'hardware', 'cybersecurity', 'cloud', 'blockchain', 'IoT',
-                             '5G', 'virtual reality', 'augmented reality', 'robotics']
+            ai_keywords = ['artificial intelligence', 'machine learning', 'deep learning', 'neural network']
+            genai_keywords = ['generative ai', 'gpt', 'llm', 'large language model']
+            robot_keywords = ['robot', 'humanoid', 'android', 'automaton']
             
-            tech_score = sum(content.count(keyword) for keyword in tech_keywords)
+            ai_score = sum(content.count(keyword) for keyword in ai_keywords)
+            genai_score = sum(content.count(keyword) for keyword in genai_keywords)
+            robot_score = sum(content.count(keyword) for keyword in robot_keywords)
 
-            return entity_score * 2 + tech_score
+            total_score = company_score + (entity_score * 2) + (ai_score * 1.5) + (genai_score * 2) + (robot_score * 2.5)
+
+            return total_score
 
         return sorted(articles, key=preference_score, reverse=True)
+
 
     def generate_highlights(self, articles):
         highlights = ""
@@ -115,22 +204,22 @@ class TechNewsFetcher:
 
     def generate_dynamic_title(self, highlights):
         prompt = f"""
-        Based on the following tech news highlights, generate a catchy and informative title 
+        Based on the following AI news highlights, generate a catchy and informative title 
         that summarizes the main themes or most significant developments. The title should 
-        be engaging and specific to tech advancements mentioned in the highlights.
+        be engaging and specific to AI advancements mentioned in the highlights.
 
         Highlights:
         {highlights}
 
-        Generate a title in the format: "Tech [Theme]: [Specific Detail]"
-        For example: "Tech Innovations: Next-Gen Smartphones Redefine Connectivity"
+        Generate a title in the format: "AI [Theme]: [Specific Detail]"
+        For example: AI Breakthroughs: Language Models Achieve Human-Level Understanding
         """
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are an AI assistant that creates engaging titles for tech news summaries."},
+                    {"role": "system", "content": "You are an AI assistant that creates engaging titles for AI news summaries."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=100,
@@ -141,7 +230,7 @@ class TechNewsFetcher:
             return response.choices[0].message.content.strip()
         except Exception as e:
             logger.error(f"Error generating title with OpenAI: {e}")
-            return "Today's Tech Highlights"
+            return "Today's AI Highlights"
 
     def generate_summary(self, article):
         title = article.get('title', 'No title available')
@@ -149,18 +238,18 @@ class TechNewsFetcher:
         url = article.get('url', 'No URL available')
 
         prompt = f"""
-        Summarize the following tech article in this format:
+        Summarize the following article in this format:
 
-        🚀 **[CATCHY TITLE]: [Subtitle]**
+        🔥 **[CATCHY TITLE]: [Subtitle]**
 
-        💡 **Innovation Spotlight:**
+        🚀 **Innovation Spotlight:**
         [1-2 sentences highlighting the key innovation, development, or news]
 
-        🔑 **Key Points:**
+        💡 **Key Takeaways:**
         • [First key point]
         • [Second key point]
 
-        🔗 **Learn More:** {url}
+        🔗 **Deep Dive:** {url}
 
         Use the article's content to fill in the brackets. Be concise, informative, and engaging. Use relevant emojis where appropriate.
 
@@ -170,9 +259,9 @@ class TechNewsFetcher:
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are a tech-savvy AI assistant that creates engaging summaries of technology news for social media and newsletters."},
+                    {"role": "system", "content": "You are a tech-savvy AI assistant that creates engaging summaries of AI and technology news for social media and newsletters."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=300,
@@ -185,9 +274,10 @@ class TechNewsFetcher:
             logger.error(f"Error generating summary with OpenAI: {e}")
             return "Error generating summary."
 
+
     def generate_html_page(self, highlights, articles):
         dynamic_title = self.generate_dynamic_title(highlights)
-        today_date = datetime.now().strftime("%b %d, %Y")
+        today_date = datetime.now().strftime("%b %d, %Y") 
         html_content = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -198,12 +288,12 @@ class TechNewsFetcher:
             <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
             <style>
                 :root {{
-                    --primary-color: #2c3e50;
-                    --secondary-color: #3498db;
-                    --background-color: #ecf0f1;
-                    --text-color: #34495e;
-                    --accent-color: #e74c3c;
-                    --highlight-box-color: #d5dbdb;
+                    --primary-color: #1a237e;
+                    --secondary-color: #3f51b5;
+                    --background-color: #f5f5f5;
+                    --text-color: #212121;
+                    --accent-color: #ff4081;
+                    --highlight-box-color: #e8eaf6;
                 }}
                 body {{
                     font-family: 'Roboto', sans-serif;
@@ -250,7 +340,7 @@ class TechNewsFetcher:
                 .highlights li {{
                     padding: 8px 10px;
                     background-color: #fff;
-                    border-bottom: 1px solid #bdc3c7;
+                    border-bottom: 1px solid #e0e0e0;
                 }}
                 .highlights li:last-child {{
                     border-bottom: none;
@@ -277,7 +367,7 @@ class TechNewsFetcher:
                     font-size: 1.1em;
                     margin: 15px 0 5px 0;
                 }}
-                .key-points {{
+                .key-takeaways {{
                     padding-left: 20px;
                 }}
                 .read-more {{
@@ -319,6 +409,14 @@ class TechNewsFetcher:
                     font-size: 0.8em;
                     color: #6c757d;
                 }}
+                .embed-container {{
+                    margin-top: 15px;
+                }}
+                .embed-container iframe {{
+                    width: 100%;
+                    height: 600px;
+                    border: none;
+                }}
             </style>
         </head>
         <body>
@@ -328,7 +426,7 @@ class TechNewsFetcher:
             
             <main class="container">
                 <section class="highlights">
-                    <h2>Key Tech Highlights <span class="date">{today_date}</span></h2>
+                    <h2>Key AI Highlights <span class="date">{today_date}</span></h2>
                     {self.format_highlights(highlights)}
                 </section>
                 
@@ -336,6 +434,19 @@ class TechNewsFetcher:
                     {''.join(self.generate_article_html(article) for article in articles)}
                 </section>
             </main>
+
+            <script>
+            function toggleEmbed(embedId, url) {{
+                var container = document.getElementById(embedId);
+                if (container.style.display === "none") {{
+                    container.style.display = "block";
+                    container.querySelector('iframe').src = url;
+                }} else {{
+                    container.style.display = "none";
+                    container.querySelector('iframe').src = "about:blank";
+                }}
+            }}
+            </script>
         </body>
         </html>
         """
@@ -356,47 +467,53 @@ class TechNewsFetcher:
         
         title = "Untitled Article"
         innovation_spotlight = ""
-        key_points = []
-        learn_more = article.get('url', '#')
+        key_takeaways = []
+        deep_dive = article.get('url', '#')  # Default to '#' if no URL is available
 
         for section in sections:
-            if section.startswith('🚀'):
-                title = section.strip('🚀 *')
+            if section.startswith('🔥'):
+                title = section.strip('🔥 *')
+            elif section.startswith('🚀'):
+                innovation_spotlight = section.replace('🚀 **Innovation Spotlight:**', '').strip()
             elif section.startswith('💡'):
-                innovation_spotlight = section.replace('💡 **Innovation Spotlight:**', '').strip()
-            elif section.startswith('🔑'):
-                key_points = section.replace('🔑 **Key Points:**', '').strip().split('\n')
+                key_takeaways = section.replace('💡 **Key Takeaways:**', '').strip().split('\n')
             elif section.startswith('🔗'):
-                learn_more = section.replace('🔗 **Learn More:**', '').strip() or learn_more
+                deep_dive = section.replace('🔗 **Deep Dive:**', '').strip() or deep_dive
 
         # Limit title to 50 characters
-        title = title[:55] + '...' if len(title) > 60 else title
+        title = title[:47] + '...' if len(title) > 50 else title
 
-        key_points_html = ""
-        if key_points:
-            key_points_html = f"""
-            <h4>Key Points</h4>
-            <ul class="key-points">
-                {''.join(f'<li>{point.strip("• ")}</li>' for point in key_points)}
-                </ul>
+        key_takeaways_html = ""
+        if key_takeaways:
+            key_takeaways_html = f"""
+            <h4>Key Takeaways</h4>
+            <ul class="key-takeaways">
+                {''.join(f'<li>{takeaway.strip("• ")}</li>' for takeaway in key_takeaways)}
+            </ul>
             """
+
+        # Generate a unique ID for this article's embedded content
+        embed_id = f"embed-{hash(title)}"
 
         return f"""
         <article class="article">
             <h3>{title}</h3>
             <p>{innovation_spotlight}</p>
-            {key_points_html}
+            {key_takeaways_html}
             <div class="embedded-content">
                 <img src="{article.get('urlToImage', '/api/placeholder/400/300')}" alt="Article image" class="article-image">
                 <div class="embedded-text">
-                    <a href="{learn_more}" target="_blank" rel="noopener noreferrer" class="read-more">Read Full Article</a>
+                    <a href="#" onclick="toggleEmbed('{embed_id}', '{deep_dive}'); return false;" class="read-more">Read Full Article</a>
                     <p class="article-source">{article.get('source', {}).get('name', 'Unknown Source')}</p>
                 </div>
+            </div>
+            <div id="{embed_id}" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
             </div>
         </article>
         """
 
-    def save_html_page(self, html_content, filename="tech_news_highlights.html"):
+    def save_html_page(self, html_content, filename="ai_news_highlights.html"):
         with open(filename, "w", encoding="utf-8") as f:
             f.write(html_content)
         logger.info(f"HTML page saved as {filename}")
@@ -420,7 +537,7 @@ class TechNewsFetcher:
                         VALUES (%s, %s, %s)
                         RETURNING id
                     """)
-                    cur.execute(insert_query, (title, content, 1))  # Assuming topic_id 2 for Tech
+                    cur.execute(insert_query, (title, content, 1))
                     inserted_id = cur.fetchone()[0]
                     conn.commit()
                     logger.info(f"Newsletter stored in database with ID: {inserted_id}")
@@ -430,20 +547,22 @@ class TechNewsFetcher:
             return None
 
 def main():
-    fetcher = TechNewsFetcher()
+    fetcher = AINewsFetcher()
     
     today = datetime.now().date()
     yesterday = today - timedelta(days=1)
     
     keywords = [
-        'technology', 'innovation', 'gadgets', 'smartphones', 'computers',
-        'software', 'hardware', 'cybersecurity', 'cloud computing', 'blockchain',
-        'IoT', '5G', 'virtual reality', 'augmented reality', 'robotics',
-        'space technology', 'quantum computing', 'cryptocurrencies', 'electric vehicles',
-        'renewable energy'
+        'artificial intelligence', 'generative AI', 'large language models', 'AI humanoids',
+        'GPT-4', 'ChatGPT', 'AI breakthroughs', 'AI ethics', 'AI governance', 'AI safety',
+        'AI regulation', 'conversational AI', 'AI assistants', 'multimodal AI', 'AI in robotics',
+        'AI-human interaction', 'neural networks', 'AI policy', 'AGI development', 'AI startups'
     ]
 
-    logger.info(f"Fetching top tech-related news articles for {yesterday}...")
+    logger.info(f"Fetching top AI-related news articles for {yesterday}...")
+    articles = fetcher.fetch_news(keywords, yesterday, sort_by='relevancy')
+
+    logger.info(f"Fetching top AI-related news articles for {yesterday}...")
     articles = fetcher.fetch_news(keywords, yesterday, sort_by='relevancy')
 
     if articles:
@@ -466,7 +585,7 @@ def main():
     else:
         logger.info(f"No articles found from trusted sources for {yesterday}.")
 
-    logger.info("Tech news fetching, summarization, HTML generation, and database storage complete.")
+    logger.info("AI news fetching, summarization, HTML generation, and database storage complete.")
 
 if __name__ == "__main__":
     main()

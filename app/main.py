@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,7 +11,6 @@ from app.api.api import api_router
 from app.core.config import settings
 from app.db.base import Base
 from app.db.session import engine
-import os
 
 
 from app.db.session import SessionLocal

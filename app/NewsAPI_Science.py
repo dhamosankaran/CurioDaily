@@ -454,7 +454,7 @@ class ScienceNewsFetcher:
                         VALUES (%s, %s, %s)
                         RETURNING id
                     """)
-                    cur.execute(insert_query, (title, content, 2))  # Assuming 2 is the topic_id for Science
+                    cur.execute(insert_query, (title, content, 4))  # Assuming 2 is the topic_id for Science
                     inserted_id = cur.fetchone()[0]
                     conn.commit()
                     logger.info(f"Newsletter stored in database with ID: {inserted_id}")

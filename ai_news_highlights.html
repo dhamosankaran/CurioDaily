@@ -4,7 +4,7 @@
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>AI Power Dynamics: Google's Pixel 9 Unveils New Innovations Amidst Competitive Tensions</title>
+            <title>AI Controversies: Procreate CEO's Strong Opposition and Authors' Legal Battle Over Copyrights</title>
             <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
             <style>
                 :root {
@@ -24,7 +24,7 @@
                     padding: 0;
                 }
                 .container {
-                    max-width: 1000px;
+                    max-width: 1200px;
                     margin: 0 auto;
                     padding: 20px;
                 }
@@ -65,11 +65,16 @@
                 .highlights li:last-child {
                     border-bottom: none;
                 }
+                .article-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    gap: 20px;
+                    margin-top: 20px;
+                }
                 .article {
                     background-color: #fff;
                     border-radius: 10px;
                     padding: 15px;
-                    margin-top: 20px;
                     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                 }
                 .article h3 {
@@ -91,40 +96,43 @@
                     color: var(--secondary-color);
                     text-decoration: none;
                     font-weight: bold;
+                    transition: color 0.3s ease;
                 }
-                .modal {
-                    display: none;
-                    position: fixed;
-                    z-index: 1;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                    height: 100%;
-                    overflow: auto;
-                    background-color: rgba(0,0,0,0.4);
+                .read-more:hover {
+                    color: var(--accent-color);
                 }
-                .modal-content {
-                    background-color: #fefefe;
-                    margin: 15% auto;
-                    padding: 20px;
-                    border: 1px solid #888;
-                    width: 80%;
-                    max-width: 800px;
+                .date {
+                    font-size: 0.8em;
+                    color: var(--text-color);
+                    font-weight: normal;
+                    margin-left: 10px;
                 }
-                .close {
-                    color: #aaa;
-                    float: right;
-                    font-size: 28px;
-                    font-weight: bold;
-                    cursor: pointer;
+                .embedded-content {
+                    display: flex;
+                    align-items: center;
+                    margin-top: 15px;
+                    background-color: #f8f9fa;
+                    border: 1px solid #e9ecef;
+                    border-radius: 8px;
+                    overflow: hidden;
                 }
-                .close:hover,
-                .close:focus {
-                    color: #000;
-                    text-decoration: none;
-                    cursor: pointer;
+                .article-image {
+                    width: 100px;
+                    height: 100px;
+                    object-fit: cover;
                 }
-                #embedded-content {
+                .embedded-text {
+                    padding: 10px;
+                    flex-grow: 1;
+                }
+                .article-source {
+                    font-size: 0.8em;
+                    color: #6c757d;
+                }
+                .embed-container {
+                    margin-top: 15px;
+                }
+                .embed-container iframe {
                     width: 100%;
                     height: 600px;
                     border: none;
@@ -133,142 +141,252 @@
         </head>
         <body>
             <header class="header">
-                <h1>AI Power Dynamics: Google's Pixel 9 Unveils New Innovations Amidst Competitive Tensions</h1>
+                <h1>AI Controversies: Procreate CEO's Strong Opposition and Authors' Legal Battle Over Copyrights</h1>
             </header>
             
             <main class="container">
                 <section class="highlights">
-                    <h2>Key AI Highlights</h2>
+                    <h2>Key AI Highlights <span class="date">Aug 21, 2024</span></h2>
                     <ul>
-    <li>1. ICYMI: the week's 7 biggest tech news stories from Google's Pixel 9 reveals t...</li>
-    <li>2. Google's AI power play: Is Apple feeling the heat?</li>
-    <li>3. A Google CEO on remote work, Mark Cuban on Trump, Starbucks' new boss: Leader...</li>
-    <li>4. Breaking up Google, Elon Musk's AI startup, Boeing's Starliner stuck in space...</li>
-    <li>5. OpenAI Says It Caught a ChatGPT-Powered ‘Iranian Influence Operation’</li>
-    <li>6. News Weekly: Google's big Pixel 9 launch, the US wants to break up Google, an...</li>
+    <li>1. Procreate CEO ‘Really F*cking’ Hates Generative AI</li>
+    <li>2. Exclusive: Buzzy mental health startup Slingshot AI just grabbed $30 million ...</li>
+    <li>3. The Qualcomm Snapdragon 7s Gen 3 Is All About On-Device AI</li>
+    <li>4. Authors Sue Anthropic For Copyright Infringement Over AI Training</li>
+    <li>5. AI is coming to more budget phones thanks to Qualcomm's new Snapdragon 7s Gen</li>
+    <li>6. Generic to Genius: Crafting AI Prompts for Optimal Results</li>
+    <li>7. Here's everything we know about how Wall Street banks are embracing AI</li>
+    <li>8. 3 ways to use ChatGPT to up your sales game, according to a consulting CEO</li>
+    <li>9. Even Microsoft doesn't think AI is 'designed or intended' to substitute profe...</li>
+    <li>10. CMF Nothing Buds Pro 2 Review: Nothing To Hear Here</li>
 </ul>
                 </section>
                 
-                <section class="featured-articles">
+                <section class="article-grid">
                     
         <article class="article">
-            <h3>TECH TREND ALERT: This Week's Game-Changing Innovations!**  
-*From Pixel 9 reveals to AI concerns, here's what you missed!</h3>
-            <p>This week saw significant tech advancements, including Google's Pixel 9 unveiling its impressive camera features and OpenAI addressing user concerns about its latest model, GPT-4-o. Additionally, Meta and Pico are stepping up their game in virtual reality, enhancing user experiences across the board.</p>
+            <h3>PROCREATE CEO'S AI BACKLASH: A Bold Stand Again...</h3>
+            <p>Procreate's CEO, James Cuda, has expressed strong opposition to generative AI, advocating for traditional artistic methods and emphasizing the importance of creativity over automation.</p>
+            
             <h4>Key Takeaways</h4>
             <ul class="key-takeaways">
-                <li>Google showcased its Pixel 9, emphasizing groundbreaking camera technology.</li><li>OpenAI responded to feedback on GPT-4-o, aiming to enhance user safety and experience.</li><li>Meta and Pico are pushing the boundaries of virtual reality with new immersive features.</li>
+                <li>Cuda believes generative AI undermines the authenticity of art and creativity.</li><li>Procreate aims to support artists rather than replace them with AI-driven solutions.</li>
             </ul>
-            <h4>Impact & Significance</h4>
-            <p>These developments highlight the rapid evolution of consumer technology, where companies are not only competing for market share but also prioritizing user safety and experience. Innovations like the Pixel 9's advanced camera could redefine smartphone photography, while OpenAI's commitment to addressing concerns demonstrates a growing awareness of ethical responsibilities in AI.</p>
-            <h4>Future Implications</h4>
-            <p>As companies continue to innovate, we can expect even more integrated and user-friendly technologies in our daily lives, along with heightened focus on ethical AI practices.</p>
-            <a href="javascript:void(0);" onclick="openModal('https://www.techradar.com/tech/icymi-the-weeks-7-biggest-tech-news-stories-from-googles-pixel-9-reveals-to-openais-gpt-4-o-concerns')" class="read-more">Read Full Article</a>
+            
+            <div class="embedded-content">
+                <img src="https://gizmodo.com/app/uploads/2024/08/ipad-procreate-app-store.png" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="#" onclick="toggleEmbed('embed--4250456513469926035', 'https://gizmodo.com/procreate-ceo-really-fucking-hates-generative-ai-2000488633'); return false;" class="read-more">Read Full Article</a>
+                    <p class="article-source">Gizmodo.com</p>
+                </div>
+            </div>
+            <div id="embed--4250456513469926035" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+            </div>
         </article>
         
         <article class="article">
-            <h3>GOOGLE'S AI POWER PLAY: APPLE UNDER PRESSURE?</h3>
-            <p>Google is ramping up its AI capabilities with a series of groundbreaking innovations, positioning itself as a leader in the competitive AI landscape. These advancements not only enhance Google’s product offerings but also challenge Apple to elevate its own AI strategy.</p>
+            <h3>$30M BOOST FOR MENTAL HEALTH: Slingshot AI Secu...</h3>
+            <p>Slingshot AI, a promising mental health startup, has raised $30 million in a funding round led by Andreessen Horowitz, with support from Menlo Ventures, to enhance its AI-driven mental health solutions.</p>
+            
             <h4>Key Takeaways</h4>
             <ul class="key-takeaways">
-                <li>Google has launched new AI tools that enhance user experience across its platforms.</li><li>The tech giant is leveraging AI to improve search functionality and personalize services.</li><li>Apple faces increasing pressure to innovate as Google sets the pace in AI technology.</li>
+                <li>The funding will be used to advance Slingshot AI's technology aimed at improving mental health support and accessibility.</li><li>This investment underscores the growing interest in AI applications for mental health, reflecting a vital need for innovative solutions in the sector.</li>
             </ul>
-            <h4>Impact & Significance</h4>
-            <p>This shift in AI leadership could reshape the tech ecosystem, prompting rapid advancements in AI applications across industries. As Google pushes boundaries, it compels competitors like Apple to innovate or risk falling behind in user engagement and technological relevance.</p>
-            <h4>Future Implications</h4>
-            <p>We may see a surge in AI-driven features in consumer products as companies vie for market dominance. Additionally, the competition could lead to accelerated innovation cycles and more sophisticated AI technologies in the near future.</p>
-            <a href="javascript:void(0);" onclick="openModal('https://www.foxnews.com/tech/googles-ai-power-play-apple-feeling-heat')" class="read-more">Read Full Article</a>
+            
+            <div class="embedded-content">
+                <img src="https://i.insider.com/66c3b5a95da406397bf706ca?width=1200&format=jpeg" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="#" onclick="toggleEmbed('embed--6259890087236581430', 'https://www.businessinsider.com/scoop-slingshot-ai-raises-30-million-a16z-menlo-follow-2024-8'); return false;" class="read-more">Read Full Article</a>
+                    <p class="article-source">Business Insider</p>
+                </div>
+            </div>
+            <div id="embed--6259890087236581430" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+            </div>
         </article>
         
         <article class="article">
-            <h3>RETHINKING REMOTE: Google's Shift on AI Innovation**  
-*Eric Schmidt revisits his stance on remote work and AI at Google</h3>
-            <p>Former Google CEO Eric Schmidt has softened his previous criticisms regarding remote work’s impact on AI innovation at the tech giant. He acknowledges that the flexibility of remote work can actually foster creativity and innovation, particularly in the rapidly evolving AI landscape.</p>
+            <h3>POWERING THE FUTURE: Qualcomm's Snapdragon 7s G...</h3>
+            <p>Qualcomm's Snapdragon 7s Gen 3 chip is set to revolutionize mobile technology by enhancing on-device AI capabilities, debuting first in a new Xiaomi smartphone next month.</p>
+            
             <h4>Key Takeaways</h4>
             <ul class="key-takeaways">
-                <li>Eric Schmidt admits he was overly critical of remote work's impact on innovation.</li><li>Google is adapting its remote work policies to better support AI development.</li><li>Leadership changes, including at Starbucks, are shaping discussions on workplace culture and innovation.</li>
+                <li>The Snapdragon 7s Gen 3 emphasizes advanced AI processing directly on devices, improving performance and efficiency.</li><li>The chip aims to deliver faster, smarter user experiences, making mobile technology more intuitive than ever.</li>
             </ul>
-            <h4>Impact & Significance</h4>
-            <p>This reevaluation underscores a broader trend in tech where flexibility in work arrangements is seen not just as a necessity but as a potential catalyst for innovation. As companies adapt to new work models, the future of AI development could be significantly influenced by how teams collaborate remotely.</p>
-            <h4>Future Implications</h4>
-            <p>As more companies embrace hybrid work environments, we may see a surge in innovative solutions and collaborations that leverage diverse perspectives from remote teams.</p>
-            <a href="javascript:void(0);" onclick="openModal('https://qz.com/google-remote-work-ai-mark-cuban-donald-trump-starbucks-1851624393')" class="read-more">Read Full Article</a>
+            
+            <div class="embedded-content">
+                <img src="https://gizmodo.com/app/uploads/2024/08/Snapdragon-7s-Gen-3.jpg" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="#" onclick="toggleEmbed('embed-530241581530453257', 'https://gizmodo.com/the-qualcomm-snapdragon-7s-gen-3-is-all-about-on-device-ai-2000488758'); return false;" class="read-more">Read Full Article</a>
+                    <p class="article-source">Gizmodo.com</p>
+                </div>
+            </div>
+            <div id="embed-530241581530453257" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+            </div>
         </article>
         
         <article class="article">
-            <h3>Tesla Shareholders Push for AI Investment: A Bold Move for the Future!</h3>
-            <p>Nearly 1,400 Tesla shareholders are urging the company's board to allocate at least $5 billion towards xAI, the AI startup founded by Elon Musk. This investment aims to propel Tesla's AI capabilities and ensure it stays competitive in the rapidly evolving tech landscape.</p>
+            <h3>COPYRIGHT SHOWDOWN: Authors Take on Anthropic**...</h3>
+            <p>Anthropic faces legal challenges as authors claim their books were improperly used to train the AI chatbot Claude, raising critical questions about copyright in the age of AI.</p>
+            
             <h4>Key Takeaways</h4>
             <ul class="key-takeaways">
-                <li>Shareholders believe a significant investment in xAI is crucial for Tesla's innovation strategy.</li><li>The proposal reflects growing confidence in AI's transformative potential across industries.</li><li>Elon Musk's leadership at xAI positions the firm at the forefront of AI advancements.</li>
+                <li>The lawsuit highlights ongoing concerns regarding the ethical use of copyrighted material in AI training.</li><li>If successful, this case could set a significant precedent for AI companies and content creators alike.</li>
             </ul>
-            <h4>Impact & Significance</h4>
-            <p>This initiative highlights the increasing importance of AI in the automotive sector and beyond, signaling a shift towards more intelligent, autonomous technologies. Investing in xAI could enable Tesla to enhance its autonomous driving features and overall market competitiveness.</p>
-            <h4>Future Implications</h4>
-            <p>If the investment goes through, we could see accelerated developments in AI applications within Tesla's vehicles, possibly setting new standards for smart technology integration in transportation.</p>
-            <a href="javascript:void(0);" onclick="openModal('https://qz.com/google-elon-musk-ai-startup-boeings-starliner-space-1851624391')" class="read-more">Read Full Article</a>
+            
+            <div class="embedded-content">
+                <img src="https://a.fsdn.com/sd/topics/court_64.png" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="#" onclick="toggleEmbed('embed-426083254659635743', 'https://yro.slashdot.org/story/24/08/20/1524250/authors-sue-anthropic-for-copyright-infringement-over-ai-training'); return false;" class="read-more">Read Full Article</a>
+                    <p class="article-source">Slashdot.org</p>
+                </div>
+            </div>
+            <div id="embed-426083254659635743" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+            </div>
         </article>
         
         <article class="article">
-            <h3>Unmasking Deception: ChatGPT's Role in Election Manipulation**: OpenAI reveals an Iranian influence operation leveraging AI to sway U.S. elections.</h3>
-            <p>OpenAI has disclosed that a sophisticated campaign used ChatGPT to create misleading stories and social media comments aimed at influencing the upcoming U.S. presidential election. This marks a concerning intersection of AI technology and geopolitical strategy.</p>
+            <h3>AI FOR ALL: Qualcomm's Snapdragon 7s Gen 3 Brin...</h3>
+            <p>Qualcomm's new Snapdragon 7s Gen 3 chip is set to revolutionize budget smartphones by integrating generative AI capabilities, enhancing mobile gaming experiences, and improving camera features.</p>
+            
             <h4>Key Takeaways</h4>
             <ul class="key-takeaways">
-                <li>OpenAI identified an Iranian operation utilizing ChatGPT for misinformation.</li><li>The AI-generated content was designed to manipulate public opinion ahead of the elections.</li><li>This incident raises alarms about the power of AI in shaping narratives and potential election interference.</li>
+                <li>The Snapdragon 7s Gen 3 chip will enable advanced AI features in budget-friendly devices.</li><li>Users can expect significant upgrades in gaming performance and photography quality without breaking the bank.</li>
             </ul>
-            <h4>Impact & Significance</h4>
-            <p>This revelation highlights the vulnerabilities in democratic processes posed by advanced AI tools. As AI becomes more accessible, the potential for misuse in political contexts could undermine trust in information sources and electoral integrity.</p>
-            <h4>Future Implications</h4>
-            <p>As AI technology continues to evolve, we may see increased regulatory scrutiny and the development of countermeasures to detect and prevent AI-driven misinformation campaigns.</p>
-            <a href="javascript:void(0);" onclick="openModal('https://gizmodo.com/openai-chatgpt-iran-us-election-2000488246')" class="read-more">Read Full Article</a>
+            
+            <div class="embedded-content">
+                <img src="https://cdn.mos.cms.futurecdn.net/SY3qD8FFBNAaRV46cLRdVa-1200-80.jpg" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="#" onclick="toggleEmbed('embed--8404974253521500086', 'https://www.androidcentral.com/phones/ai-is-coming-to-more-budget-phones-thanks-to-qualcomms-new-snapdragon-7s-gen-3'); return false;" class="read-more">Read Full Article</a>
+                    <p class="article-source">Android Central</p>
+                </div>
+            </div>
+            <div id="embed--8404974253521500086" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+            </div>
         </article>
         
         <article class="article">
-            <h3>GOOGLE PIXEL 9: A GAME-CHANGER IN MOBILE TECH!**  
-**New devices debut as the tech landscape shifts.</h3>
-            <p>This week saw the highly anticipated launch of Google's Pixel 9 series, showcasing cutting-edge features that enhance user experience. Meanwhile, AT&T's decision to not carry one of these new devices raises questions about carrier choices in the evolving mobile market.</p>
+            <h3>FROM GENERIC TO GENIUS: Mastering the Art of AI...</h3>
+            <p>Unlock the secrets to crafting effective AI prompts that can significantly enhance the quality of your results, saving you time and increasing profitability.</p>
+            
             <h4>Key Takeaways</h4>
             <ul class="key-takeaways">
-                <li>Google unveiled the innovative Pixel 9 series with advanced camera capabilities.</li><li>The U.S. government is pushing for a breakup of Google, spotlighting antitrust concerns.</li><li>Samsung introduced improvements in phone mirroring for PCs, enhancing connectivity.</li>
+                <li>Precise prompts lead to better AI outputs, making it essential to refine your inquiries.</li><li>A simple framework can transform your approach, ensuring your AI delivers maximum value.</li>
             </ul>
-            <h4>Impact & Significance</h4>
-            <p>The Pixel 9's launch could significantly influence smartphone trends, especially in photography and AI integration. Simultaneously, the U.S. government's antitrust actions against Google underscore a growing scrutiny of Big Tech and its market dominance.</p>
-            <h4>Future Implications</h4>
-            <p>As Google faces potential restructuring, we may see shifts in product development and competition, impacting everything from pricing to innovation in the tech space.</p>
-            <a href="javascript:void(0);" onclick="openModal('https://www.androidcentral.com/phones/news-weekly-august-17-2024')" class="read-more">Read Full Article</a>
+            
+            <div class="embedded-content">
+                <img src="https://www.socialmediaexaminer.com/wp-content/uploads/2024/08/Ai_Explored_14_2aARTICLE.jpg" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="#" onclick="toggleEmbed('embed--5235258032644619933', 'https://www.socialmediaexaminer.com/?p=265776'); return false;" class="read-more">Read Full Article</a>
+                    <p class="article-source">Socialmediaexaminer.com</p>
+                </div>
+            </div>
+            <div id="embed--5235258032644619933" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+            </div>
+        </article>
+        
+        <article class="article">
+            <h3>AI TAKES WALL STREET BY STORM: Banks Embrace Cu...</h3>
+            <p>Wall Street banks like JPMorgan and Goldman Sachs are leveraging AI to enhance decision-making, automate processes, and improve customer service, marking a significant shift in the financial landscape.</p>
+            
+            <h4>Key Takeaways</h4>
+            <ul class="key-takeaways">
+                <li>Major banks are investing heavily in AI to streamline operations and boost efficiency.</li><li>AI-driven tools are transforming risk management and trading strategies, leading to smarter investments.</li>
+            </ul>
+            
+            <div class="embedded-content">
+                <img src="https://i.insider.com/66bf62d95da406397bf6896f?width=1200&format=jpeg" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="#" onclick="toggleEmbed('embed--6302826843058506824', 'https://www.businessinsider.com/everything-we-know-about-how-banks-using-ai-2024-8'); return false;" class="read-more">Read Full Article</a>
+                    <p class="article-source">Business Insider</p>
+                </div>
+            </div>
+            <div id="embed--6302826843058506824" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+            </div>
+        </article>
+        
+        <article class="article">
+            <h3>BOOST YOUR SALES WITH CHATGPT: Sales Strategies...</h3>
+            <p>Skaled CEO Jake Dunlap reveals how leveraging ChatGPT can transform sales processes, from enhancing preparation for discovery calls to gaining insights into market trends.</p>
+            
+            <h4>Key Takeaways</h4>
+            <ul class="key-takeaways">
+                <li>Use ChatGPT to streamline preparation for sales calls, ensuring you hit all key points.</li><li>Harness the AI's capabilities to analyze market trends and customer behavior for smarter selling.</li>
+            </ul>
+            
+            <div class="embedded-content">
+                <img src="https://i.insider.com/66c368b35da406397bf6dc8f?width=1200&format=jpeg" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="#" onclick="toggleEmbed('embed-7667119131371483009', 'https://www.businessinsider.com/chatgpt-ai-tips-for-sales-2024-8'); return false;" class="read-more">Read Full Article</a>
+                    <p class="article-source">Business Insider</p>
+                </div>
+            </div>
+            <div id="embed-7667119131371483009" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+            </div>
+        </article>
+        
+        <article class="article">
+            <h3>AI AS A GUIDE, NOT A SUBSTITUTE: Microsoft's St...</h3>
+            <p>Microsoft's updated Service Agreement emphasizes that AI should be viewed as a supportive tool rather than a replacement for human expertise, reinforcing the importance of professional judgment.</p>
+            
+            <h4>Key Takeaways</h4>
+            <ul class="key-takeaways">
+                <li>AI is intended to assist professionals, not to replace them in decision-making processes.</li><li>The update reflects a growing recognition of the limitations and ethical considerations of using AI in critical fields.</li>
+            </ul>
+            
+            <div class="embedded-content">
+                <img src="https://cdn.mos.cms.futurecdn.net/GAemr4SJ9CKFdwALAVcD8a-1200-80.jpg" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="#" onclick="toggleEmbed('embed-7094973301774413484', 'https://www.windowscentral.com/software-apps/even-microsoft-doesnt-think-ai-is-designed-to-substitute-professionals'); return false;" class="read-more">Read Full Article</a>
+                    <p class="article-source">Windows Central</p>
+                </div>
+            </div>
+            <div id="embed-7094973301774413484" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+            </div>
+        </article>
+        
+        <article class="article">
+            <h3>Buds with a Cause: Nothing Pro 2 Falls Short** ...</h3>
+            <p>The CMF Nothing Buds Pro 2 aim to impress with their design but ultimately leave users wanting more in terms of sound quality and functionality.</p>
+            
+            <h4>Key Takeaways</h4>
+            <ul class="key-takeaways">
+                <li>Design and aesthetics are appealing, but sound performance is average at best.</li><li>The earbuds lack standout features compared to competitors, making them a tough sell.</li>
+            </ul>
+            
+            <div class="embedded-content">
+                <img src="https://gizmodo.com/app/uploads/2024/08/cmf-buds-pro-2.jpg" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="#" onclick="toggleEmbed('embed--6150545577421688492', 'https://gizmodo.com/cmf-nothing-buds-pro-2-review-nothing-to-hear-here-2000488164'); return false;" class="read-more">Read Full Article</a>
+                    <p class="article-source">Gizmodo.com</p>
+                </div>
+            </div>
+            <div id="embed--6150545577421688492" class="embed-container" style="display: none;">
+                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+            </div>
         </article>
         
                 </section>
             </main>
 
-            <div id="modal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <iframe id="embedded-content"></iframe>
-                </div>
-            </div>
-
             <script>
-                var modal = document.getElementById('modal');
-                var embeddedContent = document.getElementById('embedded-content');
-                var span = document.getElementsByClassName('close')[0];
-
-                function openModal(url) {
-                    embeddedContent.src = url;
-                    modal.style.display = 'block';
+            function toggleEmbed(embedId, url) {
+                var container = document.getElementById(embedId);
+                if (container.style.display === "none") {
+                    container.style.display = "block";
+                    container.querySelector('iframe').src = url;
+                } else {
+                    container.style.display = "none";
+                    container.querySelector('iframe').src = "about:blank";
                 }
-
-                span.onclick = function() {
-                    modal.style.display = 'none';
-                    embeddedContent.src = '';
-                }
-
-                window.onclick = function(event) {
-                    if (event.target == modal) {
-                        modal.style.display = 'none';
-                        embeddedContent.src = '';
-                    }
-                }
+            }
             </script>
         </body>
         </html>

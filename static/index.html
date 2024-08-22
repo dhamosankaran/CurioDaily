@@ -3,6 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CurioDaily: Your daily dose of interesting news and updates on AI, Tech, Business, and Science. Stay informed with curated content.">
+<meta name="keywords" content="daily news, AI news, tech updates, business insights, science discoveries">
+
+<!-- Open Graph meta tags for better social media sharing -->
+<meta property="og:title" content="CurioDaily: Your Daily Dose of Interesting">
+<meta property="og:description" content="Stay informed with curated content on AI, Tech, Business, and Science.">
+<meta property="og:image" content="https://yourdomain.com/path-to-your-logo.jpg">
+<meta property="og:url" content="https://yourdomain.com">
+
+<!-- Twitter Card meta tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CurioDaily: Your Daily Dose of Interesting">
+<meta name="twitter:description" content="Stay informed with curated content on AI, Tech, Business, and Science.">
+<meta name="twitter:image" content="https://yourdomain.com/path-to-your-logo.jpg">
+
     <title>CurioDaily: Your Daily Dose of Interesting</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -396,7 +411,22 @@
     <div id="articleModal" class="modal">
         <div id="articleContent"></div>
     </div>
-
+    
+    <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "CurioDaily",
+          "url": "https://yourdomain.com",
+          "description": "Your daily dose of interesting news and updates on AI, Tech, Business, and Science.",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://yourdomain.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+        </script>
+        
     <script>
         // Fetch topics and articles from the backend
         async function fetchTopicsAndArticles() {
