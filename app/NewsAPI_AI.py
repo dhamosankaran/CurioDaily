@@ -7,6 +7,9 @@ from textwrap import wrap
 from openai import OpenAI
 import psycopg2
 from psycopg2 import sql
+import urllib.parse
+import logging
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -16,7 +19,6 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-
 class AINewsFetcher:
     def __init__(self):
         self.news_api_key = os.getenv('NEWS_API_KEY')
@@ -24,112 +26,40 @@ class AINewsFetcher:
             raise ValueError("NEWS_API_KEY not found in environment variables")
         self.base_url = "https://newsapi.org/v2/everything"
         self.preferred_entities = [
-            'OpenAI', 'DeepMind', 'Microsoft', 'MIT', 'Mistral', 
-            'Anthropic', 'Meta', 'IBM', 'NVIDIA', 'Intel', 'Apple', 
-            'Amazon', 'Boston Dynamics', 'Tesla', 'Google'
+            'OpenAI', 'DeepMind', 'Anthropic', 'Google AI', 'Microsoft AI', 'IBM Watson',
+            'NVIDIA AI', 'Meta AI', 'Tesla AI', 'Amazon AI', 'Apple Machine Learning',
+            'Hugging Face', 'Boston Dynamics', 'SenseTime', 'Baidu AI', 'GPT-4', 'DALL-E',
+            'ChatGPT', 'LaMDA', 'PaLM', 'Claude', 'Stable Diffusion'
         ]
         self.db_url = os.getenv('DATABASE_URL')
         if not self.db_url:
             raise ValueError("DATABASE_URL not found in environment variables")
 
-                # List of trusted sources
+        # List of trusted AI news sources
         self.trusted_sources = [
-            # Major Tech News Sites
-            'techcrunch.com', 'wired.com', 'technologyreview.com', 'theverge.com',
-            'arstechnica.com', 'venturebeat.com', 'zdnet.com', 'engadget.com',
-            'cnet.com', 'techmeme.com', 'thenextweb.com', 'protocol.com',
-            
-            # Scientific Publications
-            'nature.com', 'sciencemag.org', 'ieee.org', 'sciencedaily.com',
-            'newscientist.com', 'scientificamerican.com', 'phys.org',
-            
-            # Business and General News
-            'forbes.com', 'bloomberg.com', 'reuters.com', 'nytimes.com',
-            'wsj.com', 'washingtonpost.com', 'bbc.com', 'theguardian.com',
-            'economist.com', 'ft.com',
-            
-            # AI-Focused News Sites
-            'artificialintelligence-news.com', 'ai.stanford.edu', 'aitrends.com',
-            'deeplearning.ai', 'lexology.com/ai', 'bdtechtalks.com',
-            
-            # AI Company Official Blogs and Websites
-            'openai.com', 'blog.google', 'ai.googleblog.com', 'deepmind.com',
-            'blog.bing.com', 'blogs.microsoft.com', 'research.ibm.com',
-            'ai.facebook.com', 'blog.twitter.com', 'amazon.science',
-            'blogs.nvidia.com', 'intel.com/content/www/us/en/artificial-intelligence',
-            'anthropic.com', 'mistral.ai', 'x.ai', 'stability.ai',
-            
-            # AI Research Institutions
-            'ai.mit.edu', 'humancompatible.ai', 'cset.georgetown.edu',
-            'futureoflife.org', 'cser.ac.uk', 'fhi.ox.ac.uk',
-            
-            # Tech Giants' AI Pages
-            'ai.google', 'azure.microsoft.com/en-us/solutions/ai',
-            'aws.amazon.com/machine-learning', 'www.ibm.com/watson',
-            
-            # AI Ethics and Policy
-            'aiethicslab.com', 'ainowinstitute.org', 'partnershiponai.org',
-            'caidp.org', 'hai.stanford.edu',
-            
-            # AI in Specific Domains
-            'healthitanalytics.com', 'aiin.healthcare', 'emerj.com'
-        ]
-        self.focus_companies = [
-            # Major AI Research Companies
-            'OpenAI', 'DeepMind', 'Anthropic', 'X.AI', 'Google AI', 'Microsoft Research',
-            'IBM Watson', 'Facebook AI Research', 'Amazon AI', 'Apple Machine Learning',
-            
-            # AI Chip Companies
-            'NVIDIA', 'Intel AI', 'AMD AI', 'Graphcore',
-            
-            # AI in Cloud Services
-            'Google Cloud AI', 'AWS AI', 'Azure AI', 'IBM Cloud AI',
-            
-            # Specialized AI Companies
-            'Databricks', 'Palantir', 'C3.ai', 'DataRobot', 'H2O.ai',
-            
-            # AI in Robotics
-            'Boston Dynamics', 'iRobot', 'ABB Robotics',
-            
-            # AI Ethics and Safety Organizations
-            'AI Safety Center', 'Center for AI Safety', 'Machine Intelligence Research Institute',
-            'Future of Humanity Institute', 'AI Alignment', 'Center for Human-Compatible AI',
-            
-            # AI Governance and Policy
-            'Partnership on AI', 'AI Now Institute', 'OpenAI Policy Team', 'DeepMind Ethics & Society',
-            
-            # Emerging AI Startups
-            'Cohere', 'Hugging Face', 'Stability AI', 'Midjourney', 'Inflection AI',
-            
-            # AI in Healthcare
-            'DeepMind Health', 'IBM Watson Health', 'Google Health AI',
-            
-            # AI in Finance
-            'Two Sigma', 'Citadel AI', 'JPMorgan AI Research',
-            
-            # AI in Autonomous Vehicles
-            'Waymo', 'Tesla AI', 'Cruise Automation', 'Argo AI',
-            
-            # AI Research Institutes
-            'Allen Institute for AI', 'MIT AI Lab', 'Stanford AI Lab', 'Berkeley AI Research'
+            'arxiv.org', 'distill.pub', 'ai.googleblog.com', 'openai.com/blog',
+            'deepmind.com/blog', 'blogs.microsoft.com/ai', 'ai.facebook.com',
+            'blog.research.google', 'aws.amazon.com/blogs/machine-learning',
+            'machinelearning.apple.com', 'blog.tensorflow.org', 'pytorch.org/blog',
+            'blogs.nvidia.com/ai-machine-learning', 'ibm.com/watson/blog',
+            'thegradient.pub', 'towardsdatascience.com', 'arxiv-sanity.com',
+            'paperswithcode.com', 'lexfridman.com', 'aitrends.com', 'syncedreview.com'
         ]
 
     def fetch_news(self, keywords, date, language='en', sort_by='relevancy'):
-
-        all_keywords = keywords
-        #logger.info (f"all keywords: {all_keywords}")
-        query = ' OR '.join(f'"{keyword}"' for keyword in all_keywords[:20])  # Increased limit to include more focus companies
-        logger.info (f"query:........ {query}")
-
+        query = ' OR '.join(f'"{keyword}"' for keyword in keywords[:20])
         params = {
             'q': query,
             'from': date.isoformat(),
-            'to': (date + timedelta(days=1)).isoformat(),  # End of the day
+            'to': (date + timedelta(days=1)).isoformat(),
             'language': language,
             'sortBy': sort_by,
             'pageSize': 100,
             'apiKey': self.news_api_key
+
         }
+
+        logger.info(f"Query....{query}")
 
         try:
             response = requests.get(self.base_url, params=params)
@@ -145,13 +75,8 @@ class AINewsFetcher:
 
     def filter_and_sort_articles(self, articles):
         unique_articles = self.remove_duplicates(articles)
-        #trusted_articles = [article for article in unique_articles if self.is_trusted_source(article)]
-        #sorted_articles = self.sort_articles_by_preference(trusted_articles)
-        return unique_articles[:10]  # Return top 6 articles for 3x2 grid
-
-    def is_trusted_source(self, article):
-        source_url = article.get('url', '')
-        return any(trusted_domain in source_url for trusted_domain in self.trusted_sources)
+        #sorted_articles = self.sort_articles_by_preference(unique_articles)
+        return unique_articles[:2]  # Return top 10 articles
 
     def remove_duplicates(self, articles):
         unique_articles = []
@@ -175,25 +100,17 @@ class AINewsFetcher:
             description = article.get('description', '') or ''
             content = (title + ' ' + description).lower()
 
-            company_score = sum(content.count(company.lower()) for company in self.focus_companies) * 5
-
-
             entity_score = sum(content.count(entity.lower()) for entity in self.preferred_entities)
 
-            ai_keywords = ['artificial intelligence', 'machine learning', 'deep learning', 'neural network']
-            genai_keywords = ['generative ai', 'gpt', 'llm', 'large language model']
-            robot_keywords = ['robot', 'humanoid', 'android', 'automaton']
+            ai_keywords = ['artificial intelligence', 'machine learning', 'deep learning', 'neural networks',
+                           'natural language processing', 'computer vision', 'robotics', 'generative ai',
+                           'large language models', 'reinforcement learning', 'transformer models']
             
             ai_score = sum(content.count(keyword) for keyword in ai_keywords)
-            genai_score = sum(content.count(keyword) for keyword in genai_keywords)
-            robot_score = sum(content.count(keyword) for keyword in robot_keywords)
 
-            total_score = company_score + (entity_score * 2) + (ai_score * 1.5) + (genai_score * 2) + (robot_score * 2.5)
-
-            return total_score
+            return entity_score * 2 + ai_score
 
         return sorted(articles, key=preference_score, reverse=True)
-
 
     def generate_highlights(self, articles):
         highlights = ""
@@ -212,12 +129,12 @@ class AINewsFetcher:
         {highlights}
 
         Generate a title in the format: "AI [Theme]: [Specific Detail]"
-        For example: AI Breakthroughs: Language Models Achieve Human-Level Understanding
+        For example: "AI Breakthrough: New Language Model Surpasses Human Performance"
         """
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-4-1106-preview",
                 messages=[
                     {"role": "system", "content": "You are an AI assistant that creates engaging titles for AI news summaries."},
                     {"role": "user", "content": prompt}
@@ -238,18 +155,18 @@ class AINewsFetcher:
         url = article.get('url', 'No URL available')
 
         prompt = f"""
-        Summarize the following article in this format:
+        Summarize the following AI article in this format:
 
-        🔥 **[CATCHY TITLE]: [Subtitle]**
+        🤖 **[CATCHY TITLE]: [Subtitle]**
 
-        🚀 **Innovation Spotlight:**
-        [1-2 sentences highlighting the key innovation, development, or news]
+        🧠 **AI Innovation Spotlight:**
+        [1-2 sentences highlighting the key AI innovation, development, or news]
 
-        💡 **Key Takeaways:**
-        • [First key point]
-        • [Second key point]
+        💡 **Key Insights:**
+        • [First key insight]
+        • [Second key insight]
 
-        🔗 **Deep Dive:** {url}
+        🔗 **Learn More:** {url}
 
         Use the article's content to fill in the brackets. Be concise, informative, and engaging. Use relevant emojis where appropriate.
 
@@ -259,9 +176,9 @@ class AINewsFetcher:
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-4-1106-preview",
                 messages=[
-                    {"role": "system", "content": "You are a tech-savvy AI assistant that creates engaging summaries of AI and technology news for social media and newsletters."},
+                    {"role": "system", "content": "You are an AI-savvy assistant that creates engaging summaries of AI news for social media and newsletters."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=300,
@@ -274,10 +191,9 @@ class AINewsFetcher:
             logger.error(f"Error generating summary with OpenAI: {e}")
             return "Error generating summary."
 
-
     def generate_html_page(self, highlights, articles):
         dynamic_title = self.generate_dynamic_title(highlights)
-        today_date = datetime.now().strftime("%b %d, %Y") 
+        today_date = datetime.now().strftime("%b %d, %Y")
         html_content = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -290,10 +206,10 @@ class AINewsFetcher:
                 :root {{
                     --primary-color: #1a237e;
                     --secondary-color: #3f51b5;
-                    --background-color: #f5f5f5;
+                    --background-color: #e8eaf6;
                     --text-color: #212121;
                     --accent-color: #ff4081;
-                    --highlight-box-color: #e8eaf6;
+                    --highlight-box-color: #c5cae9;
                 }}
                 body {{
                     font-family: 'Roboto', sans-serif;
@@ -340,7 +256,7 @@ class AINewsFetcher:
                 .highlights li {{
                     padding: 8px 10px;
                     background-color: #fff;
-                    border-bottom: 1px solid #e0e0e0;
+                    border-bottom: 1px solid #7986cb;
                 }}
                 .highlights li:last-child {{
                     border-bottom: none;
@@ -359,7 +275,7 @@ class AINewsFetcher:
                 }}
                 .article h3 {{
                     color: var(--secondary-color);
-                    font-size: 1.3em;
+                    font-size: 1.0em;
                     margin: 0 0 10px 0;
                 }}
                 .article h4 {{
@@ -367,7 +283,7 @@ class AINewsFetcher:
                     font-size: 1.1em;
                     margin: 15px 0 5px 0;
                 }}
-                .key-takeaways {{
+                .key-insights {{
                     padding-left: 20px;
                 }}
                 .read-more {{
@@ -391,8 +307,8 @@ class AINewsFetcher:
                     display: flex;
                     align-items: center;
                     margin-top: 15px;
-                    background-color: #f8f9fa;
-                    border: 1px solid #e9ecef;
+                    background-color: #e8eaf6;
+                    border: 1px solid #c5cae9;
                     border-radius: 8px;
                     overflow: hidden;
                 }}
@@ -407,15 +323,7 @@ class AINewsFetcher:
                 }}
                 .article-source {{
                     font-size: 0.8em;
-                    color: #6c757d;
-                }}
-                .embed-container {{
-                    margin-top: 15px;
-                }}
-                .embed-container iframe {{
-                    width: 100%;
-                    height: 600px;
-                    border: none;
+                    color: #5c6bc0;
                 }}
             </style>
         </head>
@@ -434,19 +342,6 @@ class AINewsFetcher:
                     {''.join(self.generate_article_html(article) for article in articles)}
                 </section>
             </main>
-
-            <script>
-            function toggleEmbed(embedId, url) {{
-                var container = document.getElementById(embedId);
-                if (container.style.display === "none") {{
-                    container.style.display = "block";
-                    container.querySelector('iframe').src = url;
-                }} else {{
-                    container.style.display = "none";
-                    container.querySelector('iframe').src = "about:blank";
-                }}
-            }}
-            </script>
         </body>
         </html>
         """
@@ -460,55 +355,108 @@ class AINewsFetcher:
         formatted_highlights += "</ul>"
         return formatted_highlights
 
+
     def generate_article_html(self, article):
         summary = self.generate_summary(article)
         
         sections = summary.split('\n\n')
         
         title = "Untitled Article"
-        innovation_spotlight = ""
-        key_takeaways = []
-        deep_dive = article.get('url', '#')  # Default to '#' if no URL is available
+        ai_innovation_spotlight = ""
+        key_insights = []
+        learn_more = article.get('url', '#')
 
         for section in sections:
-            if section.startswith('🔥'):
-                title = section.strip('🔥 *')
-            elif section.startswith('🚀'):
-                innovation_spotlight = section.replace('🚀 **Innovation Spotlight:**', '').strip()
+            if section.startswith('🤖'):
+                title = section.strip('🤖 *')
+            elif section.startswith('🧠'):
+                ai_innovation_spotlight = section.replace('🧠 **AI Innovation Spotlight:**', '').strip()
             elif section.startswith('💡'):
-                key_takeaways = section.replace('💡 **Key Takeaways:**', '').strip().split('\n')
-            elif section.startswith('🔗'):
-                deep_dive = section.replace('🔗 **Deep Dive:**', '').strip() or deep_dive
+                key_insights = section.replace('💡 **Key Insights:**', '').strip().split('\n')
 
-        # Limit title to 50 characters
-        title = title[:47] + '...' if len(title) > 50 else title
+        # Ensure the URL is properly formatted
+        if learn_more != '#':
+            try:
+                learn_more = urllib.parse.urljoin('https://', learn_more)
+                learn_more = urllib.parse.quote(learn_more, safe=':/?&=')
+            except Exception as e:
+                logger.error(f"Error formatting URL {learn_more}: {e}")
+                learn_more = '#'
 
-        key_takeaways_html = ""
-        if key_takeaways:
-            key_takeaways_html = f"""
-            <h4>Key Takeaways</h4>
-            <ul class="key-takeaways">
-                {''.join(f'<li>{takeaway.strip("• ")}</li>' for takeaway in key_takeaways)}
+        # Log the URL for debugging
+        logger.debug(f"Article URL: {learn_more}")
+
+        # Limit title to 75 characters
+        title = title[:70] + '...' if len(title) > 75 else title
+
+        key_insights_html = ""
+        if key_insights:
+            key_insights_html = f"""
+            <h4>Key Insights</h4>
+            <ul class="key-insights">
+                {''.join(f'<li>{insight.strip("• ")}</li>' for insight in key_insights)}
             </ul>
             """
-
-        # Generate a unique ID for this article's embedded content
-        embed_id = f"embed-{hash(title)}"
 
         return f"""
         <article class="article">
             <h3>{title}</h3>
-            <p>{innovation_spotlight}</p>
-            {key_takeaways_html}
+            <p>{ai_innovation_spotlight}</p>
+            {key_insights_html}
             <div class="embedded-content">
                 <img src="{article.get('urlToImage', '/api/placeholder/400/300')}" alt="Article image" class="article-image">
                 <div class="embedded-text">
-                    <a href="#" onclick="toggleEmbed('{embed_id}', '{deep_dive}'); return false;" class="read-more">Read Full Article</a>
+                    <a href="{learn_more}" target="_blank" rel="noopener noreferrer" class="read-more">Read Full Article</a>
                     <p class="article-source">{article.get('source', {}).get('name', 'Unknown Source')}</p>
                 </div>
             </div>
-            <div id="{embed_id}" class="embed-container" style="display: none;">
-                <iframe src="about:blank" width="100%" height="600" frameborder="0"></iframe>
+        </article>
+        """
+
+    def generate_article_html1(self, article):
+        summary = self.generate_summary(article)
+        
+        sections = summary.split('\n\n')
+        
+        title = "Untitled Article"
+        ai_innovation_spotlight = ""
+        key_insights = []
+        learn_more = article.get('url', '#')  # Get the raw URL from the article data
+
+        for section in sections:
+            if section.startswith('🤖'):
+                title = section.strip('🤖 *')
+            elif section.startswith('🧠'):
+                ai_innovation_spotlight = section.replace('🧠 **AI Innovation Spotlight:**', '').strip()
+            elif section.startswith('💡'):
+                key_insights = section.replace('💡 **Key Insights:**', '').strip().split('\n')
+            # Remove this section as we're using the raw URL from the article data
+            # elif section.startswith('🔗'):
+            #     learn_more = section.replace('🔗 **Learn More:**', '').strip() or learn_more
+
+        # Limit title to 75 characters
+        title = title[:70] + '...' if len(title) > 75 else title
+
+        key_insights_html = ""
+        if key_insights:
+            key_insights_html = f"""
+            <h4>Key Insights</h4>
+            <ul class="key-insights">
+                {''.join(f'<li>{insight.strip("• ")}</li>' for insight in key_insights)}
+            </ul>
+            """
+
+        return f"""
+        <article class="article">
+            <h3>{title}</h3>
+            <p>{ai_innovation_spotlight}</p>
+            {key_insights_html}
+            <div class="embedded-content">
+                <img src="{article.get('urlToImage', '/api/placeholder/400/300')}" alt="Article image" class="article-image">
+                <div class="embedded-text">
+                    <a href="{learn_more}" target="_blank" rel="noopener noreferrer" class="read-more">Read Full Article</a>
+                    <p class="article-source">{article.get('source', {}).get('name', 'Unknown Source')}</p>
+                </div>
             </div>
         </article>
         """
@@ -537,7 +485,7 @@ class AINewsFetcher:
                         VALUES (%s, %s, %s)
                         RETURNING id
                     """)
-                    cur.execute(insert_query, (title, content, 1))
+                    cur.execute(insert_query, (title, content, 1))  # Assuming topic_id 1 for AI
                     inserted_id = cur.fetchone()[0]
                     conn.commit()
                     logger.info(f"Newsletter stored in database with ID: {inserted_id}")
@@ -553,20 +501,19 @@ def main():
     yesterday = today - timedelta(days=1)
     
     keywords = [
-        'artificial intelligence', 'generative AI', 'large language models', 'AI humanoids',
-        'GPT-4', 'ChatGPT', 'AI breakthroughs', 'AI ethics', 'AI governance', 'AI safety',
-        'AI regulation', 'conversational AI', 'AI assistants', 'multimodal AI', 'AI in robotics',
-        'AI-human interaction', 'neural networks', 'AI policy', 'AGI development', 'AI startups'
+        'artificial intelligence', 'machine learning', 'deep learning', 'neural networks',
+        'natural language processing', 'computer vision', 'robotics', 'generative ai',
+        'large language models', 'GPT-4', 'ChatGPT', 'DALL-E', 'Stable Diffusion',
+        'OpenAI', 'DeepMind', 'Anthropic', 'Google AI', 'Microsoft AI', 'ethical AI',
+        'AI research', 'AI applications', 'AI in healthcare', 'AI in finance'
     ]
-
-    logger.info(f"Fetching top AI-related news articles for {yesterday}...")
-    articles = fetcher.fetch_news(keywords, yesterday, sort_by='relevancy')
 
     logger.info(f"Fetching top AI-related news articles for {yesterday}...")
     articles = fetcher.fetch_news(keywords, yesterday, sort_by='relevancy')
 
     if articles:
         highlights = fetcher.generate_highlights(articles)
+        logger.info(f"highlights......{highlights}")
         logger.info("Generating HTML page...")
         html_content = fetcher.generate_html_page(highlights, articles)
         
