@@ -7,9 +7,6 @@ from textwrap import wrap
 from openai import OpenAI
 import psycopg2
 from psycopg2 import sql
-import urllib.parse
-import logging
-
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -76,7 +73,7 @@ class AINewsFetcher:
     def filter_and_sort_articles(self, articles):
         unique_articles = self.remove_duplicates(articles)
         #sorted_articles = self.sort_articles_by_preference(unique_articles)
-        return unique_articles[:2]  # Return top 10 articles
+        return unique_articles[:10]  # Return top 10 articles
 
     def remove_duplicates(self, articles):
         unique_articles = []
@@ -355,65 +352,7 @@ class AINewsFetcher:
         formatted_highlights += "</ul>"
         return formatted_highlights
 
-
     def generate_article_html(self, article):
-        summary = self.generate_summary(article)
-        
-        sections = summary.split('\n\n')
-        
-        title = "Untitled Article"
-        ai_innovation_spotlight = ""
-        key_insights = []
-        learn_more = article.get('url', '#')
-
-        for section in sections:
-            if section.startswith('🤖'):
-                title = section.strip('🤖 *')
-            elif section.startswith('🧠'):
-                ai_innovation_spotlight = section.replace('🧠 **AI Innovation Spotlight:**', '').strip()
-            elif section.startswith('💡'):
-                key_insights = section.replace('💡 **Key Insights:**', '').strip().split('\n')
-
-        # Ensure the URL is properly formatted
-        if learn_more != '#':
-            try:
-                learn_more = urllib.parse.urljoin('https://', learn_more)
-                learn_more = urllib.parse.quote(learn_more, safe=':/?&=')
-            except Exception as e:
-                logger.error(f"Error formatting URL {learn_more}: {e}")
-                learn_more = '#'
-
-        # Log the URL for debugging
-        logger.debug(f"Article URL: {learn_more}")
-
-        # Limit title to 75 characters
-        title = title[:70] + '...' if len(title) > 75 else title
-
-        key_insights_html = ""
-        if key_insights:
-            key_insights_html = f"""
-            <h4>Key Insights</h4>
-            <ul class="key-insights">
-                {''.join(f'<li>{insight.strip("• ")}</li>' for insight in key_insights)}
-            </ul>
-            """
-
-        return f"""
-        <article class="article">
-            <h3>{title}</h3>
-            <p>{ai_innovation_spotlight}</p>
-            {key_insights_html}
-            <div class="embedded-content">
-                <img src="{article.get('urlToImage', '/api/placeholder/400/300')}" alt="Article image" class="article-image">
-                <div class="embedded-text">
-                    <a href="{learn_more}" target="_blank" rel="noopener noreferrer" class="read-more">Read Full Article</a>
-                    <p class="article-source">{article.get('source', {}).get('name', 'Unknown Source')}</p>
-                </div>
-            </div>
-        </article>
-        """
-
-    def generate_article_html1(self, article):
         summary = self.generate_summary(article)
         
         sections = summary.split('\n\n')
