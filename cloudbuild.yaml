@@ -1,16 +1,11 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/autonomous-newsletter:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'gcr.io/autonomousnewsletter/autonomous-newsletter:$COMMIT_SHA', '.']
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/autonomous-newsletter:$COMMIT_SHA']
-
-  # Run database migrations
-  - name: 'gcr.io/$PROJECT_ID/autonomous-newsletter:$COMMIT_SHA'
-    entrypoint: 'alembic'
-    args: ['upgrade', 'head']
+    args: ['push', 'gcr.io/autonomousnewsletter/autonomous-newsletter:$COMMIT_SHA']
 
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -20,14 +15,30 @@ steps:
       - 'deploy'
       - 'autonomous-newsletter'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/autonomous-newsletter:$COMMIT_SHA'
+      - 'gcr.io/autonomousnewsletter/autonomous-newsletter:$COMMIT_SHA'
       - '--region'
       - 'us-central1'
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
+      - '--set-secrets'
+      - 'NEWS_API_KEY=NEWS_API_KEY:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest,DATABASE_URL=DATABASE_URL:latest'
+      - '--set-env-vars'
+      - 'GOOGLE_CLOUD_PROJECT=autonomousnewsletter'
 
-
+  # Optional: Run database migrations
+  - name: 'gcr.io/autonomousnewsletter/autonomous-newsletter:$COMMIT_SHA'
+    entrypoint: 'python'
+    args: ['-m', 'alembic', 'upgrade', 'head']
+    env:
+      - 'DATABASE_URL=${_DATABASE_URL}'
 
 images:
-  - 'gcr.io/$PROJECT_ID/autonomous-newsletter:$COMMIT_SHA'
+  - 'gcr.io/autonomousnewsletter/autonomous-newsletter:$COMMIT_SHA'
+
+substitutions:
+  _DATABASE_URL: 'UPDATE_WITH_YOUR_DATABASE_URL'  # Set this in Cloud Build trigger
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  logsBucket: gs://curiodailylog 
