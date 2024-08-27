@@ -39,6 +39,6 @@ images:
 substitutions:
   _DATABASE_URL: 'UPDATE_WITH_YOUR_DATABASE_URL'  # Set this in Cloud Build trigger
 
+# You can include logging options like this:
 options:
-  logging: CLOUD_LOGGING_ONLY
-  logsBucket: gs://curiodailylog 
+  logging: CLOUD_LOGGING_ONLY  # Logs to Cloud Logging, not GCS bucket
