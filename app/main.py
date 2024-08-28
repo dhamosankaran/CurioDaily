@@ -89,6 +89,7 @@ if __name__ == "__main__":
     import uvicorn
     logger.info("Starting the application")
     port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 8080))
     logger.info(f"Configured to listen on port {port}")
 
     try:
