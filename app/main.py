@@ -88,4 +88,11 @@ async def log_requests(request: Request, call_next):
 if __name__ == "__main__":
     import uvicorn
     logger.info("Starting the application")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8080))
+    logger.info(f"Configured to listen on port {port}")
+
+    try:
+        uvicorn.run(app, host="0.0.0.0", port=port)
+    except Exception as e:
+        logger.error(f"Failed to start the application: {str(e)}")
+        raise
