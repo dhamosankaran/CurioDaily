@@ -2,11 +2,11 @@
 FROM python:3.9-slim as builder
 
 # Install build dependencies
-#RUN apt-get update && apt-get install -y \
-#    build-essential \
-#    libpq-dev \
-#    gcc \
-#    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create a virtual environment
 RUN python -m venv /opt/venv
@@ -31,4 +31,4 @@ COPY . .
 EXPOSE 8080
 
 # Command to run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD exec uvicorn app.main:app --host 0.0.0.0 --port $PORT
