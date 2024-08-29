@@ -31,11 +31,13 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY . .
 
 # Set environment variable for the port
-ENV PORT=8080
+#ENV PORT=8080
 
 # Expose the port the app runs on
-EXPOSE 8080
+#EXPOSE 8080
 
 # Command to run the application
-CMD exec uvicorn app.main:app --host 0.0.0.0 --port $PORT
+CMD exec uvicorn app.main:app --host 0.0.0.0
+
+
 
