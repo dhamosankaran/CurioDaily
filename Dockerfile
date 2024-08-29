@@ -24,7 +24,6 @@ FROM python:3.9-slim
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-COPY .env .env
 
 # Copy the rest of the application code
 COPY . .
