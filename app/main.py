@@ -29,6 +29,10 @@ app = FastAPI(
     openapi_url=f"/api/openapi.json"
 )
 
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
+
 @app.on_event("startup")
 def startup_event():
     logger.info("Running startup event")
@@ -86,14 +90,10 @@ async def log_requests(request: Request, call_next):
     return response
 
 if __name__ == "__main__":
-    import uvicorn
-    logger.info("Starting the application")
-    port = int(os.environ.get("PORT", 8080))
-    port = int(os.environ.get("PORT", 8080))
-    logger.info(f"Configured to listen on port {port}")
-
+    port = int(os.environ.get("PORT", 8080))  # Default to 8080 if PORT env var is not set
+    logger.info(f"Starting the application on port {port}")
+    
     try:
-        uvicorn.run(app, host="0.0.0.0", port=port)
+        uvicorn.run(app, host="0.0.0.0", port=port, reload=True)
     except Exception as e:
-        logger.error(f"Failed to start the application: {str(e)}")
-        raise
+        logger.error(f"Failed to start the application: {e}")
