@@ -15,7 +15,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Copy the requirements file and install dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt \
+    pip cache purge
+
 
 # Stage 2: Final
 FROM python:3.9-slim
@@ -36,3 +38,4 @@ EXPOSE 8080
 
 # Command to run the application
 CMD exec uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
