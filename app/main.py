@@ -94,13 +94,7 @@ if __name__ == "__main__":
     logger.info(f"Starting the application on port {port}")
     
     try:
-        uvicorn.run(app, host="0.0.0.0", port=port, reload=True, log_level="info")
+        uvicorn.run(app, host="0.0.0.0", reload=True, log_level="info")
     except Exception as e:
         logger.error(f"Failed to start the application: {e}")
-
-
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    logger.info(f"Starting server on port {port}")
-    uvicorn.run("main:app", host="0.0.0.0", port=port, log_level="info")
+        
