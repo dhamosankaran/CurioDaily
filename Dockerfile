@@ -1,5 +1,7 @@
 # Stage 1: Builder
-FROM python:3.9-slim as builder
+FROM --platform=linux/amd64 python:3.9-slim AS builder
+
+
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -15,29 +17,31 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Copy the requirements file and install dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt \
-    pip cache purge
-
+    pip install --no-cache-dir -r requirements.txt
 
 # Stage 2: Final
-FROM python:3.9-slim
+FROM --platform=linux/amd64 python:3.9-slim
 
 # Copy the virtual environment from the builder stage
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy the rest of the application code
+# Set environment variables
+ENV HOST=0.0.0.0
+ENV PORT=8080
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Copy the entire project directory
 COPY . .
 
-# Set environment variable for the port
-#ENV PORT=8080
-
 # Expose the port the app runs on
-#EXPOSE 8080
+EXPOSE 8080
 
 # Command to run the application
-CMD exec uvicorn app.main:app --host 0.0.0.0
-
-
-
+CMD exec gunicorn --bind :$PORT --workers 1 --worker-class uvicorn.workers.UvicornWorker --threads 8 app.main:app

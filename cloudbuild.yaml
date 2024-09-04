@@ -33,6 +33,14 @@ steps:
     env:
       - 'DATABASE_URL=${_DATABASE_URL}'
 
+startupProbe:
+  failureThreshold: 3
+  periodSeconds: 10
+  tcpSocket:
+    port: 8080
+  timeoutSeconds: 300  # Increase the timeout to give the app more time to start
+
+
 images:
   - 'gcr.io/autonomousnewsletter/autonomous-newsletter:$COMMIT_SHA'
 
