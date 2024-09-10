@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 api_router = APIRouter()
 
+
 # Include router for topics
 try:
     api_router.include_router(topics.router, prefix="/topics", tags=["topics"])
@@ -29,5 +30,7 @@ try:
     logger.info("Subscriptions router included successfully")
 except Exception as e:
     logger.error(f"Failed to include subscriptions router: {str(e)}", exc_info=True)
+
+logger.info(f"API routes configured: {[route.path for route in api_router.routes]}")
 
 logger.info("All routers have been included in the API router")

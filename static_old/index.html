@@ -438,21 +438,33 @@
     </script>
         
     <script>
+
+        function getApiBaseUrl() {
+            // Check if the current URL is the production URL
+            if (window.location.hostname.includes('autonomous-newsletter-457954888435.us-central1.run.app')) {
+                return 'https://autonomous-newsletter-457954888435.us-central1.run.app';
+            }
+            // Otherwise, assume it's local development
+            return 'https://localhost:8443';
+        }
+
+        const API_BASE = getApiBaseUrl();
+
         // Fetch topics and articles from the backend
         async function fetchTopicsAndArticles() {
-            try {
-                const topicsResponse = await fetch('/topics');
-                const topics = await topicsResponse.json();
-                console.log('Fetched topics:', topics);
+        try {
+        const topicsResponse = await fetch(`${API_BASE}/api/topics`);
+        const topics = await topicsResponse.json();
+        console.log('Fetched topics:', topics);
 
-                const topicGrid = document.getElementById('topicGrid');
+        const topicGrid = document.getElementById('topicGrid');
 
-                for (const topic of topics) {
-                    console.log(`Processing topic: ${topic.name}`);
+        for (const topic of topics) {
+            console.log(`Processing topic: ${topic.name}`);
 
-                    const articlesResponse = await fetch(`/newsletters/topic/${topic.id}`);
-                    const articles = await articlesResponse.json();
-                    console.log(`Fetched articles for ${topic.name}:`, articles);
+            const articlesResponse = await fetch(`${API_BASE}/api/newsletters/topic/${topic.id}`);
+            const articles = await articlesResponse.json();
+            console.log(`Fetched articles for ${topic.name}:`, articles);
 
                     if (articles.length === 0) {
                         console.log(`No articles found for ${topic.name}`);
@@ -557,12 +569,17 @@
         }
     
         document.getElementById('subscribeForm').onsubmit = async function(e) {
+            
             e.preventDefault();
+            
             const email = document.getElementById('emailInput').value;
+            
             const selectedTopicIds = Array.from(document.querySelectorAll('input[name="topics"]:checked')).map(el => parseInt(el.value));
             
+     
             try {
-                const response = await fetch('/subscriptions/', {
+            
+                const response = await fetch(`${API_BASE}/api/subscriptions/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -572,8 +589,9 @@
                         topic_ids: selectedTopicIds
                     }),
                 });
-                
+                alert('Dhamu 6');
                 const data = await response.json();
+                alert('Dhamu 7'+response.ok);
 
                 if (!response.ok) {
                     throw new Error(data.detail || 'Subscription failed');

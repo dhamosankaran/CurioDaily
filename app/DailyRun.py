@@ -95,28 +95,34 @@ def validate_task_distribution(task_groups, all_scripts):
     return len(missing_scripts) == 0 and len(extra_scripts) == 0 and len(duplicates) == 0
 
 def main():
-    # Get all NewsAPI*.py scripts in the current directory
-    scripts = glob.glob("NewsAPI_*.py")
+    # Get the directory of the current script
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # The NewsAPI scripts are in the same directory as DailyRun.py
+    scripts = glob.glob(os.path.join(current_dir, "NewsAPI_*.py"))
     
     if not scripts:
-        logger.warning("No NewsAPI scripts found in the current directory.")
+        logger.warning(f"No NewsAPI scripts found in the directory: {current_dir}")
         return
 
+    logger.info(f"Found scripts: {scripts}")
+
     # Get task distribution from LLM
-    task_groups = get_llm_task_distribution(scripts)
+    task_groups = get_llm_task_distribution([os.path.basename(script) for script in scripts])
 
     # Validate the task distribution
-    if not validate_task_distribution(task_groups, scripts):
+    if not validate_task_distribution(task_groups, [os.path.basename(script) for script in scripts]):
         logger.error("Invalid task distribution. Falling back to default distribution.")
-        task_groups = {f"group{i}": [script] for i, script in enumerate(scripts)}
+        task_groups = {f"group{i}": [os.path.basename(script)] for i, script in enumerate(scripts)}
 
     # Execute scripts in parallel using the suggested distribution
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = []
         for group, group_scripts in task_groups.items():
             for script in group_scripts:
-                if script in scripts:  # Additional check to ensure the script exists
-                    futures.append(executor.submit(execute_script, script))
+                script_path = os.path.join(current_dir, script)
+                if os.path.exists(script_path):
+                    futures.append(executor.submit(execute_script, script_path))
                 else:
                     logger.warning(f"Script {script} not found in the directory. Skipping.")
         

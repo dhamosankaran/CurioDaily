@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: autonomous_newsletter
+      POSTGRES_USER: ainewsletteruser
+      POSTGRES_PASSWORD: pwd
+  web:
+    build: .
+    environment:
+      - DATABASE_URL=postgresql://ainewsletteruser:pwd@localhost:5432/autonomous_newsletter
+    depends_on:
+      - db
