@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 def create_subscription(db: Session, subscription: schemas.SubscriptionCreate):
     logger.info(f"Creating new subscription for email: {subscription.email}")
     
-    db_subscription = models.Subscription(email=subscription.email)
+    db_subscription = models.Subscription(email=subscription.email, is_active=subscription.is_active)
     logger.debug(f"Subscription object created: {db_subscription}")
 
     associated_topics = []
@@ -49,3 +49,32 @@ def get_subscription_by_email(db: Session, email: str):
     else:
         logger.info(f"No subscription found for email: {email}")
     return subscription
+
+def update_subscription_status(db: Session, email: str, is_active: bool):
+    logger.info(f"Updating subscription status for email: {email}")
+    db_subscription = get_subscription_by_email(db, email)
+    if db_subscription:
+        db_subscription.is_active = is_active
+        db.commit()
+        db.refresh(db_subscription)
+        logger.info(f"Subscription status updated for email: {email}. New status: {'Active' if is_active else 'Inactive'}")
+        return db_subscription
+    else:
+        logger.warning(f"No subscription found for email: {email}. Status update failed.")
+        return None
+
+
+# Add this new function to crud/crud_subscription.py
+
+def update_subscription_status(db: Session, subscription_id: int, is_active: bool):
+    logger.info(f"Updating subscription status for ID: {subscription_id}")
+    db_subscription = db.query(models.Subscription).filter(models.Subscription.id == subscription_id).first()
+    if db_subscription:
+        db_subscription.is_active = is_active
+        db.commit()
+        db.refresh(db_subscription)
+        logger.info(f"Subscription status updated for ID: {subscription_id}. New status: {'Active' if is_active else 'Inactive'}")
+        return db_subscription
+    else:
+        logger.warning(f"No subscription found for ID: {subscription_id}. Status update failed.")
+        return None

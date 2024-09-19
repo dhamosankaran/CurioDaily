@@ -1,6 +1,6 @@
-# app/schemas/newsletter.py
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 from .topic import Topic
 
 class NewsletterBase(BaseModel):
@@ -10,6 +10,11 @@ class NewsletterBase(BaseModel):
 
 class NewsletterCreate(NewsletterBase):
     pass
+
+class NewsletterUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    topic_id: Optional[int] = None
 
 class Newsletter(NewsletterBase):
     id: int

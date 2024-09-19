@@ -9,9 +9,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi import Path
 import uvicorn
 from sqlalchemy.orm import Session
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import RedirectResponse
 
 
 
@@ -26,8 +28,10 @@ from app.db.base import Base
 from app.db.session import engine, SessionLocal
 from app.api import deps
 from app.crud.crud_topic import seed_initial_topics
+from app import crud
 
 logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # SSL configuration
@@ -51,16 +55,19 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Application is shutting down")
 
+# Create database tables
+Base.metadata.create_all(bind=engine)
+logger.info("Database tables created")
+
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"/api/openapi.json",
     lifespan=lifespan
 )
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
-logger.info("Database tables created")
-
+app.include_router(api_router, prefix="/api")
+logger.info("API router included")
 
 # CORS middleware
 if settings.BACKEND_CORS_ORIGINS:
@@ -76,7 +83,7 @@ if settings.BACKEND_CORS_ORIGINS:
                 "https://127.0.0.1:8080"
             ],
             allow_credentials=True,
-            allow_methods=["*"],
+            allow_methods=["GET", "POST", "PUT", "DELETE"],
             allow_headers=["*"],
         )
 
@@ -95,6 +102,31 @@ if not os.path.exists(static_dir):
     logger.info(f"Created static directory at {static_dir}")
 #app.mount("/static", StaticFiles(directory=static_dir), name="static")
 app.mount("/static", StaticFiles(directory=static_dir, html=True), name="static")
+
+@app.get("/unsubscribe-confirmation")
+async def unsubscribe_confirmation(id: int):
+    return {"message": f"You have been unsubscribed. Subscription ID: {id}"}
+
+from fastapi import Path
+
+@app.api_route("/api/subscriptions/{subscription_id}/unsubscribe", methods=["GET", "PUT"])
+async def unsubscribe(
+    request: Request,
+    subscription_id: int = Path(...),
+    db: Session = Depends(deps.get_db)
+):
+    try:
+        db_subscription = crud.update_subscription_status(db, subscription_id=subscription_id, is_active=False)
+        if db_subscription is None:
+            raise HTTPException(status_code=404, detail="Subscription not found")
+        
+        if request.method == "GET":
+            return RedirectResponse(url=f"{settings.BASE_URL}/?unsubscribe=success")
+        
+        return {"message": "Successfully unsubscribed"}
+    except Exception as e:
+        logger.error(f"Error unsubscribing: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while unsubscribing")
 
 @app.get("/health")
 async def health_check(db: Session = Depends(deps.get_db)):
@@ -140,8 +172,9 @@ async def debug_settings():
         # Add other non-sensitive settings here
     }
 
-app.include_router(api_router, prefix="/api")
-logger.info("API router included")
+
+
+
 
 @app.exception_handler(404)
 async def custom_404_handler(request: Request, exc: Exception):
@@ -179,10 +212,10 @@ async def add_security_headers(request: Request, call_next):
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     logger.info(f"Received request: {request.method} {request.url}")
-    logger.info(f"Headers: {request.headers}")
+    #logger.info(f"Headers: {request.headers}")
     response = await call_next(request)
-    logger.info(f"Response status: {response.status_code}")
-    logger.info(f"Response headers: {response.headers}")
+    #logger.info(f"Response status: {response.status_code}")
+    #logger.info(f"Response headers: {response.headers}")
     return response
 
 def run_server():

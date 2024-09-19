@@ -57,12 +57,13 @@ def read_newsletters_by_topic(
         logger.error(f"Error fetching newsletters for topic_id {topic_id}: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-# New endpoint to get a specific newsletter by ID
+
+
 @router.get("/{newsletter_id}", response_model=schemas.Newsletter)
 def read_newsletter(newsletter_id: int, db: Session = Depends(deps.get_db)):
     logger.info(f"Fetching newsletter with id: {newsletter_id}")
     try:
-        newsletter = crud.get_newsletter(db, newsletter_id=newsletter_id)
+        newsletter = crud.crud_newsletter.get_newsletter(db, newsletter_id=newsletter_id)
         if newsletter is None:
             logger.warning(f"Newsletter with id {newsletter_id} not found")
             raise HTTPException(status_code=404, detail="Newsletter not found")

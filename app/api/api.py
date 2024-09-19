@@ -2,7 +2,8 @@
 
 import logging
 from fastapi import APIRouter
-from app.api.endpoints import topics, newsletters, subscriptions
+from app.api.endpoints import topics, newsletters, subscriptions, analytics
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -31,6 +32,18 @@ try:
 except Exception as e:
     logger.error(f"Failed to include subscriptions router: {str(e)}", exc_info=True)
 
+
+
+
+# Include router for analytics
+try:
+    #api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
+    api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
+    logger.info("Analytics router included successfully")
+except Exception as e:
+    logger.error(f"Failed to include analytics router: {str(e)}", exc_info=True)
+
 logger.info(f"API routes configured: {[route.path for route in api_router.routes]}")
 
 logger.info("All routers have been included in the API router")
+

@@ -5,6 +5,7 @@ from .topic import Topic
 
 class SubscriptionBase(BaseModel):
     email: EmailStr
+    is_active: bool = True
 
 class SubscriptionCreate(SubscriptionBase):
     topic_ids: List[int]
@@ -15,3 +16,9 @@ class Subscription(SubscriptionBase):
 
     class Config:
         from_attributes = True
+
+class SubscriptionUpdate(BaseModel):
+    is_active: bool
+
+class SubscriptionInDB(Subscription):
+    pass

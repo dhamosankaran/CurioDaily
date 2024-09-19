@@ -1,6 +1,6 @@
 import logging
 from typing import List, Union, Any, Optional, Dict
-from pydantic import AnyHttpUrl, PostgresDsn, Field, field_validator, SecretStr, computed_field, validator
+from pydantic import AnyHttpUrl, PostgresDsn, Field, field_validator, SecretStr, computed_field
 from pydantic_settings import BaseSettings
 from google.cloud import secretmanager
 from google.api_core.exceptions import NotFound
@@ -8,7 +8,6 @@ import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 def get_secrets() -> Optional[dict[str, str]]:
     if os.getenv('GOOGLE_CLOUD_PROJECT'):
@@ -38,8 +37,6 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "CurioDaily"
 
-    #BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
-
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
          "http://localhost",
          "http://localhost:8080",
@@ -55,7 +52,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = "autonomous_newsletter"
     POSTGRES_PORT: int = Field(default=5432)
-    DATABASE_URL: Optional[str] = None
+    DATABASE_URL: str = "postgresql://ainewsletteruser:pwd@localhost:5432/autonomous_newsletter"
 
     SENDER_EMAIL: str = Field(default="example@example.com")
     SENDER_PASSWORD: str = Field(default="")
@@ -67,12 +64,13 @@ class Settings(BaseSettings):
     NEWS_API_KEY: SecretStr = Field(default=SecretStr(""))
     SECRET_KEY: SecretStr = Field(default=SecretStr(""))
 
- 
+    # Change this to a regular field without leading underscore
+    base_url: str = Field(default="https://localhost:8443")
+
     @computed_field
     @property
     def postgres_server(self) -> str:
         if self.ENVIRONMENT == "development":
-            #return "db"  # This should match your Docker Compose service name for PostgreSQL
             return self.POSTGRES_SERVER
         elif self.ENVIRONMENT == "production":
             return os.getenv("POSTGRES_SERVER", self.POSTGRES_SERVER)
@@ -83,7 +81,7 @@ class Settings(BaseSettings):
     def assemble_db_connection(cls, v: Optional[str], info: Dict[str, Any]) -> Any:
         if isinstance(v, str):
             return v
-        postgres_dsn = PostgresDsn.build(
+        return PostgresDsn.build(
             scheme="postgresql",
             username=info.data.get("POSTGRES_USER"),
             password=info.data.get("POSTGRES_PASSWORD"),
@@ -91,7 +89,6 @@ class Settings(BaseSettings):
             port=int(info.data.get("POSTGRES_PORT", 5432)),
             path=f"/{info.data.get('POSTGRES_DB') or ''}",
         )
-        return str(postgres_dsn)  # Convert to string explicitly
 
     @computed_field
     @property
@@ -104,10 +101,11 @@ class Settings(BaseSettings):
         if self.ENVIRONMENT == "production":
             return "https://autonomous-newsletter-457954888435.us-central1.run.app"
         elif self.ENVIRONMENT == "development":
-            return "localhost"
+            return self.base_url
         else:
-            return "host.docker.internal"
-            
+            return "http://host.docker.internal"
+
+        
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
@@ -119,7 +117,6 @@ class Settings(BaseSettings):
             except json.JSONDecodeError:
                 return [i.strip() for i in v.split(",") if i.strip()]
         return v
-
 
     class Config:
         env_file = ".env"
