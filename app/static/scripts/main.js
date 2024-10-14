@@ -1,13 +1,22 @@
-// main.js
-
 const API_BASE = getApiBaseUrl();
 
-// Utility functions
+const PROD_URL = 'https://www.thecuriodaily.com';
+const CLOUD_RUN_URL = 'https://autonomous-newsletter-457954888435.us-central1.run.app';
+const LOCAL_URL = 'https://localhost:8443';
+
+
 function getApiBaseUrl() {
-    return window.location.hostname.includes('autonomous-newsletter-457954888435.us-central1.run.app')
-        ? 'https://autonomous-newsletter-457954888435.us-central1.run.app'
-        : 'https://localhost:8443';
-}
+    switch(window.location.hostname) {
+      case 'www.thecuriodaily.com':
+      case 'thecuriodaily.com':
+        return PROD_URL;
+      case 'autonomous-newsletter-457954888435.us-central1.run.app':
+        return CLOUD_RUN_URL;
+      default:
+        console.warn(`Unexpected hostname: ${window.location.hostname}. Defaulting to local URL.`);
+        return LOCAL_URL;
+    }
+  }
 
 function unsubscribe(subscriptionId) {
     // For GET requests (when clicked from email)
@@ -100,11 +109,18 @@ function validateEmail(email) {
     return re.test(email);
 }
 
+
+
+
 // Fetch and display topics and articles
 async function fetchTopicsAndArticles() {
     try {
         const topics = await fetchTopics();
         const topicGrid = document.getElementById('topicGrid');
+        if (!topicGrid) {
+            console.warn('Topic grid element not found');
+            return;
+        }
 
         for (const topic of topics) {
             const articles = await fetchArticlesForTopic(topic.id);
@@ -168,7 +184,7 @@ function createTopicSection(topic, articles) {
 function getTopicIcon(topicName) {
     const iconMap = {
         'AI': 'fas fa-robot',
-        'Tech': 'fas fa-microchip',
+        'Technology': 'fas fa-microchip',  // Add this line
         'Business': 'fas fa-briefcase',
         'Science': 'fas fa-flask',
         'Politics': 'fas fa-landmark',
@@ -234,24 +250,35 @@ function addReadMoreEventListeners(section, articles) {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const articleId = parseInt(e.target.getAttribute('data-article-id'), 10);
-            openArticle(articles[articleId]);
+            const article = articles[articleId];
+            
+            // Fetch the full article content if it's not already available
+            if (!article.content) {
+                fetch(`${getApiBaseUrl()}/api/newsletters/${article.id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        article.content = data.content;
+                        openArticle(article);
+                    })
+                    .catch(error => console.error('Error fetching article:', error));
+            } else {
+                openArticle(article);
+            }
         });
     });
 }
 
-function openArticle(article) {
-    const articleContent = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <body>
-        <div>${article.content}</div>
-    </body>
-    </html>
-    `;
+
+function openArticle(articleId) {
+
+
+    const baseUrl = window.location.origin;
+    const articleUrl = `${baseUrl}/api/newsletters/${articleId.id}`;
     
-    const newTab = window.open('', '_blank');
-    newTab.document.write(articleContent);
-    newTab.document.close();
+    console.log('Opening article URL:', articleUrl);
+
+    // Open the URL directly in a new tab
+    window.open(articleUrl, '_blank');
 }
 
 // Subscribe form functionality
@@ -268,6 +295,10 @@ async function fetchTopics() {
 
 function populateTopicGroups(topics) {
     const topicGroupsContainer = document.getElementById('topicGroups');
+    if (!topicGroupsContainer) {
+        console.warn('Topic groups container not found');
+        return;
+    }
     topicGroupsContainer.innerHTML = '';
 
     /*const predefinedGroups = {
@@ -281,7 +312,7 @@ function populateTopicGroups(topics) {
         'News & Current Affairs': ['AI', 'Technology', 'Business', 'Science'],
         'Lifestyle & Wellness': ['Travel', 'Nutrition', 'Fitness','Mental Health'],
         'Entertainment & Culture': ['Entertainment', 'Sports','Social Media & Viral News'],
-        'Science & Technology': ['Education', 'Space']
+        'Science & Tech': ['Education', 'Space']
     };
 
     for (const [groupName, groupTopics] of Object.entries(predefinedGroups)) {
@@ -305,17 +336,20 @@ function populateTopicGroups(topics) {
 }
 
 function validateForm() {
+    const name = document.getElementById('nameInput').value;
     const email = document.getElementById('emailInput').value;
     const topics = document.querySelectorAll('input[name="topics"]:checked');
     const subscribeButton = document.querySelector('#subscribeForm button');
     
+    const isNameValid = name.trim() !== '';
     const isEmailValid = validateEmail(email);
     const isTopicSelected = topics.length > 0;
     
-    const isValid = isEmailValid && isTopicSelected;
+    const isValid = isNameValid && isEmailValid && isTopicSelected;
     subscribeButton.disabled = !isValid;
 
     // Show validation messages
+    showValidationMessage(document.getElementById('nameInput'), isNameValid ? '' : 'Please enter your name.');
     showValidationMessage(document.getElementById('emailInput'), isEmailValid ? '' : 'Please enter a valid email address.');
     showValidationMessage(document.getElementById('topicGroups'), isTopicSelected ? '' : 'Please select at least one topic.');
 
@@ -334,10 +368,13 @@ function showValidationMessage(element, message) {
 }
 
 async function initializeSubscribeForm() {
-    const topics = await fetchTopics();
-    populateTopicGroups(topics);
+    try {
+        const topics = await fetchTopics();
+        populateTopicGroups(topics);
+    } catch (error) {
+        console.error('Error initializing subscribe form:', error);
+    }
 }
-
 function goToHomePage() {
     window.location.href = API_BASE;
 }
@@ -358,9 +395,40 @@ function setupHomeButton() {
 document.addEventListener('DOMContentLoaded', () => {
     // Track homepage view
     trackPageView('/', 'CurioDaily - Your Daily Dose of Interesting');
+    
+    const menuBtn = document.getElementById('menuBtn');
+    const sideMenu = document.getElementById('sideMenu');
 
-    fetchTopicsAndArticles();
+    if (menuBtn && sideMenu) {
+        menuBtn.addEventListener('click', () => {
+            sideMenu.classList.toggle('active');
+            trackEvent('Navigation', 'Toggle Menu', sideMenu.classList.contains('active') ? 'Open' : 'Close');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!sideMenu.contains(event.target) && event.target !== menuBtn) {
+                sideMenu.classList.remove('active');
+            }
+        });
+
+        // Add event listeners for menu items
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => {
+            item.addEventListener('click', (event) => {
+                event.preventDefault();
+                const itemName = item.textContent;
+                trackEvent('Navigation', 'Menu Item Click', itemName);
+                // Implement the action for each menu item here
+                console.log(`Clicked on ${itemName}`);
+                sideMenu.classList.remove('active');
+            });
+        });
+    }
+
     initializeSubscribeForm();
+    fetchTopicsAndArticles();
+
     setupHomeButton();
 
     const subscribeModal = document.getElementById('subscribeModal');
@@ -368,6 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementsByClassName('close')[0];
     const footerSubscribeBtn = document.getElementById('footerSubscribeBtn');
     const footerEmailInput = document.getElementById('footerEmailInput');
+
 
     if (subscribeBtn) {
         subscribeBtn.onclick = () => {
@@ -412,6 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check for unsubscribe success parameter
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('unsubscribe') === 'success') {
+
         showUnsubscribeMessage();
     }
 
@@ -424,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Set up unsubscribe link handler
-    document.body.addEventListener('click', handleUnsubscribeClick);
+    //document.body.addEventListener('click', handleUnsubscribeClick);
 
     // Handle email unsubscribe
     handleEmailUnsubscribe();
@@ -467,6 +537,7 @@ async function handleSubscribeFormSubmit(e) {
     e.preventDefault();
     if (!validateForm()) return;
 
+    const name = document.getElementById('nameInput').value;
     const email = document.getElementById('emailInput').value;
     const selectedTopicIds = Array.from(document.querySelectorAll('input[name="topics"]:checked')).map(el => parseInt(el.value));
     
@@ -477,6 +548,7 @@ async function handleSubscribeFormSubmit(e) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                name: name,
                 email: email,
                 topic_ids: selectedTopicIds,
                 is_active: true
@@ -509,44 +581,7 @@ async function handleSubscribeFormSubmit(e) {
     }
 }
 
-function handleUnsubscribeClick(e) {
-    if (e.target.classList.contains('unsubscribe-link')) {
-        e.preventDefault();
-        const subscriptionId = e.target.getAttribute('data-subscription-id');
-        if (subscriptionId) {
-            if (confirm('Are you sure you want to unsubscribe?')) {
-                unsubscribe(subscriptionId);
-            }
-        } else {
-            console.error('No subscription ID provided for unsubscribe link');
-        }
-    }
-}
 
-// Utility function to get URL parameters
-function getUrlParameter(name) {
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    var results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-}
-
-// Function to handle unsubscribe from email link
-function handleEmailUnsubscribe() {
-    const unsubscribeEmail = getUrlParameter('unsubscribe');
-    if (unsubscribeEmail) {
-        const decodedEmail = decodeURIComponent(unsubscribeEmail);
-        if (confirm(`Are you sure you want to unsubscribe ${decodedEmail}?`)) {
-            unsubscribe(decodedEmail);
-        }
-    }
-}
-
-// Call this function when the page loads
-document.addEventListener('DOMContentLoaded', handleEmailUnsubscribe);
-
-// Set up unsubscribe link handler
-document.body.addEventListener('click', handleUnsubscribeClick);
 
 // Export functions for testing or external use if needed
 if (typeof module !== 'undefined' && module.exports) {
@@ -558,4 +593,16 @@ if (typeof module !== 'undefined' && module.exports) {
         trackEvent,
         // Add other functions you want to export
     };
+}
+
+// Add this near the top of the file, after other initializations
+let hasShownModal = sessionStorage.getItem('hasShownModal');
+
+// Add this to the DOMContentLoaded event listener
+if (!hasShownModal) {
+    setTimeout(() => {
+        subscribeModal.style.display = 'block';
+        sessionStorage.setItem('hasShownModal', 'true');
+        trackEvent('Subscription', 'Auto Open Modal', 'Timed');
+    }, 5000);
 }

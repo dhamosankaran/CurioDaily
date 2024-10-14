@@ -16,3 +16,5 @@ google-cloud-storage
 alembic
 SQLAlchemy
 httpx
+beautifulsoup4
+html2text

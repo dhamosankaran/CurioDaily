@@ -1,15 +1,12 @@
-<!--autonomous_newsletter/app/static/index.html-->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="description" content="CurioDaily: Your daily dose of interesting news and updates on AI, Tech, Business, and Science. Stay informed with curated content.">
     <meta name="keywords" content="daily news, AI news, tech updates, business insights, science discoveries">
     <title>CurioDaily: Your Daily Dose of Interesting</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="/static/styles/main.css">
 </head>
 <body>
@@ -19,10 +16,51 @@
     <header>
         <div class="container">
             <div class="logo-title">
-                <img src="https://storage.cloud.google.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
+                <img src="https://storage.googleapis.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
                 <h1>CurioDaily: Your Daily Dose of Interesting</h1>
             </div>
             <a href="#" class="subscribe-btn" id="subscribeBtn">Subscribe Now</a>
+            <!--div class="menu-container">
+                <button id="menuBtn" class="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav id="sideMenu" class="side-menu">
+                    <div class="menu-header">
+                        <h2>CurioDaily</h2>
+                        <button class="menu-close" id="menuClose">&times;</button>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    <ul>
+                        <li><a href="#" class="menu-item"><i class="fas fa-newspaper"></i> AI Weekly Newsletter</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-graduation-cap"></i> AI Education</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-fire"></i> Trending AI Topics</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-tools"></i> AI Tools Showcase</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-balance-scale"></i> AI Ethics Corner</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-briefcase"></i> AI Career Hub</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-podcast"></i> AI Podcast</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-laptop-code"></i> Interactive AI Demos</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-globe"></i> AI News Roundup</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-users"></i> Community Spotlight</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-trophy"></i> AI Challenges</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Ask an AI Expert</a></li>
+                    </ul>
+                    <div class="menu-footer">
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-github"></i></a>
+                        </div>
+                        <form class="newsletter-signup">
+                            <input type="email" placeholder="Your email">
+                            <button type="submit">Sign Up</button>
+                        </form>
+                    </div>
+                </nav>
+                <div class="menu-overlay"></div>
+            </div-->
         </div>
     </header>
 
@@ -38,6 +76,7 @@
             <h2>Subscribe to CurioDaily</h2>
             <p>Get your daily dose of interesting news delivered straight to your inbox!</p>
             <form id="subscribeForm">
+                <input type="text" id="nameInput" placeholder="Enter your name" required>
                 <input type="email" id="emailInput" placeholder="Enter your email" required>
                 <div id="emailError" class="error-message" style="display: none;">Please enter a valid email address.</div>
                 <div id="topicGroups" class="topic-groups">
@@ -52,7 +91,7 @@
     <footer>
         <div class="footer-content">
             <div class="footer-logo">
-                <img src="https://storage.cloud.google.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
+                <img src="https://storage.googleapis.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
                 <h2>CurioDaily</h2>
             </div>
             <p>Get your daily dose of interesting news and updates on AI, Tech, Business, Science, and more. Join our community of curious minds!</p>
@@ -71,12 +110,12 @@
     </footer>
 
     <script src="/static/scripts/main.js"></script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-583RG4CHLK'"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-583RG4CHLK"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-      
         gtag('config', 'G-583RG4CHLK');
-      </script>
+    </script>
 </body>
+</html>

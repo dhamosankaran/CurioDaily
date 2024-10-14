@@ -1,5 +1,4 @@
 #app/crud/crud_newsletter.py
-
 from sqlalchemy.orm import Session
 from app import models, schemas
 from datetime import datetime, timedelta
@@ -19,6 +18,7 @@ def get_recent_newsletters(db: Session, days: int = 7, skip: int = 0, limit: int
     recent_date = datetime.utcnow() - timedelta(days=days)
     return db.query(models.Newsletter)\
              .filter(models.Newsletter.created_at >= recent_date)\
+             .order_by(models.Newsletter.created_at.desc())\
              .offset(skip)\
              .limit(limit)\
              .all()
@@ -26,6 +26,7 @@ def get_recent_newsletters(db: Session, days: int = 7, skip: int = 0, limit: int
 def get_newsletters_by_topic(db: Session, topic_id: int, skip: int = 0, limit: int = 100) -> List[models.Newsletter]:
     return db.query(models.Newsletter)\
              .filter(models.Newsletter.topic_id == topic_id)\
+             .order_by(models.Newsletter.created_at.desc())\
              .offset(skip)\
              .limit(limit)\
              .all()

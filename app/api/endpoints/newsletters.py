@@ -1,13 +1,13 @@
 # app/api/endpoints/newsletters.py
 
 import logging
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from typing import List
 from app import crud, schemas
 from app.api import deps
+from fastapi.responses import HTMLResponse
 
-# Set up logging
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
@@ -57,19 +57,17 @@ def read_newsletters_by_topic(
         logger.error(f"Error fetching newsletters for topic_id {topic_id}: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-
-
-@router.get("/{newsletter_id}", response_model=schemas.Newsletter)
-def read_newsletter(newsletter_id: int, db: Session = Depends(deps.get_db)):
-    logger.info(f"Fetching newsletter with id: {newsletter_id}")
+@router.get("/{newsletter_id}/render", response_class=HTMLResponse)
+def render_newsletter(request: Request, newsletter_id: int, db: Session = Depends(deps.get_db)):
+    logger.info(f"Rendering newsletter content for id: {newsletter_id}")
     try:
-        newsletter = crud.crud_newsletter.get_newsletter(db, newsletter_id=newsletter_id)
+        newsletter = crud.get_newsletter(db, newsletter_id=newsletter_id)
         if newsletter is None:
             logger.warning(f"Newsletter with id {newsletter_id} not found")
             raise HTTPException(status_code=404, detail="Newsletter not found")
-        return newsletter
+        return HTMLResponse(content=newsletter.content, status_code=200)
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error fetching newsletter with id {newsletter_id}: {str(e)}")
+        logger.error(f"Error rendering newsletter with id {newsletter_id}: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")

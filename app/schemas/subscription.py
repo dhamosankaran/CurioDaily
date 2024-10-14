@@ -4,6 +4,7 @@ from typing import List
 from .topic import Topic
 
 class SubscriptionBase(BaseModel):
+    name: str
     email: EmailStr
     is_active: bool = True
 

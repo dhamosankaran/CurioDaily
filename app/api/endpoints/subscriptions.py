@@ -14,12 +14,15 @@ router = APIRouter()
 
 @router.post("/", response_model=schemas.Subscription)
 def create_subscription(subscription: schemas.SubscriptionCreate, db: Session = Depends(deps.get_db)):
-    logger.info(f"Received request to create subscription for email: {subscription.email}")
-    db_subscription = crud.get_subscription_by_email(db, email=subscription.email)
-    if db_subscription:
-        logger.warning(f"Subscription already exists for email: {subscription.email}")
-        raise HTTPException(status_code=400, detail="Email already subscribed")
-    return crud.create_subscription(db=db, subscription=subscription)
+    logger.info(f"Received request to create or update subscription for email: {subscription.email}")
+    try:
+        return crud.create_subscription(db=db, subscription=subscription)
+    except ValueError as e:
+        logger.warning(f"Subscription creation failed: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Unexpected error during subscription creation: {str(e)}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 @router.get("/{email}", response_model=schemas.Subscription)
 def read_subscription(email: str, db: Session = Depends(deps.get_db)):
@@ -30,17 +33,33 @@ def read_subscription(email: str, db: Session = Depends(deps.get_db)):
         raise HTTPException(status_code=404, detail="Subscription not found")
     return db_subscription
 
-@router.api_route("/{subscription_id}/unsubscribe", methods=["GET", "PUT"], response_model=schemas.Subscription)
-def unsubscribe(subscription_id: int, request: Request, db: Session = Depends(deps.get_db)):
-    db_subscription = crud.update_subscription_status(db, subscription_id=subscription_id, is_active=False)
-    if db_subscription is None:
-        raise HTTPException(status_code=404, detail="Subscription not found")
+@router.api_route("/{subscription_id}/unsubscribe", methods=["GET", "PUT"])
+async def unsubscribe(
+    request: Request,
+    subscription_id: int = Path(...),
+    db: Session = Depends(deps.get_db)
+):
+    """
+    Unsubscribe a user by setting their subscription to inactive and removing topic associations.
     
-    # If it's a GET request, redirect to the main page with the success parameter
+    Args:
+        request (Request): The incoming request object.
+        subscription_id (int): The ID of the subscription to be updated.
+        db (Session): The database session.
+    
+    Returns:
+        A redirect response for GET requests or a JSON response for PUT requests.
+    """
+    logger.info(f"Unsubscribe request received for subscription ID: {subscription_id}")
+    
+    updated_subscription = crud.update_subscription_status(db, subscription_id=subscription_id, is_active=False)
+    
+    if not updated_subscription:
+        logger.warning(f"Unsubscription failed for ID: {subscription_id}")
+        raise HTTPException(status_code=404, detail="Subscription not found or unsubscription failed")
+    
     if request.method == "GET":
         base_url = str(request.base_url)
         return RedirectResponse(url=f"{base_url}?unsubscribe=success")
     
-    return db_subscription
-
-  
+    return {"message": "Successfully unsubscribed", "subscription": updated_subscription}

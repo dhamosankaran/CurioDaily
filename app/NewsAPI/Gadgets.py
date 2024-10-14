@@ -10,13 +10,16 @@ from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import random
 import urllib.parse
+from jinja2 import Environment, FileSystemLoader
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+web_template_path = os.path.join(current_dir, 'newsletter_template.html')
+email_template_path = os.path.join(current_dir, 'email_template.html')
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-template_path = os.path.join(current_dir, 'newsletter_template.html')
 
 # Load environment variables
 load_dotenv()
@@ -24,6 +27,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class GadgetNewsFetcher:
     def __init__(self):
+        self.openai_model= os.getenv('OPENAI_MODEL')
         self.news_api_key = os.getenv('NEWS_API_KEY')
         if not self.news_api_key:
             raise ValueError("NEWS_API_KEY not found in environment variables")
@@ -200,7 +204,7 @@ WHERE
 
             try:
                 response = client.chat.completions.create(
-                    model="gpt-4-1106-preview",
+                    model=self.openai_model,
                     messages=[
                         {"role": "system", "content": "You are an AI assistant that creates concise gadget news highlights and suggests relevant icons and colors."},
                         {"role": "user", "content": prompt}
@@ -244,7 +248,7 @@ WHERE
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model=self.openai_model,
                 messages=[
                     {"role": "system", "content": "You are an AI assistant that creates engaging titles for gadget news summaries."},
                     {"role": "user", "content": prompt}
@@ -272,7 +276,7 @@ WHERE
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model=self.openai_model,
                 messages=[
                     {"role": "system", "content": "You are an AI assistant that creates engaging summaries of gadget news."},
                     {"role": "user", "content": prompt}
@@ -351,8 +355,29 @@ WHERE
             
             return article_categories if article_categories else ['General Gadget News']
 
-def generate_html_content(fetcher, dynamic_title, summary, highlights, articles, subscription_ids):
-    base_url = os.getenv('BASE_URL', 'https://www.curiodaily.com')
+    def store_newsletter(self, title, web_content, email_content, topic_id, subscription_ids):
+        try:
+            with psycopg2.connect(self.db_url) as conn:
+                with conn.cursor() as cur:
+                    insert_query = sql.SQL("""
+                        INSERT INTO newsletters (title, content, email_content, topic_id, subscription_ids)
+                        VALUES (%s, %s, %s, %s, %s)
+                        RETURNING id
+                    """)
+                    subscription_ids_str = ','.join(subscription_ids)
+                    cur.execute(insert_query, (title, web_content, email_content, topic_id, subscription_ids_str))
+                    inserted_id = cur.fetchone()[0]
+                    conn.commit()
+                    logger.info(f"Newsletter stored in database with ID: {inserted_id}")
+                    return inserted_id
+        except Exception as e:
+            logger.error(f"Error storing newsletter in database: {e}")
+            return None
+
+
+
+def generate_html_content(fetcher, dynamic_title, summary, highlights, articles, subscription_ids, is_email=False):
+    base_url = os.getenv('BASE_URL', 'https://www.thecuriodaily.com')
     current_date = datetime.now().strftime("%B %d, %Y")
     
     summary_html = f"<p>{summary}</p>"
@@ -385,6 +410,8 @@ def generate_html_content(fetcher, dynamic_title, summary, highlights, articles,
         if article.get('title') and article.get('description') and article.get('url')
     ])
 
+    template_path = email_template_path if is_email else web_template_path
+    
     with open(template_path, "r", encoding="utf-8") as f:
         template = f.read()
     
@@ -401,14 +428,15 @@ def generate_html_content(fetcher, dynamic_title, summary, highlights, articles,
     
     return template
 
+
 def main():
     fetcher = GadgetNewsFetcher()
-    base_url = os.getenv('BASE_URL', 'https://www.curiodaily.com')
+    base_url = os.getenv('BASE_URL', 'https://www.thecuriodaily.com')
 
     today = datetime.now().date()
     yesterday = today - timedelta(days=1)
     
-    logger.info(f"Fetching top 10 gadget-related news articles for {yesterday}...")
+    logger.info(f"Fetching top 10 AI-related news articles for {yesterday}...")
     articles = fetcher.fetch_news(yesterday)
 
     if articles:
@@ -422,23 +450,34 @@ def main():
         dynamic_title = fetcher.generate_dynamic_title(highlight_texts)
         logger.info(f"Dynamic Title: {dynamic_title}")
         
-        # Fetch all active subscriptions for the Gadgets topic (topic_id = 22)
+        # Fetch all active subscriptions
         subscriptions = fetcher.get_active_subscriptions()
         subscription_ids = [sub['id'] for sub in subscriptions]
         
-        # Generate HTML content once for all subscriptions
-        html_content = generate_html_content(
+        # Generate web content
+        web_content = generate_html_content(
             fetcher, 
             dynamic_title, 
             summary, 
             highlights, 
             articles,
-            subscription_ids
+            subscription_ids,
+            is_email=False
+        )
+        # Generate email content
+        email_content = generate_html_content(
+            fetcher, 
+            dynamic_title, 
+            summary, 
+            highlights, 
+            articles,
+            subscription_ids,
+            is_email=True
         )
         
-        if html_content:
-            logger.info("Storing newsletter for all active Gadget topic subscriptions...")
-            inserted_id = fetcher.store_newsletter(dynamic_title, html_content, 22, subscription_ids)  # topic_id 22 for Gadgets
+        if web_content and email_content:
+            logger.info("Storing newsletter for all active subscriptions...")
+            inserted_id = fetcher.store_newsletter(dynamic_title, web_content, email_content, 22, subscription_ids)  # Assuming topic_id 1 for AI
             if inserted_id:
                 logger.info(f"Newsletter stored successfully with ID: {inserted_id}")
             else:
@@ -450,7 +489,7 @@ def main():
     else:
         logger.info(f"No articles found from trusted sources for {yesterday}.")
 
-    logger.info("Gadget news fetching, summarization, and newsletter generation complete.")
+    logger.info("AI news fetching, summarization, and newsletter generation complete.")
 
 if __name__ == "__main__":
     main()

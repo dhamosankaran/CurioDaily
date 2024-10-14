@@ -1,9 +1,12 @@
 # app/models/subscription.py
+
 from sqlalchemy import Column, Integer, String, Table, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
-subscription_topic = Table('subscription_topic', Base.metadata,
+subscription_topic = Table(
+    'subscription_topic', 
+    Base.metadata,
     Column('subscription_id', Integer, ForeignKey('subscriptions.id')),
     Column('topic_id', Integer, ForeignKey('topics.id'))
 )
@@ -13,5 +16,10 @@ class Subscription(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
-    is_active = Column(Boolean, default=True)  # New column
+    is_active = Column(Boolean, default=True)
+    name = Column(String(255), nullable=True)
     topics = relationship("Topic", secondary=subscription_topic, back_populates="subscriptions")
+
+
+
+    

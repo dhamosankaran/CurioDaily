@@ -37,7 +37,7 @@ header .container {
 
 header h1 {
     margin: 0;
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
 }
 
@@ -120,30 +120,6 @@ main {
     transform: scale(1.1);
 }
 
-/* Topic-specific icon colors */
-.topic-section.ai h2 i { background-color: #3498db; }
-.topic-section.tech h2 i { background-color: #2ecc71; }
-.topic-section.business h2 i { background-color: #e74c3c; }
-.topic-section.science h2 i { background-color: #9b59b6; }
-.topic-section.politics h2 i { background-color: #34495e; }
-.topic-section.finance h2 i { background-color: #f1c40f; }
-.topic-section.health h2 i { background-color: #e67e22; }
-.topic-section.travel h2 i { background-color: #1abc9c; }
-.topic-section.yoga h2 i { background-color: #d35400; }
-.topic-section.nutrition h2 i { background-color: #27ae60; }
-.topic-section.fitness h2 i { background-color: #c0392b; }
-.topic-section.mental-health h2 i { background-color: #8e44ad; }
-.topic-section.meditation h2 i { background-color: #16a085; }
-.topic-section.sleep-science h2 i { background-color: #2c3e50; }
-.topic-section.entertainment h2 i { background-color: #f39c12; }
-.topic-section.sports h2 i { background-color: #2980b9; }
-.topic-section.games h2 i { background-color: #e74c3c; }
-.topic-section.social-media-viral-news h2 i { background-color: #3498db; }
-.topic-section.education h2 i { background-color: #f1c40f; }
-.topic-section.space h2 i { background-color: #34495e; }
-.topic-section.psychology h2 i { background-color: #9b59b6; }
-.topic-section.gadgets h2 i { background-color: #95a5a6; }
-
 .article-list {
     list-style-type: none;
     padding: 0;
@@ -195,81 +171,116 @@ main {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0,0,0,0.6);
 }
 
 .modal-content {
-    background-color: #fefefe;
-    margin: 5% auto; /* Changed from 10% to 5% */
+    background-color: #ffffff;
+    margin: 5% auto;
     padding: 2rem;
-    border-radius: 10px;
+    border-radius: 12px;
     max-width: 500px;
-    max-height: 90vh; /* Add this to limit the height */
-    overflow-y: auto; /* Add scrolling if content is too long */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
+
 .close {
-    color: #aaa;
+    color: #777;
     float: right;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
+    transition: color 0.3s ease;
 }
 
 .close:hover,
 .close:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
+    color: #333;
 }
 
-#emailInput {
+#subscribeForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#subscribeForm input[type="text"],
+#subscribeForm input[type="email"] {
     width: 100%;
-    padding: 0.8rem;
+    padding: 12px;
     margin-bottom: 1rem;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+#subscribeForm input[type="text"]:focus,
+#subscribeForm input[type="email"]:focus {
+    border-color: #3498db;
+    outline: none;
 }
 
 .topic-groups {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    gap: 1.5rem;
     margin-bottom: 1.5rem;
 }
 
 .topic-group h3 {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-    color: #555;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    color: #444;
 }
 
 .topic-group label {
-    display: block;
-    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.topic-group input[type="checkbox"] {
+    margin-right: 8px;
 }
 
 #subscribeForm button {
-    position: sticky;
-    bottom: 0;
     background-color: #3498db;
     color: white;
     border: none;
-    padding: 10px;
-    border-radius: 5px;
+    padding: 12px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 #subscribeForm button:hover {
     background-color: #2980b9;
+}
+
+#subscribeForm button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
 }
 
 footer {
@@ -284,13 +295,6 @@ footer {
     margin: 0 auto;
     padding: 0 20px;
     text-align: center;
-}
-
-.footer-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
 }
 
 .footer-logo img {
@@ -369,6 +373,7 @@ footer {
     right: 0;
     z-index: 1000;
 }
+
 .validation-message {
     color: #721c24;
     background-color: #f8d7da;
@@ -379,7 +384,39 @@ footer {
     display: none;
 }
 
+/* Mobile Responsive Styles */
 @media (max-width: 768px) {
+    header .container {
+        flex-wrap: wrap;
+    }
+
+    .logo-title {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .subscribe-btn {
+        width: 100%;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .modal-content {
+        width: 90%;
+        max-height: 80vh;
+        margin: 10% auto;
+    }
+
+    .topic-groups {
+        grid-template-columns: 1fr;
+    }
+
+    #subscribeForm input[type="text"],
+    #subscribeForm input[type="email"] {
+        font-size: 16px;
+    }
+
     .footer-bottom {
         flex-direction: column;
         text-align: center;
@@ -388,4 +425,154 @@ footer {
     .footer-bottom a {
         margin: 0.5rem 0;
     }
+
+    .menu-btn, .subscribe-btn, .read-more, .close {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .topic-group label {
+        padding: 10px 0;
+    }
+}
+
+/* Side Menu Styles */
+.menu-container {
+    display: flex;
+    align-items: center;
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #fff;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 300px;
+    height: 100%;
+    background: linear-gradient(to bottom, #3498db, #2c3e50);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    transition: left 0.3s ease-in-out;
+    z-index: 1001;
+    overflow-y: auto;
+    color: #fff;
+}
+
+.side-menu.active {
+    left: 0;
+}
+
+.menu-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.menu-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.search-bar {
+    padding: 15px;
+    display: flex;
+}
+
+.search-bar input {
+    flex-grow: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 4px 0 0 4px;
+}
+
+.search-bar button {
+    padding: 8px 12px;
+    background: #2980b9;
+    border: none;
+    color: #fff;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.menu-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.social-links a {
+    color: #fff;
+    margin: 0 10px;
+    font-size: 1.2rem;
+}
+
+.newsletter-signup {
+    display: flex;
+}
+
+.newsletter-signup input {
+    flex-grow: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 4px 0 0 4px;
+}
+
+.newsletter-signup button {
+    padding: 8px 12px;
+    background: #2980b9;
+    border: none;
+    color: #fff;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+.menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.menu-overlay.active {
+    display: block;
 }

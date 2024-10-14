@@ -1,0 +1,98 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: autonomous-newsletter
+  namespace: '457954888435'
+  selfLink: /apis/serving.knative.dev/v1/namespaces/457954888435/services/autonomous-newsletter
+  uid: 4aa9e8bc-e88e-4ee6-9970-533f19000c90
+  resourceVersion: AAYjOLltlSY
+  generation: 91
+  creationTimestamp: '2024-08-28T15:34:41.238615Z'
+  labels:
+    cloud.googleapis.com/location: us-central1
+  annotations:
+    serving.knative.dev/creator: autonomous-newsletter-sa@autonomousnewsletter.iam.gserviceaccount.com
+    serving.knative.dev/lastModifier: 457954888435-compute@developer.gserviceaccount.com
+    run.googleapis.com/client-name: cloud-console
+    runapps.googleapis.com/integrations: router/custom-domains
+    runapps.googleapis.com/integrations.router.custom-domains: '2024-09-28T19:19:25.78887Z'
+    run.googleapis.com/operation-id: b07bed25-c238-44ec-9154-b5e09c8590b0
+    run.googleapis.com/ingress: all
+    run.googleapis.com/ingress-status: all
+    run.googleapis.com/urls: '["https://autonomous-newsletter-457954888435.us-central1.run.app","https://autonomous-newsletter-5xa7ssf3bq-uc.a.run.app"]'
+spec:
+  template:
+    metadata:
+      labels:
+        client.knative.dev/nonce: 57410d50-5fb3-452d-9bb2-88e14b4af9f8
+        run.googleapis.com/startupProbeType: Default
+      annotations:
+        autoscaling.knative.dev/maxScale: '100'
+        run.googleapis.com/client-name: cloud-console
+        run.googleapis.com/cloudsql-instances: autonomousnewsletter:us-central1:autonomousnewsletter
+        run.googleapis.com/vpc-access-connector: projects/autonomousnewsletter/locations/us-central1/connectors/my-vpc-connector
+        run.googleapis.com/vpc-access-egress: private-ranges-only
+        run.googleapis.com/startup-cpu-boost: 'true'
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      serviceAccountName: autonomous-newsletter-sa@autonomousnewsletter.iam.gserviceaccount.com
+      containers:
+      - name: autonomous-newsletter-1
+        image: gcr.io/autonomousnewsletter/autonomous-newsletter@sha256:a8bf6f4b3f3085eaf1472945cd78f2339c7392740a144e63d4fcedbf2c7dce50
+        ports:
+        - name: http1
+          containerPort: 8080
+        env:
+        - name: INSTANCE_CONNECTION_NAME
+          value: autonomousnewsletter:us-central1:autonomousnewsletter
+        - name: ENVIRONMENT
+          value: production
+        - name: DATABASE_URL
+          value: postgresql://ainewsletteruser:pwd@/autonomous_newsletter?host=/cloudsql/autonomousnewsletter:us-central1:autonomousnewsletter
+        - name: BACKEND_CORS_ORIGINS
+          value: '["https://autonomous-newsletter-457954888435.us-central1.run.app"]'
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 512Mi
+        volumeMounts:
+        - name: DATABASE_URL-tah-jex-buh
+          mountPath: /secrets
+        startupProbe:
+          timeoutSeconds: 240
+          periodSeconds: 240
+          failureThreshold: 1
+          tcpSocket:
+            port: 8080
+      volumes:
+      - name: DATABASE_URL-tah-jex-buh
+        secret:
+          secretName: DATABASE_URL
+          items:
+          - key: latest
+            path: database_url
+  traffic:
+  - percent: 100
+    latestRevision: true
+status:
+  observedGeneration: 91
+  conditions:
+  - type: Ready
+    status: 'True'
+    lastTransitionTime: '2024-09-25T03:21:22.127535Z'
+  - type: ConfigurationsReady
+    status: 'True'
+    lastTransitionTime: '2024-08-28T15:34:41.498691Z'
+  - type: RoutesReady
+    status: 'True'
+    lastTransitionTime: '2024-09-25T03:21:22.092924Z'
+  latestReadyRevisionName: autonomous-newsletter-00086-fzz
+  latestCreatedRevisionName: autonomous-newsletter-00086-fzz
+  traffic:
+  - revisionName: autonomous-newsletter-00086-fzz
+    percent: 100
+    latestRevision: true
+  url: https://autonomous-newsletter-5xa7ssf3bq-uc.a.run.app
+  address:
+    url: https://autonomous-newsletter-5xa7ssf3bq-uc.a.run.app

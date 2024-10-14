@@ -8,6 +8,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from jinja2 import Template
 import logging
+from collections import defaultdict
 
 # Add the parent directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -34,7 +35,7 @@ def get_latest_newsletters():
     """
     with SessionLocal() as db:
         result = db.execute(text("""
-            SELECT DISTINCT ON (topic_id) id, title, content, topic_id, subscription_ids
+            SELECT DISTINCT ON (topic_id) id, title, email_content, topic_id, subscription_ids
             FROM newsletters 
             WHERE subscription_ids IS NOT NULL 
             AND subscription_ids != ''
@@ -42,19 +43,21 @@ def get_latest_newsletters():
         """))
         return result.fetchall()
 
-def get_subscriptions(subscription_ids):
+def get_subscriptions():
     """
-    Fetch active subscriptions for given subscription IDs.
+    Fetch all active subscriptions with their associated topics.
     """
     with SessionLocal() as db:
         result = db.execute(text("""
-            SELECT id, email 
-            FROM subscriptions 
-            WHERE id = ANY(:sub_ids) AND is_active = TRUE
-        """), {"sub_ids": subscription_ids})
+            SELECT s.id, s.email, array_agg(st.topic_id) as topic_ids
+            FROM subscriptions s
+            JOIN subscription_topic st ON s.id = st.subscription_id
+            WHERE s.is_active = TRUE
+            GROUP BY s.id, s.email
+        """))
         return result.fetchall()
 
-def create_html_content(newsletter, sub_id):
+def create_html_content(newsletters, sub_id):
     """
     Create HTML content for the email using a template.
     """
@@ -94,7 +97,11 @@ def create_html_content(newsletter, sub_id):
     </head>
     <body>
         <div class="content">
-            {{ newsletter.content | safe }}
+            {% for newsletter in newsletters %}
+                <h2>{{ newsletter.title }}</h2>
+                {{ newsletter.content | safe }}
+                <hr>
+            {% endfor %}
         </div>
         <div class="footer">
             <p>You received this email because you're subscribed to CurioDaily. © 2024 CurioDaily. All rights reserved.
@@ -106,10 +113,10 @@ def create_html_content(newsletter, sub_id):
     """)
     
     return template.render(
-        newsletter=newsletter,
+        newsletters=newsletters,
         unsubscribe_url=unsubscribe_url)
 
-def send_email(recipient, subject, newsletter, sub_id):
+def send_email(recipient, subject, newsletters, sub_id):
     """
     Send an email to a recipient.
     """
@@ -119,8 +126,8 @@ def send_email(recipient, subject, newsletter, sub_id):
         msg['To'] = recipient
         msg['Subject'] = subject
 
-        logger.info(f"Sending email to {recipient} (ID: {sub_id})")
-        html_content = create_html_content(newsletter, sub_id)
+        logger.info(f"Sending consolidated email to {recipient} (ID: {sub_id})")
+        html_content = create_html_content(newsletters, sub_id)
         msg.attach(MIMEText(html_content, 'html'))
 
         with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT) as server:
@@ -128,48 +135,43 @@ def send_email(recipient, subject, newsletter, sub_id):
             server.login(settings.SENDER_EMAIL, settings.SENDER_PASSWORD)
             server.send_message(msg)
 
-        logger.info(f"Email sent successfully to {recipient}")
+        logger.info(f"Consolidated email sent successfully to {recipient}")
     except Exception as e:
-        logger.error(f"Error sending email to {recipient}: {e}")
+        logger.error(f"Error sending consolidated email to {recipient}: {e}")
 
 def main():
     """
-    Main function to distribute newsletters.
+    Main function to distribute consolidated newsletters.
     """
     latest_newsletters = get_latest_newsletters()
     
     if not latest_newsletters:
-        logger.info("No newsletters found with non-empty subscription_ids.")
+        logger.info("No newsletters found.")
         return
 
-    for newsletter in latest_newsletters:
-        newsletter_id, title, content, topic_id, subscription_ids = newsletter
-        
-        logger.info(f"Processing newsletter: {title} (ID: {newsletter_id}, Topic ID: {topic_id})")
+    # Create a dictionary of newsletters by topic_id
+    newsletters_by_topic = {newsletter[3]: {"id": newsletter[0], "title": newsletter[1], "content": newsletter[2]} for newsletter in latest_newsletters}
 
-        try:
-            subscription_ids = [int(id.strip()) for id in subscription_ids.split(',') if id.strip()]
-        except ValueError:
-            logger.error(f"Error parsing subscription_ids for newsletter {newsletter_id}: {subscription_ids}")
-            continue
+    # Get all active subscriptions
+    subscriptions = get_subscriptions()
 
-        if not subscription_ids:
-            logger.info(f"No valid subscription IDs found for newsletter {newsletter_id}")
-            continue
+    # Create a dictionary to store newsletters for each subscriber
+    subscriber_newsletters = defaultdict(list)
 
-        subscriptions = get_subscriptions(subscription_ids)
-        logger.info(f"Fetched {len(subscriptions)} active subscriptions for newsletter {newsletter_id}")
+    for sub_id, email, topic_ids in subscriptions:
+        for topic_id in topic_ids:
+            if topic_id in newsletters_by_topic:
+                subscriber_newsletters[email].append((sub_id, newsletters_by_topic[topic_id]))
 
-        newsletter_content = {
-            "title": title,
-            "content": content
-        }
+    # Send consolidated emails
+    for email, newsletters_with_sub_id in subscriber_newsletters.items():
+        if newsletters_with_sub_id:
+            sub_id = newsletters_with_sub_id[0][0]  # Use the first sub_id (should be the same for all)
+            newsletters = [n[1] for n in newsletters_with_sub_id]  # Extract just the newsletter data
+            subject = f"CurioDaily: Your Personalized Newsletter"
+            send_email(email, subject, newsletters, sub_id)
 
-        for sub_id, email in subscriptions:
-            subject = f"CurioDaily: {title}"
-            send_email(email, subject, newsletter_content, sub_id)
-
-    logger.info("Newsletter distribution complete.")
+    logger.info("Consolidated newsletter distribution complete.")
 
 if __name__ == "__main__":
     main()

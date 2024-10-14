@@ -15,9 +15,9 @@ def get_secrets() -> Optional[dict[str, str]]:
         project_id = os.getenv('GOOGLE_CLOUD_PROJECT')
 
         secrets = {}
-        secret_ids = ['NEWS_API_KEY', 'OPENAI_API_KEY', 'DATABASE_URL', 'SECRET_KEY',
+        secret_ids = ['NEWS_API_KEY','NEWS_API_KEY_1', 'OPENAI_API_KEY', 'DATABASE_URL', 'SECRET_KEY',
                       'POSTGRES_SERVER', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_DB',
-                      'SENDER_EMAIL', 'SENDER_PASSWORD', 'RECIPIENT_EMAIL']
+                      'SENDER_EMAIL', 'SENDER_PASSWORD', 'RECIPIENT_EMAIL', 'EMAIL_API','COURSEERA_KEY','COURSEERA_SECRET','GITHUB_TOKEN']
         
         for secret_id in secret_ids:
             try:
@@ -36,14 +36,16 @@ def get_secrets() -> Optional[dict[str, str]]:
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "CurioDaily"
+    OPENAI_MODEL:str = "gpt-4o-mini"
 
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
-         "http://localhost",
-         "http://localhost:8080",
-         "https://localhost:8443",
-         "https://autonomous-newsletter-457954888435.us-central1.run.app"
-     ]
-
+        "http://localhost",
+        "http://localhost:8080",
+        "https://localhost:8443",
+        "https://autonomous-newsletter-457954888435.us-central1.run.app",
+        "https://thecuriodaily.com",
+        "https://www.thecuriodaily.com"
+    ]
     GOOGLE_CLOUD_PROJECT: Optional[str] = None
     ENVIRONMENT: str = Field(default="development")
 
@@ -55,6 +57,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://ainewsletteruser:pwd@localhost:5432/autonomous_newsletter"
 
     SENDER_EMAIL: str = Field(default="example@example.com")
+    #SENDER_PASSWORD: SecretStr = Field(default=SecretStr(""))
     SENDER_PASSWORD: str = Field(default="")
     SMTP_SERVER: str = Field(default="smtp.gmail.com")
     SMTP_PORT: int = Field(default=587)
@@ -62,7 +65,12 @@ class Settings(BaseSettings):
 
     OPENAI_API_KEY: SecretStr = Field(default=SecretStr(""))
     NEWS_API_KEY: SecretStr = Field(default=SecretStr(""))
+    NEWS_API_KEY_1: SecretStr = Field(default=SecretStr(""))
     SECRET_KEY: SecretStr = Field(default=SecretStr(""))
+    EMAIL_API: str = Field(default="")
+    COURSEERA_KEY: SecretStr = Field(default=SecretStr(""))
+    COURSEERA_SECRET: SecretStr = Field(default=SecretStr(""))
+    GITHUB_TOKEN: SecretStr = Field(default=SecretStr(""))
 
     # Change this to a regular field without leading underscore
     base_url: str = Field(default="https://localhost:8443")
@@ -99,7 +107,7 @@ class Settings(BaseSettings):
     @property
     def BASE_URL(self) -> str:
         if self.ENVIRONMENT == "production":
-            return "https://autonomous-newsletter-457954888435.us-central1.run.app"
+            return "https://thecuriodaily.com"
         elif self.ENVIRONMENT == "development":
             return self.base_url
         else:
