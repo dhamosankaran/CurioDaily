@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurioDaily</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3a0ca3;
+            --secondary-color: #4361ee;
+            --accent-color: #4cc9f0;
+            --text-color: #333;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 65%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .main-header {
+            background-color: #0c39bf;
+            color: #fff;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .main-header .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .main-header .logo-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .main-header .logo {
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .main-header h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .main-header .title-date-wrapper {
+            text-align: center;
+        }
+
+
+        .main-header .date {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .subscribe-btn {
+            background-color: #fff;
+            color: #3a0ca3;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .subscribe-btn:hover {
+            background-color: #4361ee;
+            color: #fff;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary, .highlights, .articles {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .highlight-list {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        .highlight-list li {
+            margin-bottom: 15px;
+        }
+
+        .article-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .article-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .article-content {
+            padding: 15px;
+        }
+
+        .article-content h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .read-more-btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 80%;
+            }
+
+            .main-header .container {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .main-header .logo-title {
+                flex-direction: row;
+                margin-bottom: 0;
+            }
+
+            .main-header .logo {
+                margin-right: 15px;
+                margin-bottom: 0;
+            }
+
+            .main-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .main-header .date {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5em;
+            }
+
+            .article-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo-title">
+                <img src="https://storage.googleapis.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
+                <h1>CurioDaily: Your Daily Dose of Interesting</h1>
+                <div class="date">&nbsp;&nbsp;Oct 17, 2024</div>
+            </div>
+            <a href="https://www.thecuriodaily.com" class="subscribe-btn">CurioDaily Home</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="summary">
+            <h2 class="section-title">This Week in Global Affairs Digest: Key Insights</h2>
+            Global Affairs Digest: Environmental and Geopolitical Tensions on the Rise: As lake ice diminishes, environmental concerns and community livelihoods are under threat, signaling a growing need for climate action. Meanwhile, geopolitical maneuvers intensify as the US navigates the contentious South China Sea, and Japan's tourism incentives may backfire amidst regional uncertainties. Amidst these challenges, the U.N. highlights the dire humanitarian situation in northern Gaza and strives to maintain peace in Lebanon, while North Korea's support for Russia in Ukraine marks a bold move by Kim Jong-un, even as the tech industry grapples with ASML's production forecasts.
+        </section>
+
+        <section class="highlights">
+            <h2 class="section-title">Global Affairs Digest Highlights of the Week</h2>
+            <ul class="highlight-list">
+                <li>Declining lake ice impacts environment and communities.</li><li>US strategy in South China Sea risks escalating tensions.</li><li>Japan's free flight offer to tourists risks unintended consequences.</li><li>Israel's blockade may cause famine in northern Gaza, warns U.N.</li><li>ASML forecasts hint at excess production capacity, not industry decline.</li><li>U.N. peacekeepers aim to stabilize Lebanon.</li><li>North Korea bolsters Russia in Ukraine, elevating Kim's stance.</li>
+            </ul>
+        </section>
+
+        <section class="articles">
+            <h2 class="section-title">Top Global Affairs Digest Stories</h2>
+            <div class="article-grid">
+                
+            <article class="article-card">
+                <img src="https://www.sciencedaily.com/images/scidaily-icon.png" alt="Loss of lake ice has wide-ranging environmental and societal consequences" class="article-image">
+                <div class="article-content">
+                    <h3>Loss of lake ice has wide-ranging environmental and societal consequences</h3>
+                    <p>The world's freshwater lakes are freezing over for shorter periods of time due to climate change. Th...</p>
+                    <a href="https://www.sciencedaily.com/releases/2024/10/241010142529.htm" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/66ebf604d17aa3c7b2b40c19?width=841&format=jpeg" alt="Efforts by the US to counter China in the South China Sea could backfire" class="article-image">
+                <div class="article-content">
+                    <h3>Efforts by the US to counter China in the South China Sea could backfire</h3>
+                    <p>The US could ramp up efforts to counter China in the South China Sea but that comes with risks, secu...</p>
+                    <a href="https://www.businessinsider.com/us-attempt-counter-china-south-china-sea-could-backfire-experts-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/6708e9ef3f2165d716e01a0d?width=1200&format=jpeg" alt="Japan is giving free flights to international tourists, but it may backfire" class="article-image">
+                <div class="article-content">
+                    <h3>Japan is giving free flights to international tourists, but it may backfire</h3>
+                    <p>Japan Airlines is giving free domestic flights for international tourists, but experts warn it may w...</p>
+                    <a href="https://www.businessinsider.com/japan-airlines-free-flights-initiative-could-backfire-experts-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://npr.brightspotcdn.com/dims3/default/strip/false/crop/5610x3156+0+275/resize/1400/quality/100/format/jpeg/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Fea%2F68%2F9e6a30eb469dbccca70ac2dfff1d%2F2024-10-12t000000z-1415294365-mt1imgost000z8spnj-rtrmadp-3-imago-images.JPG" alt="Israel threatens to starve out northern Gaza, U.N. aid agencies say" class="article-image">
+                <div class="article-content">
+                    <h3>Israel threatens to starve out northern Gaza, U.N. aid agencies say</h3>
+                    <p>Israel has allowed almost no food aid into north Gaza for two weeks. Humanitarian groups say it leav...</p>
+                    <a href="https://www.npr.org/2024/10/15/nx-s1-5154065/israel-north-gaza-food-aid-block" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://s.yimg.com/cv/apiv2/social/images/yahoo_default_logo.png" alt="ASML's lowered outlook suggests factory overcapacity, not chip doom" class="article-image">
+                <div class="article-content">
+                    <h3>ASML's lowered outlook suggests factory overcapacity, not chip doom</h3>
+                    <p>Computer chip equipment maker ASML's deep cuts to its 2025 sales forecast sparked a sell-off in chip...</p>
+                    <a href="https://ca.finance.yahoo.com/news/asmls-lowered-outlook-suggests-factory-004247122.html" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://npr.brightspotcdn.com/dims3/default/strip/false/crop/5249x2953+0+273/resize/1400/quality/100/format/jpeg/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Fe2%2F64%2F0b94e419487a9dd5e9229edc81e3%2Fgettyimages-1719493844.jpg" alt="What is the U.N. peacekeeping force stationed in Lebanon?" class="article-image">
+                <div class="article-content">
+                    <h3>What is the U.N. peacekeeping force stationed in Lebanon?</h3>
+                    <p>The mission was created in 1978 to help restore order after Israel's first invasion of Lebanon. Deca...</p>
+                    <a href="https://www.npr.org/2024/10/11/nx-s1-5150044/un-peacekeepers-lebanon-israel-united-nations" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670e8990a70318649281f024?width=1200&format=jpeg" alt="North Korea sending military officials to help Russia in Ukraine is a massive boost for Kim Jong Un" class="article-image">
+                <div class="article-content">
+                    <h3>North Korea sending military officials to help Russia in Ukraine is a massive boost for Kim Jong Un</h3>
+                    <p>North Korean military officials are able to feed vital know-how back home from seeing Russia use the...</p>
+                    <a href="https://www.businessinsider.com/north-korea-military-officials-helping-russia-ukraine-win-for-kim-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://ichef.bbci.co.uk/news/1024/branded_news/1ff4/live/f8fe56b0-87ab-11ef-b0bd-ed1c890dbbf6.jpg" alt="I was a desperate mum, says woman whose search for eczema cure led to award-winning business" class="article-image">
+                <div class="article-content">
+                    <h3>I was a desperate mum, says woman whose search for eczema cure led to award-winning business</h3>
+                    <p>Shalom Lloyd says starting her business on her kitchen table was "a fluke"....</p>
+                    <a href="https://www.bbc.com/news/articles/cx2y4p2pvjyo" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://ichef.bbci.co.uk/news/1024/branded_news/ab3a/live/158c0120-8b0c-11ef-9fc1-91bac8153a18.jpg" alt="UN urges probe into deadly Israeli strike on north Lebanon" class="article-image">
+                <div class="article-content">
+                    <h3>UN urges probe into deadly Israeli strike on north Lebanon</h3>
+                    <p>It says Monday's attack on Aitou raises "real concerns" with respect to international humanitarian l...</p>
+                    <a href="https://www.bbc.com/news/articles/crej40034r2o" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670f8c956ac7b701e7cbf25b?width=1200&format=jpeg" alt="The US fined Lufthansa a record $4 million for discrimination after it stopped 128 Jewish passengers from boarding a connecting flight" class="article-image">
+                <div class="article-content">
+                    <h3>The US fined Lufthansa a record $4 million for discrimination after it stopped 128 Jewish passengers from boarding a connecting flight</h3>
+                    <p>The passengers were travelling from New York to Hungary to attend an event honoring an Orthodox Jewi...</p>
+                    <a href="https://www.businessinsider.com/lufthansa-given-record-fine-for-discriminating-128-jewish-passengers-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 CurioDaily. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

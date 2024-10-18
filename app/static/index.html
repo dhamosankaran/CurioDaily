@@ -7,6 +7,7 @@
     <meta name="keywords" content="daily news, AI news, tech updates, business insights, science discoveries">
     <title>CurioDaily: Your Daily Dose of Interesting</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap">
     <link rel="stylesheet" href="/static/styles/main.css">
 </head>
 <body>
@@ -20,7 +21,7 @@
                 <h1>CurioDaily: Your Daily Dose of Interesting</h1>
             </div>
             <a href="#" class="subscribe-btn" id="subscribeBtn">Subscribe Now</a>
-            <!--div class="menu-container">
+            <div class="menu-container">
                 <button id="menuBtn" class="menu-btn">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -29,23 +30,35 @@
                         <h2>CurioDaily</h2>
                         <button class="menu-close" id="menuClose">&times;</button>
                     </div>
-                    <div class="search-bar">
+                    <!--div class="search-bar">
                         <input type="text" placeholder="Search...">
                         <button><i class="fas fa-search"></i></button>
-                    </div>
-                    <ul>
-                        <li><a href="#" class="menu-item"><i class="fas fa-newspaper"></i> AI Weekly Newsletter</a></li>
-                        <li><a href="#" class="menu-item"><i class="fas fa-graduation-cap"></i> AI Education</a></li>
-                        <li><a href="#" class="menu-item"><i class="fas fa-fire"></i> Trending AI Topics</a></li>
-                        <li><a href="#" class="menu-item"><i class="fas fa-tools"></i> AI Tools Showcase</a></li>
-                        <li><a href="#" class="menu-item"><i class="fas fa-balance-scale"></i> AI Ethics Corner</a></li>
-                        <li><a href="#" class="menu-item"><i class="fas fa-briefcase"></i> AI Career Hub</a></li>
-                        <li><a href="#" class="menu-item"><i class="fas fa-podcast"></i> AI Podcast</a></li>
-                        <li><a href="#" class="menu-item"><i class="fas fa-laptop-code"></i> Interactive AI Demos</a></li>
-                        <li><a href="#" class="menu-item"><i class="fas fa-globe"></i> AI News Roundup</a></li>
-                        <li><a href="#" class="menu-item"><i class="fas fa-users"></i> Community Spotlight</a></li>
-                        <li><a href="#" class="menu-item"><i class="fas fa-trophy"></i> AI Challenges</a></li>
-                        <li><a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Ask an AI Expert</a></li>
+                    </div-->
+                    <h3 class="menu-section-title">This Week's Top Stories</h3>
+                    <!--ul>
+                        <li><a href="#" class="menu-item"><i class="fas fa-robot"></i> This Week in AI</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-globe"></i> Global Pulse</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-chart-line"></i> Business & Finance</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-heartbeat"></i> Health & Wellness</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-microchip"></i> Tech Titans</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-dragon"></i> China in Focus</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-tags"></i> Deal Hunter</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-podcast"></i> Podcast Picks</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-leaf"></i> Climate & Environment</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-lightbulb"></i> Startup & Innovation</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-gavel"></i> Tech Policy Watch</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-dna"></i> Medicine & Biotech</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-coins"></i> Crypto & Blockchain</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-rocket"></i> Space Exploration</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-mobile-alt"></i> Tech Gadgets</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-solar-panel"></i> Renewable Energy</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-shopping-bag"></i> Consumer Trends</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-brain"></i> AI Research Spotlight</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-shield-alt"></i> Digital Privacy & Security</a></li>
+                        <li><a href="#" class="menu-item"><i class="fas fa-briefcase"></i> Future of Work</a></li>
+                    </ul-->
+                    <ul id="weeklyTopicsList">
+                        <!-- Weekly topics will be dynamically inserted here -->
                     </ul>
                     <div class="menu-footer">
                         <div class="social-links">
@@ -53,14 +66,14 @@
                             <a href="#"><i class="fab fa-linkedin"></i></a>
                             <a href="#"><i class="fab fa-github"></i></a>
                         </div>
-                        <form class="newsletter-signup">
+                        <!--form class="newsletter-signup">
                             <input type="email" placeholder="Your email">
                             <button type="submit">Sign Up</button>
-                        </form>
+                        </form-->
                     </div>
                 </nav>
                 <div class="menu-overlay"></div>
-            </div-->
+            </div>
         </div>
     </header>
 
@@ -96,7 +109,10 @@
             </div>
             <p>Get your daily dose of interesting news and updates on AI, Tech, Business, Science, and more. Join our community of curious minds!</p>
             <div class="subscribe-form">
-                <input type="email" id="footerEmailInput" placeholder="Enter Your Email">
+                <div class="input-wrapper">
+                    <input type="email" id="footerEmailInput" placeholder="Enter Your Email">
+                    <div id="footerEmailError" class="error-message">Please enter a valid email address.</div>
+                </div>
                 <button type="button" id="footerSubscribeBtn">Subscribe</button>
             </div>
         </div>

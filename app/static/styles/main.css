@@ -1,3 +1,5 @@
+/* main.js */
+
 :root {
     --primary-color: #3498db;
     --secondary-color: #2c3e50;
@@ -112,7 +114,7 @@ main {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    color: white;
+    color: rgb(21, 130, 199);
     transition: all 0.3s ease;
 }
 
@@ -291,15 +293,22 @@ footer {
 }
 
 .footer-content {
-    max-width: 1200px;
+    max-width: 800px;
     margin: 0 auto;
     padding: 0 20px;
     text-align: center;
 }
 
+.footer-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
 .footer-logo img {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     margin-right: 1rem;
 }
 
@@ -314,27 +323,80 @@ footer {
 
 .footer-content .subscribe-form {
     display: flex;
-    justify-content: center;
-    margin-bottom: 1.5rem;
+    flex-direction: column;
+    align-items: center;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.subscribe-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.input-wrapper {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+
+.subscribe-form input[type="email"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #fff;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 1rem;
 }
 
 .footer-content .subscribe-form input[type="email"] {
-    padding: 0.5rem;
+    width: 100%;
+    padding: 0.75rem;
     border: 1px solid #fff;
-    border-radius: 4px 0 0 4px;
+    border-radius: 4px;
     background-color: rgba(255, 255, 255, 0.1);
     color: #fff;
-    width: 250px;
+    font-size: 1rem;
 }
 
-.footer-content .subscribe-form button {
-    padding: 0.5rem 1rem;
+.subscribe-form button {
+    width: 100%;
+    padding: 0.75rem;
     background-color: var(--secondary-color);
     color: white;
     border: none;
-    border-radius: 0 4px 4px 0;
+    border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-size: 1rem;
+}
+
+.footer-content .subscribe-form button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1rem;
+}
+
+.error-message {
+    color: #ffcccc;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+    text-align: left;
+    display: none;
+}
+
+.subscribe-form button:hover {
+    background-color: #34495e;
 }
 
 .footer-content .subscribe-form button:hover {
@@ -342,13 +404,14 @@ footer {
 }
 
 .footer-bottom {
-    max-width: 1200px;
+    max-width: 800px;
     margin: 1rem auto 0;
     padding: 1rem 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .footer-bottom a {
@@ -361,7 +424,6 @@ footer {
 .footer-bottom a:hover {
     opacity: 0.8;
 }
-
 .unsubscribe-message {
     background-color: #4CAF50;
     color: white;
@@ -382,6 +444,17 @@ footer {
     margin-top: 0.5rem;
     border-radius: 4px;
     display: none;
+}
+
+@media (max-width: 600px) {
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footer-bottom a {
+        margin: 0.5rem 0;
+    }
 }
 
 /* Mobile Responsive Styles */
@@ -463,6 +536,8 @@ footer {
     z-index: 1001;
     overflow-y: auto;
     color: #fff;
+    display: flex;
+    flex-direction: column;
 }
 
 .side-menu.active {
@@ -477,12 +552,18 @@ footer {
     align-items: center;
 }
 
+.menu-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
 .menu-close {
     background: none;
     border: none;
     color: #fff;
     font-size: 1.5rem;
     cursor: pointer;
+    padding: 10px;
 }
 
 .search-bar {
@@ -510,7 +591,7 @@ footer {
     display: flex;
     align-items: center;
     padding: 15px 20px;
-    color: #fff;
+    color: white;
     text-decoration: none;
     transition: background-color 0.3s;
 }
@@ -533,14 +614,21 @@ footer {
 .social-links {
     display: flex;
     justify-content: center;
-    margin-bottom: 15px;
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .social-links a {
     color: #fff;
-    margin: 0 10px;
-    font-size: 1.2rem;
+    margin: 0 15px;
+    font-size: 1.5rem;
+    transition: opacity 0.3s ease;
 }
+
+.social-links a:hover {
+    opacity: 0.7;
+}
+
 
 .newsletter-signup {
     display: flex;
@@ -575,4 +663,201 @@ footer {
 
 .menu-overlay.active {
     display: block;
+}
+
+.menu-section-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #fff;
+    margin: 20px 0 10px;
+    padding: 0 20px;
+    text-align: left;
+}
+
+
+#weeklyTopicsList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+#weeklyTopicsList li {
+    margin-bottom: 5px;
+}
+
+#weeklyTopicsList a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+#weeklyTopicsList a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#weeklyTopicsList i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+@media only screen and (max-width: 767px) {
+    /* Header adjustments */
+    header .container {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 10px;
+    }
+  
+    .logo-title {
+      flex-direction: row;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+  
+    .logo {
+      height: 30px;
+      margin-right: 10px;
+    }
+  
+    header h1 {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+  
+    .subscribe-btn {
+      width: 100%;
+      text-align: center;
+      padding: 12px;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+  
+    /* Menu button positioning */
+    .menu-container {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+  
+    /* Topic section adjustments */
+    .topic-section {
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+  
+    .topic-section h2 {
+      font-size: 1.4rem;
+    }
+  
+    .article-list {
+      font-size: 0.9rem;
+    }
+  
+    .read-more {
+      display: inline-block;
+      padding: 8px 12px;
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 4px;
+      text-align: center;
+      margin-top: 5px;
+    }
+  
+    /* Modal adjustments */
+    .modal-content {
+      width: 95%;
+      margin: 5% auto;
+      padding: 1.5rem;
+    }
+  
+    /* Footer adjustments */
+    .footer-content .subscribe-form {
+      flex-direction: column;
+    }
+  
+    .footer-content .subscribe-form input[type="email"] {
+      width: 100%;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+  
+    .footer-content .subscribe-form button {
+      width: 100%;
+      border-radius: 4px;
+    }
+  
+    .footer-bottom {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .footer-bottom a {
+      margin: 5px 0;
+    }
+  
+    /* Side menu adjustments */
+    .side-menu {
+      width: 80%;
+      max-width: 300px;
+    }
+  
+    /* Improve touch targets */
+    .menu-item, .social-links a, .menu-close, .search-bar button {
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  
+    /* Add some spacing between articles */
+    .article-list li {
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+  
+    /* Adjust font sizes for better readability */
+    .topic-section h3 {
+      font-size: 1.1rem;
+    }
+  
+    .article-list h3 {
+      font-size: 1rem;
+    }
+  
+    .article-date {
+      font-size: 0.8rem;
+    }
+  }
+
+
+  /* Mobile-specific adjustments */
+@media only screen and (max-width: 767px) {
+    .side-menu {
+        width: 85%;
+        max-width: 300px;
+    }
+
+    .menu-header h2 {
+        font-size: 1.3rem;
+    }
+
+    #weeklyTopicsList a {
+        padding: 15px 20px;
+    }
+
+    .social-links {
+        padding: 15px;
+    }
+
+    .social-links a {
+        font-size: 1.3rem;
+    }
 }

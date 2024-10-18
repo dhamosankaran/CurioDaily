@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurioDaily</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3a0ca3;
+            --secondary-color: #4361ee;
+            --accent-color: #4cc9f0;
+            --text-color: #333;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 65%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .main-header {
+            background-color: #0c39bf;
+            color: #fff;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .main-header .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .main-header .logo-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .main-header .logo {
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .main-header h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .main-header .title-date-wrapper {
+            text-align: center;
+        }
+
+
+        .main-header .date {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .subscribe-btn {
+            background-color: #fff;
+            color: #3a0ca3;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .subscribe-btn:hover {
+            background-color: #4361ee;
+            color: #fff;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary, .highlights, .articles {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .highlight-list {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        .highlight-list li {
+            margin-bottom: 15px;
+        }
+
+        .article-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .article-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .article-content {
+            padding: 15px;
+        }
+
+        .article-content h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .read-more-btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 80%;
+            }
+
+            .main-header .container {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .main-header .logo-title {
+                flex-direction: row;
+                margin-bottom: 0;
+            }
+
+            .main-header .logo {
+                margin-right: 15px;
+                margin-bottom: 0;
+            }
+
+            .main-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .main-header .date {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5em;
+            }
+
+            .article-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo-title">
+                <img src="https://storage.googleapis.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
+                <h1>CurioDaily: Your Daily Dose of Interesting</h1>
+                <div class="date">&nbsp;&nbsp;Oct 17, 2024</div>
+            </div>
+            <a href="https://www.thecuriodaily.com" class="subscribe-btn">CurioDaily Home</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="summary">
+            <h2 class="section-title">This Week in Business & Finance Weekly: Key Insights</h2>
+            Business & Finance Weekly: Innovation & Market Movements: Emerging tech trends are poised to catalyze business expansion by 2025, signaling a transformative period ahead. Meanwhile, BlackRock's surging inflows propel it towards industry dominance with an eye-watering $11.5 trillion in assets, as Gladia's fresh $16 million funding for AI-enhanced transcription hints at the growing intersection of technology and data analysis. Amid these developments, tax bracket considerations are reshaping financial discussions across income groups, and the cryptocurrency sphere remains volatile with Trumpcoin's underwhelming entrance, all while Hurricane Milton looms as a billion-dollar threat to real estate.
+        </section>
+
+        <section class="highlights">
+            <h2 class="section-title">Business & Finance Weekly Highlights of the Week</h2>
+            <ul class="highlight-list">
+                <li>Tech trends set to boost business growth by 2025.</li><li>Tax brackets influence therapy discussions from ALICEs to HENRYs.</li><li>Joe Lonsdale discusses ventures & insights on finance.</li><li>Trumpcoin debuts to lackluster interest</li><li>BlackRock hits record inflows, eyes top industry spot with $11.5T assets.</li><li>Gladia secures $16M for its AI-driven transcription and data analysis.</li><li>Hurricane Milton threatens $1.1T in real estate.</li>
+            </ul>
+        </section>
+
+        <section class="articles">
+            <h2 class="section-title">Top Business & Finance Weekly Stories</h2>
+            <div class="article-grid">
+                
+            <article class="article-card">
+                <img src="https://www.noupe.com/wp-content/uploads/2024/10/jeremy-bishop-vGjGvtSfys4-unsplash.jpg" alt="Top Technology Trends Rule in 2025 for Business Growth" class="article-image">
+                <div class="article-content">
+                    <h3>Top Technology Trends Rule in 2025 for Business Growth</h3>
+                    <p>2025 is around the corner and the market has been preparing for it. However, businesses are already ...</p>
+                    <a href="https://www.noupe.com/business-online/top-technology-trends-rule-in-2025-for-business-growth.html" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/66b22146393cd3c8629b81a6?width=1200&format=jpeg" alt="From ALICEs to HENRYs, here's what people across the tax brackets discuss in therapy" class="article-image">
+                <div class="article-content">
+                    <h3>From ALICEs to HENRYs, here's what people across the tax brackets discuss in therapy</h3>
+                    <p>Therapists shared what their clients talk about with Business Insider. While ALICEs struggle with th...</p>
+                    <a href="https://www.businessinsider.com/alices-ultra-rich-what-people-across-tax-brackets-discuss-therapy-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://ritholtz.com/wp-content/uploads/2023/02/Mib-tile.png" alt="MiB: Joe Lonsdale of 8VC, Palantir, Adapar & Opto" class="article-image">
+                <div class="article-content">
+                    <h3>MiB: Joe Lonsdale of 8VC, Palantir, Adapar & Opto</h3>
+                    <p>Live from FutureProof in Huntington Beach, California, Barry Ritholtz speaks with Joe Lonsdale of 8V...</p>
+                    <a href="https://ritholtz.com/2024/10/mib-joe-lonsdale/" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://media.wired.com/photos/670fa4f537cad85df458a390/191:100/w_1280,c_limit/GettyImages-1300319936.jpg" alt="Trumpcoin Launches With a Whimper" class="article-image">
+                <div class="article-content">
+                    <h3>Trumpcoin Launches With a Whimper</h3>
+                    <p>Investors scooped up only a small number of the Trump family's new World Liberty Financial crypto to...</p>
+                    <a href="https://www.wired.com/story/trumpcoin-launches-with-a-whimper-not-a-bang/" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/67092d7ea7031864928127b8?width=1200&format=jpeg" alt="BlackRock brought in more money last quarter than ever before. Here's where the $11.5 trillion asset manager hopes to become the industry leader next." class="article-image">
+                <div class="article-content">
+                    <h3>BlackRock brought in more money last quarter than ever before. Here's where the $11.5 trillion asset manager hopes to become the industry leader next.</h3>
+                    <p>The firm's infrastructure acquisition is set to bring in $1 billion in fees next year....</p>
+                    <a href="https://www.businessinsider.com/blackrocks-next-big-bet-private-markets-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://venturebeat.com/wp-content/uploads/2024/10/gladia-team.jpg?w=1024?w=1200&strip=all" alt="Gladia raises $16M for AI transcription and analytics" class="article-image">
+                <div class="article-content">
+                    <h3>Gladia raises $16M for AI transcription and analytics</h3>
+                    <p>Gladia, an AI transcription and audio intelligence provider, has raised $16 million in funding....</p>
+                    <a href="https://venturebeat.com/ai/gladia-raises-16m-for-ai-transcription-and-analytics/" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/6707686d3f2165d716dfbde3?width=1024&format=jpeg" alt="Hurricane Milton is headed right into $1.1 trillion worth of commercial real estate properties: Moody's" class="article-image">
+                <div class="article-content">
+                    <h3>Hurricane Milton is headed right into $1.1 trillion worth of commercial real estate properties: Moody's</h3>
+                    <p>There are more than 235,000 commercial properties that could be exposed to dangerously strong winds,...</p>
+                    <a href="https://www.businessinsider.com/hurricane-milton-crashing-into-trillion-worth-of-property-moodys-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/6708ab563f2165d716e0177e?width=1200&format=jpeg" alt="Hurricane Milton might cost insurers up to $50 billion — but it could have been much worse, analysts said" class="article-image">
+                <div class="article-content">
+                    <h3>Hurricane Milton might cost insurers up to $50 billion — but it could have been much worse, analysts said</h3>
+                    <p>Hurricane Milton's insured losses could range from $30 billion to $50 billion, but it's far from ana...</p>
+                    <a href="https://www.businessinsider.com/hurricane-milton-insurance-fitch-50-billion-losses-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670f0d2aa70318649282aa7d?width=1024&format=jpeg" alt="Netflix's new gaming chief shakes up the division with a hire from Epic and layoffs" class="article-image">
+                <div class="article-content">
+                    <h3>Netflix's new gaming chief shakes up the division with a hire from Epic and layoffs</h3>
+                    <p>Netflix's new games president, Alain Tascan, appointed Jeet Shroff in a VP role. The company also co...</p>
+                    <a href="https://www.businessinsider.com/netflix-shakes-up-gaming-division-new-epic-hire-layoffs-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://www.cnet.com/a/img/resize/a8efc0c32d7af0d553217dec16a6e80767bec233/hub/2024/10/10/83a4f742-0f39-4869-9498-7ff7f787a983/image-2.png?auto=webp&fit=crop&height=675&width=1200" alt="Goodbye 9-to-5? Why Gen Z Prefers Making Bank Online" class="article-image">
+                <div class="article-content">
+                    <h3>Goodbye 9-to-5? Why Gen Z Prefers Making Bank Online</h3>
+                    <p>Digital side hustles are replacing traditional work and helping younger generations diversify their ...</p>
+                    <a href="https://www.cnet.com/personal-finance/banking/goodbye-9-to-5-why-gen-z-prefers-making-bank-online/" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 CurioDaily. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurioDaily</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3a0ca3;
+            --secondary-color: #4361ee;
+            --accent-color: #4cc9f0;
+            --text-color: #333;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 65%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .main-header {
+            background-color: #0c39bf;
+            color: #fff;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .main-header .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .main-header .logo-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .main-header .logo {
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .main-header h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .main-header .title-date-wrapper {
+            text-align: center;
+        }
+
+
+        .main-header .date {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .subscribe-btn {
+            background-color: #fff;
+            color: #3a0ca3;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .subscribe-btn:hover {
+            background-color: #4361ee;
+            color: #fff;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary, .highlights, .articles {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .highlight-list {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        .highlight-list li {
+            margin-bottom: 15px;
+        }
+
+        .article-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .article-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .article-content {
+            padding: 15px;
+        }
+
+        .article-content h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .read-more-btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 80%;
+            }
+
+            .main-header .container {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .main-header .logo-title {
+                flex-direction: row;
+                margin-bottom: 0;
+            }
+
+            .main-header .logo {
+                margin-right: 15px;
+                margin-bottom: 0;
+            }
+
+            .main-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .main-header .date {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5em;
+            }
+
+            .article-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo-title">
+                <img src="https://storage.googleapis.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
+                <h1>CurioDaily: Your Daily Dose of Interesting</h1>
+                <div class="date">&nbsp;&nbsp;Oct 17, 2024</div>
+            </div>
+            <a href="https://www.thecuriodaily.com" class="subscribe-btn">CurioDaily Home</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="summary">
+            <h2 class="section-title">This Week in China Insights Weekly: Key Insights</h2>
+            China Insights Weekly: Navigating Tensions and Economic Maneuvers: As the US intensifies its tactics in the South China Sea, stirring the pot of global tensions, China grapples with internal economic pressures, considering a colossal $1 trillion debt injection aimed at revitalizing its economy. Amidst these strategic moves, a homegrown EV contender rises to challenge Tesla's market dominance, and optimistic forecasts hint at a potential 50% surge in Chinese stocks, signaling a robust response to the campaign against Chinese tech supremacy led by a prominent US figure.
+        </section>
+
+        <section class="highlights">
+            <h2 class="section-title">China Insights Weekly Highlights of the Week</h2>
+            <ul class="highlight-list">
+                <li>US tactics in South China Sea risk escalation</li><li>China's price stagnation pressures Beijing for economic boost.</li><li>Chinese EV brand challenges Tesla in the local market.</li><li>China plans $1T debt boost for economic recovery.</li><li>Research CEO predicts a 50% surge in Chinese stocks.</li><li>China boosts economy with increased debt issuance.</li><li>US figure leads a campaign against Chinese tech dominance.</li>
+            </ul>
+        </section>
+
+        <section class="articles">
+            <h2 class="section-title">Top China Insights Weekly Stories</h2>
+            <div class="article-grid">
+                
+            <article class="article-card">
+                <img src="https://i.insider.com/66ebf604d17aa3c7b2b40c19?width=841&format=jpeg" alt="Efforts by the US to counter China in the South China Sea could backfire" class="article-image">
+                <div class="article-content">
+                    <h3>Efforts by the US to counter China in the South China Sea could backfire</h3>
+                    <p>The US could ramp up efforts to counter China in the South China Sea but that comes with risks, secu...</p>
+                    <a href="https://www.businessinsider.com/us-attempt-counter-china-south-china-sea-could-backfire-experts-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670cf8706ac7b701e7cac644?width=800&format=jpeg" alt="Prices in China are stagnating, putting more pressure on Beijing to jump-start the economy" class="article-image">
+                <div class="article-content">
+                    <h3>Prices in China are stagnating, putting more pressure on Beijing to jump-start the economy</h3>
+                    <p>Consumer prices rose marginally in September and producer prices fell sharply, stoking demand for go...</p>
+                    <a href="https://www.businessinsider.com/china-economy-deflation-stimulus-government-property-bubble-unemployment-growth-prices-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670d39cd3f2165d716e09970?width=1200&format=jpeg" alt="This Chinese EV maker is up for a battle with Elon Musk in China" class="article-image">
+                <div class="article-content">
+                    <h3>This Chinese EV maker is up for a battle with Elon Musk in China</h3>
+                    <p>Xpeng co-president Brian Gu said the Guangzhou-based EV startup was keen to see how its autonomous d...</p>
+                    <a href="https://www.businessinsider.com/chinese-tesla-rival-xpeng-welcomes-competition-from-elon-musk-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670fe0a96ac7b701e7cc3ea7?width=1200&format=jpeg" alt="China could raise nearly $1 trillion of fresh debt in the next 3 years to revive its economy" class="article-image">
+                <div class="article-content">
+                    <h3>China could raise nearly $1 trillion of fresh debt in the next 3 years to revive its economy</h3>
+                    <p>Beijing could raise 6 trillion yuan, or $850 billion, by selling treasury bonds over the next three ...</p>
+                    <a href="https://www.businessinsider.com/china-economy-beijing-stimulus-1-trillion-debt-package-fiscal-deficit-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670927386ac7b701e7ca5bf0?width=1200&format=jpeg" alt="Why Chinese stocks will climb another 50% from current levels, research CEO says" class="article-image">
+                <div class="article-content">
+                    <h3>Why Chinese stocks will climb another 50% from current levels, research CEO says</h3>
+                    <p>China's economy has the perfect ingredients to stage a monster stock rally in the next year, one res...</p>
+                    <a href="https://markets.businessinsider.com/news/stocks/china-stocks-economy-stimulus-csi-300-hang-seng-index-price-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670a5514a703186492817f36?width=1200&format=jpeg" alt="China to increase debt issuance in bid to revive economy" class="article-image">
+                <div class="article-content">
+                    <h3>China to increase debt issuance in bid to revive economy</h3>
+                    <p>China slipped into deflation in 2023 as a result of weak domestic demand and a struggling property m...</p>
+                    <a href="https://www.businessinsider.com/china-to-increase-debt-issuance-in-bid-to-revive-economy-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://media.wired.com/photos/6706b71e702ff9d188601297/191:100/w_1280,c_limit/Voss-Sullivan34FINAL_social.jpg" alt="The American Who Waged a Tech War on China" class="article-image">
+                <div class="article-content">
+                    <h3>The American Who Waged a Tech War on China</h3>
+                    <p>China is racing to unseat the United States as the world’s technological superpower. Not if Jake Sul...</p>
+                    <a href="https://www.wired.com/story/jake-sullivan-china-tech-profile/" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670926d8a70318649281244e?width=870&format=jpeg" alt="China is trying to give investors the one major thing missing from its economic stimulus blitz" class="article-image">
+                <div class="article-content">
+                    <h3>China is trying to give investors the one major thing missing from its economic stimulus blitz</h3>
+                    <p>China announced a Saturday press conference that will unveil new fiscal policy support....</p>
+                    <a href="https://markets.businessinsider.com/news/stocks/china-economy-fiscal-stimulus-recovery-stock-market-rally-csi-300-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://s.yimg.com/cv/apiv2/social/images/yahoo_default_logo.png" alt="Paris Motor Show opens during a brewing EV trade war between the EU and China" class="article-image">
+                <div class="article-content">
+                    <h3>Paris Motor Show opens during a brewing EV trade war between the EU and China</h3>
+                    <p>Auto manufacturers competing to persuade drivers to go electric are rolling out cheaper, more tech-r...</p>
+                    <a href="https://finance.yahoo.com/news/paris-motor-show-opens-during-171436499.html" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670f2aaf6ac7b701e7cbedef?width=1200&format=jpeg" alt="BMW CEO: A 2035 gasoline ban will hit the European car industry 'in its heart' and make it reliant on Chinese batteries" class="article-image">
+                <div class="article-content">
+                    <h3>BMW CEO: A 2035 gasoline ban will hit the European car industry 'in its heart' and make it reliant on Chinese batteries</h3>
+                    <p>BMW CEO Oliver Zipse said the EU's ban on gasoline cars could "threaten the European automotive indu...</p>
+                    <a href="https://www.businessinsider.com/bmw-ceo-2035-gasoline-vehicle-ban-eu-more-reliant-china-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 CurioDaily. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

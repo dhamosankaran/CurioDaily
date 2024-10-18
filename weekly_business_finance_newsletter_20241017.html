@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurioDaily</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3a0ca3;
+            --secondary-color: #4361ee;
+            --accent-color: #4cc9f0;
+            --text-color: #333;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 65%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .main-header {
+            background-color: #0c39bf;
+            color: #fff;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .main-header .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .main-header .logo-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .main-header .logo {
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .main-header h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .main-header .title-date-wrapper {
+            text-align: center;
+        }
+
+
+        .main-header .date {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .subscribe-btn {
+            background-color: #fff;
+            color: #3a0ca3;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .subscribe-btn:hover {
+            background-color: #4361ee;
+            color: #fff;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary, .highlights, .articles {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .highlight-list {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        .highlight-list li {
+            margin-bottom: 15px;
+        }
+
+        .article-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .article-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .article-content {
+            padding: 15px;
+        }
+
+        .article-content h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .read-more-btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 80%;
+            }
+
+            .main-header .container {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .main-header .logo-title {
+                flex-direction: row;
+                margin-bottom: 0;
+            }
+
+            .main-header .logo {
+                margin-right: 15px;
+                margin-bottom: 0;
+            }
+
+            .main-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .main-header .date {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5em;
+            }
+
+            .article-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo-title">
+                <img src="https://storage.googleapis.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
+                <h1>CurioDaily: Your Daily Dose of Interesting</h1>
+                <div class="date">&nbsp;&nbsp;Oct 17, 2024</div>
+            </div>
+            <a href="https://www.thecuriodaily.com" class="subscribe-btn">CurioDaily Home</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="summary">
+            <h2 class="section-title">This Week in Business & Finance: Key Insights</h2>
+            Business & Finance Dynamics: Diverse Developments Shape the Corporate Landscape
+
+This week's business and finance sphere buzzed with activity as companies D, A, and C unveiled strategic shifts, while conglomerate P's latest investment moves signaled confidence in emerging market trends. Meanwhile, industry C's performance offered a fresh perspective on sector resilience amidst evolving economic challenges.
+        </section>
+
+        <section class="highlights">
+            <h2 class="section-title">Business & Finance Highlights of the Week</h2>
+            <ul class="highlight-list">
+                <li>Dow, S&P 500, Nasdaq flat as markets digest bank earnings.</li><li>Dow drops 100 pts amid high inflation</li><li>Apple's iPhone update adds business caller ID and email logos.</li><li>Chelsea Manning trusts Apple for cybersecurity over Google & Microsoft.</li><li>CISA lists new Windows, Firefox, SolarWinds vulnerabilities</li><li>Park Avenue Securities increases stake in Dun & Bradstreet.</li><li>Inflation trends hint at potential Fed rate cut.</li>
+            </ul>
+        </section>
+
+        <section class="articles">
+            <h2 class="section-title">Top Business & Finance Stories</h2>
+            <div class="article-grid">
+                
+                <article class="article-card">
+                    <img src="https://s.yimg.com/cv/apiv2/social/images/yahoo_default_logo.png" alt="Stock market today: Dow, S&P 500, Nasdaq futures tread water as big bank earnings roll in" class="article-image">
+                    <div class="article-content">
+                        <h3>Stock market today: Dow, S&P 500, Nasdaq futures tread water as big bank earnings roll in</h3>
+                        <p>JP Morgan and Wells Fargo get earnings season going in earnest, while a wholesale inflation print is...</p>
+                        <a href="https://finance.yahoo.com/news/live/stock-market-today-dow-sp-500-nasdaq-futures-tread-water-as-big-bank-earnings-roll-in-104203289.html" class="read-more-btn" target="_blank">Read More</a>
+                    </div>
+                </article>
+                
+                <article class="article-card">
+                    <img src="https://i.kinja-img.com/image/upload/c_fill,h_675,pg_1,q_80,w_1200/89af8658af13d54c1fda0e83c663df4a.jpg" alt="The Dow slips 100 points as inflation comes in hotter than expected" class="article-image">
+                    <div class="article-content">
+                        <h3>The Dow slips 100 points as inflation comes in hotter than expected</h3>
+                        <p>The Dow Jones Industrial Average and other major stock market indexes were in the red Thursday morni...</p>
+                        <a href="https://qz.com/consumer-price-index-cpi-inflation-dow-nasdaq-sp500-1851669593" class="read-more-btn" target="_blank">Read More</a>
+                    </div>
+                </article>
+                
+                <article class="article-card">
+                    <img src="https://i0.wp.com/9to5mac.com/wp-content/uploads/sites/6/2024/10/apple-business-logos-mail-caller-id-phone-app.jpg?resize=1200%2C628&quality=82&strip=all&ssl=1" alt="Apple previews new iPhone features including enhanced caller ID for businesses and brand logos in Mail" class="article-image">
+                    <div class="article-content">
+                        <h3>Apple previews new iPhone features including enhanced caller ID for businesses and brand logos in Mail</h3>
+                        <p>Apple today announced an extension of the Apple Business Connect program, which allows companies to ...</p>
+                        <a href="https://9to5mac.com/2024/10/16/apple-brand-logos-iphone-mail-phone-caller-id/" class="read-more-btn" target="_blank">Read More</a>
+                    </div>
+                </article>
+                
+                <article class="article-card">
+                    <img src="https://i.insider.com/670f034da70318649282a9d8?width=1024&format=jpeg" alt="Chelsea Manning avoids Google and Microsoft — and says she prefers Apple products for cybersecurity" class="article-image">
+                    <div class="article-content">
+                        <h3>Chelsea Manning avoids Google and Microsoft — and says she prefers Apple products for cybersecurity</h3>
+                        <p>Chelsea Manning is the face of a new VPN called Nym. She's also speaking out about cybersecurity in ...</p>
+                        <a href="https://www.businessinsider.com/cybersecurity-chelsea-manning-avoid-google-microsoft-favor-apple-vpn-privacy-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                    </div>
+                </article>
+                
+                <article class="article-card">
+                    <img src="https://securityaffairs.com/wp-content/uploads/2020/07/CISA.jpeg" alt="U.S. CISA adds Microsoft Windows Kernel, Mozilla Firefox and SolarWinds Web Help Desk bugs to its Known Exploited Vulnerabilities catalog" class="article-image">
+                    <div class="article-content">
+                        <h3>U.S. CISA adds Microsoft Windows Kernel, Mozilla Firefox and SolarWinds Web Help Desk bugs to its Known Exploited Vulnerabilities catalog</h3>
+                        <p>U.S. Cybersecurity and Infrastructure Security Agency (CISA) adds Windows Kernel, Mozilla Firefox an...</p>
+                        <a href="https://securityaffairs.com/169882/hacking/u-s-cisa-microsoft-windows-kernel-mozilla-firefox-solarwinds-web-help-desk-bugs-known-exploited-vulnerabilities-catalog.html" class="read-more-btn" target="_blank">Read More</a>
+                    </div>
+                </article>
+                
+                <article class="article-card">
+                    <img src="https://www.americanbankingnews.com/wp-content/timthumb/timthumb.php?src=https://www.marketbeat.com/logos/dun-amp;-bradstreet-corp-logo-1200x675.jpg&w=240&h=240&zc=2" alt="Dun & Bradstreet Holdings, Inc. (NYSE:DNB) Shares Bought by Park Avenue Securities LLC" class="article-image">
+                    <div class="article-content">
+                        <h3>Dun & Bradstreet Holdings, Inc. (NYSE:DNB) Shares Bought by Park Avenue Securities LLC</h3>
+                        <p>Park Avenue Securities LLC raised its position in Dun & Bradstreet Holdings, Inc. (NYSE:DNB – Free R...</p>
+                        <a href="https://www.etfdailynews.com/2024/10/11/dun-bradstreet-holdings-inc-nysednb-shares-bought-by-park-avenue-securities-llc/" class="read-more-btn" target="_blank">Read More</a>
+                    </div>
+                </article>
+                
+                <article class="article-card">
+                    <img src="https://www.cnet.com/a/img/resize/22ba9f2808d0f1e72fe8c15a65182637f7e55552/hub/2024/10/09/e22adef8-e58f-46a0-a2a7-c0ab6180ab67/gettyimages-1409422611.jpg?auto=webp&fit=crop&height=675&width=1200" alt="Does Today's Inflation Data Promise Another Interest Rate Cut by the Fed?" class="article-image">
+                    <div class="article-content">
+                        <h3>Does Today's Inflation Data Promise Another Interest Rate Cut by the Fed?</h3>
+                        <p>Cooling inflation gives the Fed the green light to keep cutting interest rates, but it won't be fast...</p>
+                        <a href="https://www.cnet.com/personal-finance/does-todays-inflation-data-promise-another-interest-rate-cut-by-the-fed/" class="read-more-btn" target="_blank">Read More</a>
+                    </div>
+                </article>
+                
+                <article class="article-card">
+                    <img src="https://www.americanbankingnews.com/wp-content/timthumb/timthumb.php?src=https://www.marketbeat.com/logos/princess-private-equity-holding-limited-logo-1200x675.png?v=20211202094455&w=240&h=240&zc=2" alt="Princess Private Equity (LON:PEY) Stock Price Passes Above 50 Day Moving Average – What’s Next?" class="article-image">
+                    <div class="article-content">
+                        <h3>Princess Private Equity (LON:PEY) Stock Price Passes Above 50 Day Moving Average – What’s Next?</h3>
+                        <p>Princess Private Equity (LON:PEY – Get Free Report)’s share price crossed above its 50-day moving av...</p>
+                        <a href="https://www.etfdailynews.com/2024/10/15/princess-private-equity-lonpey-stock-price-passes-above-50-day-moving-average-whats-next/" class="read-more-btn" target="_blank">Read More</a>
+                    </div>
+                </article>
+                
+                <article class="article-card">
+                    <img src="https://i.insider.com/670831903f2165d716e00609?width=1200&format=jpeg" alt="Stock market today: Indexes close lower after CPI shows sticky inflation in September" class="article-image">
+                    <div class="article-content">
+                        <h3>Stock market today: Indexes close lower after CPI shows sticky inflation in September</h3>
+                        <p>Indexes slipped Thursday as investors took in higher-than-expected inflation. The latest data has sp...</p>
+                        <a href="https://markets.businessinsider.com/news/stocks/stock-market-inflation-cpi-data-jobless-claims-labor-market-landing-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                    </div>
+                </article>
+                
+                <article class="article-card">
+                    <img src="https://securityaffairs.com/wp-content/uploads/2020/07/CISA.jpeg" alt="U.S. CISA adds Ivanti CSA and Fortinet bugs to its Known Exploited Vulnerabilities catalog" class="article-image">
+                    <div class="article-content">
+                        <h3>U.S. CISA adds Ivanti CSA and Fortinet bugs to its Known Exploited Vulnerabilities catalog</h3>
+                        <p>U.S. Cybersecurity and Infrastructure Security Agency (CISA) adds Ivanti CSA and Fortinet bugs to it...</p>
+                        <a href="https://securityaffairs.com/169619/security/u-s-cisa-adds-ivanti-csa-and-fortinet-bugs-to-its-known-exploited-vulnerabilities-catalog.html" class="read-more-btn" target="_blank">Read More</a>
+                    </div>
+                </article>
+                
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 CurioDaily. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

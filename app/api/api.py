@@ -2,8 +2,7 @@
 
 import logging
 from fastapi import APIRouter
-from app.api.endpoints import topics, newsletters, subscriptions, analytics
-
+from app.api.endpoints import topics, newsletters, subscriptions, analytics ,  weekly_newsletter , weekly_newsletter_topics
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -32,6 +31,23 @@ try:
 except Exception as e:
     logger.error(f"Failed to include subscriptions router: {str(e)}", exc_info=True)
 
+
+# Include router for weekly_newsletter
+try:
+    api_router.include_router(weekly_newsletter.router, prefix="/weekly-newsletter", tags=["weekly newsletter"])
+    logger.info("weekly_newsletter router included successfully")
+except Exception as e:
+    logger.error(f"Failed to include weekly_newsletter router: {str(e)}", exc_info=True)
+
+
+
+
+# Include router for weekly_newsletter_topics
+try:
+    api_router.include_router(weekly_newsletter_topics.router, prefix="/weekly-newsletter-topics", tags=["weekly newsletter topics"])
+    logger.info("weekly_newsletter_topics router included successfully")
+except Exception as e:
+    logger.error(f"Failed to include weekly_newsletter_topics router: {str(e)}", exc_info=True)
 
 
 

@@ -1,3 +1,5 @@
+#app/main.py
+
 import sys
 import os
 import logging
@@ -26,6 +28,7 @@ from app.crud.crud_topic import seed_initial_topics
 from app import crud
 from app.utils.sitemap_generator import generate_sitemap
 from markupsafe import Markup
+from app.api.endpoints import weekly_newsletter, weekly_newsletter_topics
 
 
 # Adjust the path to ensure imports work correctly
@@ -144,6 +147,12 @@ async def view_newsletter(
     #@app.get("/newsletters/{article_id}")
     #async def view_newsletter(article_id: int):
     #return HTMLResponse("<html><body><h1>Test</h1></body></html>")
+
+@app.get("/api/weekly-newsletter-topics")
+async def get_weekly_newsletter_topics(db: Session = Depends(deps.get_db)):
+    topics = crud.get_weekly_newsletter_topics(db)
+    return [{"id": topic.id, "name": topic.name} for topic in topics]
+
 
 @app.get("/unsubscribe-confirmation")
 async def unsubscribe_confirmation(id: int):

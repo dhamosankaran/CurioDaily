@@ -16,6 +16,7 @@ import random
 import urllib.parse
 from jinja2 import Environment, FileSystemLoader
 
+
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -416,6 +417,7 @@ def generate_html_content(fetcher, dynamic_title, summary, highlights, articles,
     
     with open(template_path, "r", encoding="utf-8") as f:
         template = f.read()
+
     
     # Replace placeholders in the template
     template = template.replace('{{dynamic_title}}', dynamic_title)
@@ -424,6 +426,8 @@ def generate_html_content(fetcher, dynamic_title, summary, highlights, articles,
     template = template.replace('{{highlights}}', highlights_html)
     template = template.replace('{{articles}}', articles_html)
     template = template.replace('{{base_url}}', base_url)
+
+
     
     # Create a placeholder for the unsubscribe link
     template = template.replace('{{unsubscribe_link}}', '{{unsubscribe_link_placeholder}}')
