@@ -633,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
             subscribeModal.style.display = 'block';
             sessionStorage.setItem('hasShownModal', 'true');
             trackEvent('Subscription', 'Auto Open Modal', 'Timed');
-        }, 1000);
+        }, 10000);
     }
 });
 

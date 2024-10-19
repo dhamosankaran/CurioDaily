@@ -1,4 +1,4 @@
-/* main.js */
+/* main.cs */
 
 :root {
     --primary-color: #3498db;
@@ -446,68 +446,7 @@ footer {
     display: none;
 }
 
-@media (max-width: 600px) {
-    .footer-bottom {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .footer-bottom a {
-        margin: 0.5rem 0;
-    }
-}
 
-/* Mobile Responsive Styles */
-@media (max-width: 768px) {
-    header .container {
-        flex-wrap: wrap;
-    }
-
-    .logo-title {
-        width: 100%;
-        justify-content: center;
-        margin-bottom: 1rem;
-    }
-
-    .subscribe-btn {
-        width: 100%;
-        text-align: center;
-        margin-top: 1rem;
-    }
-
-    .modal-content {
-        width: 90%;
-        max-height: 80vh;
-        margin: 10% auto;
-    }
-
-    .topic-groups {
-        grid-template-columns: 1fr;
-    }
-
-    #subscribeForm input[type="text"],
-    #subscribeForm input[type="email"] {
-        font-size: 16px;
-    }
-
-    .footer-bottom {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .footer-bottom a {
-        margin: 0.5rem 0;
-    }
-
-    .menu-btn, .subscribe-btn, .read-more, .close {
-        min-height: 44px;
-        min-width: 44px;
-    }
-
-    .topic-group label {
-        padding: 10px 0;
-    }
-}
 
 /* Side Menu Styles */
 .menu-container {
@@ -688,11 +627,11 @@ footer {
 
 #weeklyTopicsList a {
     display: flex;
-    align-items: center;
+    align-items: left;
     padding: 12px 20px;
     color: #fff;
     text-decoration: none;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s;
 }
 
 #weeklyTopicsList a:hover {
@@ -702,9 +641,79 @@ footer {
 #weeklyTopicsList i {
     margin-right: 15px;
     width: 20px;
-    text-align: center;
+    text-align: left;
     font-size: 1.2em;
 }
+
+/*
+@media (max-width: 600px) {
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footer-bottom a {
+        margin: 0.5rem 0;
+    }
+}
+    */
+
+
+
+/* Mobile Responsive Styles */
+
+/*
+@media (max-width: 768px) {
+    header .container {
+        flex-wrap: wrap;
+    }
+
+    .logo-title {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .subscribe-btn {
+        width: 100%;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .modal-content {
+        width: 90%;
+        max-height: 80vh;
+        margin: 10% auto;
+    }
+
+    .topic-groups {
+        grid-template-columns: 1fr;
+    }
+
+    #subscribeForm input[type="text"],
+    #subscribeForm input[type="email"] {
+        font-size: 16px;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footer-bottom a {
+        margin: 0.5rem 0;
+    }
+
+    .menu-btn, .subscribe-btn, .read-more, .close {
+        min-height: 20px;
+        min-width: 20px;
+    }
+
+    .topic-group label {
+        padding: 10px 0;
+    }
+}
+*/
 
 @media only screen and (max-width: 767px) {
     /* Header adjustments */
@@ -731,9 +740,9 @@ footer {
     }
   
     .subscribe-btn {
-      width: 100%;
+      width: 75%;
       text-align: center;
-      padding: 12px;
+      padding: 10px;
       font-size: 1rem;
       margin-top: 10px;
     }
@@ -761,17 +770,19 @@ footer {
   
     .read-more {
       display: inline-block;
-      padding: 8px 12px;
+      padding: 3px 5px;
       background-color: var(--primary-color);
       color: white;
-      border-radius: 4px;
+      border-radius: 3px;
       text-align: center;
-      margin-top: 5px;
+      margin-top: 2px;
+      font-size: .5rem;
+      
     }
   
     /* Modal adjustments */
     .modal-content {
-      width: 95%;
+      width: 85%;
       margin: 5% auto;
       padding: 1.5rem;
     }
@@ -782,7 +793,7 @@ footer {
     }
   
     .footer-content .subscribe-form input[type="email"] {
-      width: 100%;
+      width: 90%;
       margin-bottom: 10px;
       border-radius: 4px;
     }
@@ -812,8 +823,8 @@ footer {
       min-height: 44px;
       min-width: 44px;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      align-items: left;
+      justify-content: left;
     }
   
     /* Add some spacing between articles */

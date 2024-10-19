@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurioDaily</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3a0ca3;
+            --secondary-color: #4361ee;
+            --accent-color: #4cc9f0;
+            --text-color: #333;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 65%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .main-header {
+            background-color: #0c39bf;
+            color: #fff;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .main-header .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .main-header .logo-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .main-header .logo {
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .main-header h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .main-header .title-date-wrapper {
+            text-align: center;
+        }
+
+
+        .main-header .date {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .subscribe-btn {
+            background-color: #fff;
+            color: #3a0ca3;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .subscribe-btn:hover {
+            background-color: #4361ee;
+            color: #fff;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary, .highlights, .articles {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .highlight-list {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        .highlight-list li {
+            margin-bottom: 15px;
+        }
+
+        .article-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .article-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .article-content {
+            padding: 15px;
+        }
+
+        .article-content h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .read-more-btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 80%;
+            }
+
+            .main-header .container {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .main-header .logo-title {
+                flex-direction: row;
+                margin-bottom: 0;
+            }
+
+            .main-header .logo {
+                margin-right: 15px;
+                margin-bottom: 0;
+            }
+
+            .main-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .main-header .date {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5em;
+            }
+
+            .article-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo-title">
+                <img src="https://storage.googleapis.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
+                <h1>CurioDaily: Your Daily Dose of Interesting</h1>
+                <div class="date">&nbsp;&nbsp;Oct 19, 2024</div>
+            </div>
+            <a href="https://www.thecuriodaily.com" class="subscribe-btn">CurioDaily Home</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="summary">
+            <h2 class="section-title">This Week in Business & Finance Weekly: Key Insights</h2>
+            Business & Finance Weekly: Innovations and Fluctuations: This week in business and finance has been marked by technological advancements and stock market movements. Centralized data visualization and AI-driven solutions are revolutionizing decision-making and fraud prevention, with AI thwarting a staggering $1 billion in fraud for the US Treasury and Gladia securing significant funding to enhance transcription services. Meanwhile, the stock market sees Apple nearing a record high, boosting CEO Tim Cook's week, despite the underwhelming launch of Trumpcoin, signaling a mixed reception for new market entrants.
+        </section>
+
+        <section class="highlights">
+            <h2 class="section-title">Business & Finance Weekly Highlights of the Week</h2>
+            <ul class="highlight-list">
+                <li>Tax brackets impact therapy topics for ALICEs to HENRYs.</li><li>Centralized data visualization enhances decision-making.</li><li>New solutions emerge to streamline healthcare business.</li><li>Trumpcoin debuts to lackluster reception</li><li>Apple's stock nears all-time high, boosting Tim Cook's week</li><li>Gladia secures $16M for enhancing AI-driven transcription services.</li><li>AI thwarts $1B in fraud for US Treasury in 2024</li>
+            </ul>
+        </section>
+
+        <section class="articles">
+            <h2 class="section-title">Top Business & Finance Weekly Stories</h2>
+            <div class="article-grid">
+                
+            <article class="article-card">
+                <img src="https://i.insider.com/66b22146393cd3c8629b81a6?width=1200&format=jpeg" alt="From ALICEs to HENRYs, here's what people across the tax brackets discuss in therapy" class="article-image">
+                <div class="article-content">
+                    <h3>From ALICEs to HENRYs, here's what people across the tax brackets discuss in therapy</h3>
+                    <p>Therapists shared what their clients talk about with Business Insider. While ALICEs struggle with th...</p>
+                    <a href="https://www.businessinsider.com/alices-ultra-rich-what-people-across-tax-brackets-discuss-therapy-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://imageio.forbes.com/specials-images/imageserve/5ef61ffa65f80c0006342c3d/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds" alt="How Data Visualization And Centralization Support Business Decision Making" class="article-image">
+                <div class="article-content">
+                    <h3>How Data Visualization And Centralization Support Business Decision Making</h3>
+                    <p>Data centralization and visualization can support strategic decision making by making complex data f...</p>
+                    <a href="https://www.forbes.com/councils/forbesagencycouncil/2024/10/16/how-data-visualization-and-centralization-support-business-decision-making/" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://imageio.forbes.com/specials-images/imageserve/670940df8cb17807add3b8d4/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds" alt="A Trifecta to Help Simplify the Business Of Healthcare" class="article-image">
+                <div class="article-content">
+                    <h3>A Trifecta to Help Simplify the Business Of Healthcare</h3>
+                    <p>With rising cybersecurity risks, outdated systems, and intricate payment processes, healthcare must ...</p>
+                    <a href="https://www.forbes.com/sites/forbesbooksauthors/2024/10/15/a-trifecta-to-help-simplify-the-business-of-healthcare/" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://media.wired.com/photos/670fa4f537cad85df458a390/191:100/w_1280,c_limit/GettyImages-1300319936.jpg" alt="Trumpcoin Launches With a Whimper" class="article-image">
+                <div class="article-content">
+                    <h3>Trumpcoin Launches With a Whimper</h3>
+                    <p>Investors scooped up only a small number of the Trump family's new World Liberty Financial crypto to...</p>
+                    <a href="https://www.wired.com/story/trumpcoin-launches-with-a-whimper-not-a-bang/" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670fd21d6ac7b701e7cc17d1?width=1200&format=jpeg" alt="Tim Cook is having a great week as Apple stock hovers within reach of record high" class="article-image">
+                <div class="article-content">
+                    <h3>Tim Cook is having a great week as Apple stock hovers within reach of record high</h3>
+                    <p>IDC recently estimated that iPhone shipments rose 3.5% in the third quarter, and analysts are optimi...</p>
+                    <a href="https://www.businessinsider.com/iphone-demand-shipments-holidays-apple-intelligence-analysts-optimistic-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://venturebeat.com/wp-content/uploads/2024/10/gladia-team.jpg?w=1024?w=1200&strip=all" alt="Gladia raises $16M for AI transcription and analytics" class="article-image">
+                <div class="article-content">
+                    <h3>Gladia raises $16M for AI transcription and analytics</h3>
+                    <p>Gladia, an AI transcription and audio intelligence provider, has raised $16 million in funding....</p>
+                    <a href="https://venturebeat.com/ai/gladia-raises-16m-for-ai-transcription-and-analytics/" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://gizmodo.com/app/uploads/2024/10/treasury-fraud-ai-detection.jpg" alt="US Treasury Says AI Tools Prevented $1 Billion of Fraud in 2024" class="article-image">
+                <div class="article-content">
+                    <h3>US Treasury Says AI Tools Prevented $1 Billion of Fraud in 2024</h3>
+                    <p>The Treasury says it identified or recovered $4 billion in fraudulent payments last fiscal year, a s...</p>
+                    <a href="https://gizmodo.com/us-treasury-says-ai-tools-prevented-1-billion-of-fraud-in-2024-2000513080" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://i.insider.com/670f0d2aa70318649282aa7d?width=1024&format=jpeg" alt="Netflix's new gaming chief shakes up the division with a hire from Epic and layoffs" class="article-image">
+                <div class="article-content">
+                    <h3>Netflix's new gaming chief shakes up the division with a hire from Epic and layoffs</h3>
+                    <p>Netflix's new games president, Alain Tascan, appointed Jeet Shroff in a VP role. The company also co...</p>
+                    <a href="https://www.businessinsider.com/netflix-shakes-up-gaming-division-new-epic-hire-layoffs-2024-10" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://imageio.forbes.com/specials-images/imageserve/6053b20d63c8fcda2addd1a2/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds" alt="Necessity-Based Real Estate: A Resilient Hedge Against Economic Volatility" class="article-image">
+                <div class="article-content">
+                    <h3>Necessity-Based Real Estate: A Resilient Hedge Against Economic Volatility</h3>
+                    <p>Necessity-based commercial real estate remains a resilient hedge against economic volatility....</p>
+                    <a href="https://www.forbes.com/councils/forbesfinancecouncil/2024/10/14/necessity-based-real-estate-a-resilient-hedge-against-economic-volatility/" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            <article class="article-card">
+                <img src="https://imageio.forbes.com/specials-images/imageserve/67101f3c03dd54c4798cc2a9/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds" alt="How Logistics Innovation Unleashes SMB Potential" class="article-image">
+                <div class="article-content">
+                    <h3>How Logistics Innovation Unleashes SMB Potential</h3>
+                    <p>Logistics leaders will play an important role in helping the SMB market harness global networks and ...</p>
+                    <a href="https://www.forbes.com/councils/forbesbusinesscouncil/2024/10/17/how-logistics-innovation-unleashes-smb-potential/" class="read-more-btn" target="_blank">Read More</a>
+                </div>
+            </article>
+            
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 CurioDaily. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

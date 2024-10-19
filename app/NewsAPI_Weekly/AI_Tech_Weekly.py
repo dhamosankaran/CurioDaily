@@ -6,6 +6,9 @@ import logging
 from openai import OpenAI
 import psycopg2
 from psycopg2 import sql
+from typing import List, Dict, Any
+import asyncio
+import aiohttp
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -28,51 +31,57 @@ class AIWeeklyRoundupFetcher:
         if not self.db_url:
             raise ValueError("DATABASE_URL not found in environment variables")
 
-    def fetch_news(self, start_date, end_date, language='en', sort_by='relevancy'):
-        # Comprehensive query for AI-related news and insights
-        query = ("(artificial intelligence OR AI OR machine learning OR deep learning OR "
-                 "neural networks OR natural language processing OR NLP OR computer vision OR "
-                 "robotics OR autonomous systems OR AI ethics OR AI regulation OR "
-                 "AI applications OR AI research OR AI startups OR AI in business OR "
-                 "AI in healthcare OR AI in finance OR AI algorithms OR AI models OR "
-                 "generative AI OR AI assistants OR AI chatbots OR AI in education OR "
-                 "AI and big data OR AI and IoT OR AI and cloud computing OR "
-                 "AI and cybersecurity OR AI and quantum computing)")
+    async def fetch_news(self, start_date: datetime, end_date: datetime, language: str = 'en', sort_by: str = 'relevancy') -> List[Dict[str, Any]]:
+        # Split the query into smaller chunks
+        queries = [
+            "artificial intelligence OR AI OR machine learning",
+            "deep learning OR neural networks OR natural language processing OR NLP",
+            "computer vision OR robotics OR autonomous systems",
+            "AI ethics OR AI regulation OR AI applications",
+            "AI research OR AI startups OR AI in business",
+            "AI in healthcare OR AI in finance OR AI algorithms",
+            "generative AI OR AI assistants OR AI chatbots",
+            "AI and big data OR AI and IoT OR AI and cloud computing",
+            "AI and cybersecurity OR AI and quantum computing"
+        ]
 
-        articles = self._fetch_news(query, start_date, end_date, language, sort_by)
-        
+        all_articles = []
+        async with aiohttp.ClientSession() as session:
+            tasks = [self._fetch_news(session, query, start_date, end_date, language, sort_by) for query in queries]
+            results = await asyncio.gather(*tasks)
+            for articles in results:
+                all_articles.extend(articles)
+
         filtered_articles = [
-            article for article in articles
+            article for article in all_articles
             if article.get('title') and article.get('description') and article.get('urlToImage')
         ]
 
         sorted_articles = self.filter_and_sort_articles(filtered_articles)
         return sorted_articles[:10]  # Return only top 10 articles
 
-    def _fetch_news(self, query, start_date, end_date, language, sort_by):
+    async def _fetch_news(self, session: aiohttp.ClientSession, query: str, start_date: datetime, end_date: datetime, language: str, sort_by: str) -> List[Dict[str, Any]]:
         params = {
             'q': query,
             'from': start_date.isoformat(),
             'to': end_date.isoformat(),
             'language': language,
             'sortBy': sort_by,
-            'pageSize': 10,  # Fetch only 10 articles
+            'pageSize': 10,
             'apiKey': self.news_api_key
         }
 
         try:
-            response = requests.get(self.base_url, params=params)
-            response.raise_for_status()
-            data = response.json()
-            return data.get('articles', [])
-        except requests.RequestException as e:
+            async with session.get(self.base_url, params=params) as response:
+                response.raise_for_status()
+                data = await response.json()
+                return data.get('articles', [])
+        except aiohttp.ClientError as e:
             logger.error(f"Error fetching news: {e}")
-            if hasattr(e, 'response') and e.response is not None:
-                logger.error(f"Response content: {e.response.content}")
             return []
 
-    def filter_and_sort_articles(self, articles):
-        def relevance_score(article):
+    def filter_and_sort_articles(self, articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        def relevance_score(article: Dict[str, Any]) -> int:
             title = article.get('title', '').lower()
             description = article.get('description', '').lower()
             content = (title + ' ' + description)
@@ -89,11 +98,9 @@ class AIWeeklyRoundupFetcher:
                 'transformer models', 'reinforcement learning', 'AI benchmarks'
             ]
             
-            priority_score = sum(content.count(topic.lower()) for topic in priority_topics)
-            return priority_score
+            return sum(content.count(topic.lower()) for topic in priority_topics)
 
-        sorted_articles = sorted(articles, key=relevance_score, reverse=True)
-        return sorted_articles
+        return sorted(articles, key=relevance_score, reverse=True)
 
     def generate_highlights(self, articles):
         highlights = []
@@ -241,13 +248,13 @@ def store_html_content(html_content, filename):
     except Exception as e:
         logger.error(f"Error storing HTML content in file: {e}")
 
-def main():
+async def main():
     fetcher = AIWeeklyRoundupFetcher()
     today = datetime.now().date()
     last_week = today - timedelta(days=7)
     
     logger.info(f"Fetching top 10 AI Weekly Roundup news articles for the week {last_week} to {today}...")
-    articles = fetcher.fetch_news(last_week, today)
+    articles = await fetcher.fetch_news(last_week, today)
 
     if articles:
         highlights = fetcher.generate_highlights(articles)
@@ -267,8 +274,8 @@ def main():
             inserted_id = fetcher.store_weekly_newsletter(
                 title=dynamic_overview,
                 content=html_content,
-                key_highlight=", ".join([h[0] for h in highlights[:3]]),  # Store top 3 highlights as key highlights
-                topic_id=1  # Topic ID for AI Weekly Roundup newsletters
+                key_highlight=", ".join([h[0] for h in highlights[:3]]),
+                topic_id=1
             )
 
             if inserted_id:
@@ -286,4 +293,4 @@ def main():
     logger.info("Weekly AI news fetching, summarization, and newsletter generation complete.")
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
