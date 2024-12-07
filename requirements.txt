@@ -18,3 +18,5 @@ SQLAlchemy
 httpx
 beautifulsoup4
 html2text
+markdown2
+pytz

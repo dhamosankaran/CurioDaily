@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - CurioDaily</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ base_url }}/static/styles/main.css">
+    <link rel="stylesheet" href="{{ base_url }}/static/styles/blog.css">
+</head>
+<body>
+    {% include "components/header.html" %}
+
+    <main class="container">
+        <div class="error-container">
+            <div class="error-content">
+                <i class="fas fa-exclamation-circle"></i>
+                <h1>Oops!</h1>
+                <p>{{ error_message }}</p>
+                <a href="{{ base_url }}/api/blog" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Blog Posts
+                </a>
+            </div>
+        </div>
+    </main>
+
+    {% include "components/footer.html" %}
+</body>
+</html>

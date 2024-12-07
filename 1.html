@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>CurioDaily Weekly Roundup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Modern CSS Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* CSS Variables */
+        :root {
+            /* Colors - Light Theme */
+            --primary-bg: #ffffff;
+            --secondary-bg: #f8fafc;
+            --primary-text: #0f172a;
+            --secondary-text: #475569;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            
+            /* Category Colors */
+            --ai-color: #06b6d4;
+            --robotics-color: #f43f5e;
+            --research-color: #8b5cf6;
+            --ethics-color: #10b981;
+            --startup-color: #f59e0b;
+            --innovation-color: #6366f1;
+
+            /* Spacing */
+            --container-max: 1200px;
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2rem;
+            --space-xl: 3rem;
+
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
+            --radius-full: 9999px;
+        }
+
+        /* Dark Theme */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-bg: #0f172a;
+                --secondary-bg: #1e293b;
+                --primary-text: #f8fafc;
+                --secondary-text: #94a3b8;
+                --border-color: #334155;
+                --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+            line-height: 1.6;
+            color: var(--primary-text);
+            background: var(--secondary-bg);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: min(var(--container-max), 100% - 2rem);
+            margin-inline: auto;
+            padding: var(--space-md);
+        }
+
+        /* Enhanced Header */
+        .header {
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            padding: var(--space-lg) 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('/static/pattern.svg') center/cover;
+            opacity: 0.1;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            background: white;
+            padding: 4px;
+        }
+
+        /* Enhanced Summary Section */
+        .summary {
+            background: var(--primary-bg);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin: -3rem auto var(--space-xl);
+            position: relative;
+            z-index: 3;
+            box-shadow: var(--card-shadow);
+            max-width: calc(var(--container-max) - 4rem);
+        }
+
+        /* Enhanced Highlights Section */
+        .highlights {
+            margin-bottom: var(--space-xl);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .highlight-list {
+            display: grid;
+            gap: var(--space-md);
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        .highlight-item {
+            background: var(--primary-bg);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            box-shadow: var(--card-shadow);
+            display: flex;
+            gap: var(--space-md);
+            align-items: flex-start;
+            transition: transform 0.2s;
+        }
+
+        .highlight-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .highlight-icon {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            display: grid;
+            place-items: center;
+            color: white;
+        }
+
+        /* Enhanced Articles Grid */
+        .articles-grid {
+            display: grid;
+            gap: var(--space-lg);
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .article-card {
+            background: var(--primary-bg);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+
+        .article-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .article-image {
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .article-content {
+            padding: var(--space-md);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+            font-size: 0.875rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .article-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            color: var(--primary-text);
+        }
+
+        .article-description {
+            color: var(--secondary-text);
+            margin-bottom: var(--space-md);
+        }
+
+        .read-more {
+            margin-top: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            background: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            width: fit-content;
+        }
+
+        .read-more:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Enhanced Footer */
+        .footer {
+            background: var(--primary-bg);
+            padding: var(--space-xl) 0;
+            margin-top: var(--space-xl);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-content {
+            display: grid;
+            gap: var(--space-lg);
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            align-items: start;
+        }
+
+        .social-links_weekly {
+            display: flex;
+            gap: var(--space-md);
+            margin-top: var(--space-sm);
+        }
+
+        .social-link-weekly {
+            color: var(--secondary-text);
+            font-size: 1.25rem;
+            transition: color 0.2s;
+        }
+
+        .social-link:hover {
+            color: var(--accent-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            :root {
+                --space-xl: 2rem;
+                --space-lg: 1.5rem;
+                --space-md: 1rem;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: var(--space-md);
+                text-align: center;
+            }
+
+            .logo-wrapper {
+                justify-content: center;
+            }
+
+            .highlight-list {
+                grid-template-columns: 1fr;
+            }
+
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .header {
+                background: none;
+                color: black;
+            }
+
+            .header::after {
+                display: none;
+            }
+
+            .read-more,
+            .social-links {
+                display: none;
+            }
+
+            .article-card,
+            .highlight-item {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid var(--border-color);
+            }
+
+            .article-image {
+                max-height: 200px;
+            }
+        }
+
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.curio-home-btn {
+    background-color: white;
+    color: #3498db;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.curio-home-btn:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+}
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #fff;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+
+/* Side Menu Adjustments */
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 85%;
+    max-width: 300px;
+    height: 100%;
+    background: linear-gradient(to bottom, #3498db, #2c3e50);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+    transition: left 0.3s ease-in-out;
+    z-index: 1001; /* Lower than header */
+    overflow-y: auto;
+    color: #fff;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+
+.side-menu.active {
+    left: 0;
+}
+
+.menu-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.menu-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.menu-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 10px;
+}
+        
+.menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000; /* Lower than side menu */
+}
+.menu-overlay.active {
+    display: block;
+}
+
+.menu-section-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #fff;
+    margin: 20px 0 10px;
+    padding: 0 20px;
+    text-align: left;
+}
+
+
+#weeklyTopicsList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+#weeklyTopicsList li {
+    margin-bottom: 5px;
+}
+
+#weeklyTopicsList a {
+    display: flex;
+    align-items: left;
+    padding: 12px 20px;
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+#weeklyTopicsList a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#weeklyTopicsList i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: left;
+    font-size: 1.2em;
+}
+
+.menu-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 10px 0;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.menu-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-links a {
+    color: #fff;
+    margin: 0 15px;
+    font-size: 1.5rem;
+    transition: opacity 0.3s ease;
+}
+
+.social-links a:hover {
+    opacity: 0.7;
+}
+    </style>
+</head>
+<body>
+    <!-- Content structure remains the same but with enhanced classes -->
+    <header class="header">
+        <div class="container header-content">
+            <div class="header-top">
+                <div class="logo-wrapper">
+                <img src="https://storage.googleapis.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
+                    <span class="badge">Weekly Roundup</span>
+                </div>
+                <div class="header-actions">
+                    <a href="https://thecuriodaily.com/" class="curio-home-btn">CurioDaily Home</a>
+                    <button id="menuBtn" class="menu-btn" aria-label="Open Menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+        
+                <nav id="sideMenu" class="side-menu">
+                    <div class="menu-header">
+                        <h2>CurioDaily</h2>
+                        <button class="menu-close" id="menuClose" aria-label="Close Menu">&times;</button>
+                    </div>
+        
+                    <h3 class="menu-section-title">This Week's Top Stories</h3>
+                    <ul id="weeklyTopicsList">
+                        <!-- Weekly topics will be dynamically inserted here -->
+                    </ul>
+        
+                    <div class="menu-footer">
+                        <div class="social-links">
+                            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                            <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                </nav>
+                <div id="menuOverlay" class="menu-overlay"></div>
+            </div>
+            <h1>Tech Weekly: Breakthroughs and Controversies</h1>
+            <p class="date">Nov 30, 2024</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="summary">
+            This week in tech, the solar sector celebrates a 2 TW achievement amidst climate talks, while robotics and AI continue to advance in industries. Privacy concerns rise with UK's investment in facial recognition, and financial giants capitalize on AI integration.
+        </section>
+
+        <section class="highlights">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i>
+                Key Highlights
+            </h2>
+            <div class="highlight-list">
+                <li class="highlight-item">
+                <i class="fas fa-circle"></i>
+                <span class="highlight-text">Solar industry hits 2 TW milestone</span>
+            </li><li class="highlight-item">
+                <i class="fas fa-circle"></i>
+                <span class="highlight-text">Figure's robots set for auto industry</span>
+            </li><li class="highlight-item">
+                <i class="fas fa-circle"></i>
+                <span class="highlight-text">UK's £20m facial recognition tech</span>
+            </li><li class="highlight-item">
+                <i class="fas fa-circle"></i>
+                <span class="highlight-text">JPMorgan and Capital One lead in AI banking</span>
+            </li><li class="highlight-item">
+                <i class="fas fa-circle"></i>
+                <span class="highlight-text">Goldman predicts 'massive' 2025 IPO surge</span>
+            </li>
+            </div>
+        </section>
+
+        <section class="articles">
+            <h2 class="section-title">
+                <i class="fas fa-newspaper"></i>
+                Featured Stories
+            </h2>
+            <div class="articles-grid">
+                <article class="article-card">
+                <img src="https://nyc3.digitaloceanspaces.com/gsc-media/images/2_TW_visuals.max-1200x1200.png" 
+                     alt="Article image" class="article-image">
+                <div class="article-content">
+                    <h3>Global Solar Council announces 2 terawatt milestone achieved for solar</h3>
+                    <p>The Global Solar Council leads the worldwide solar industry today in the celebration of achieving 2 TW of installed solar PV capacity against the backdrop of a Donald Trump presidency in the U.S. and a pivotal COP29 slated to begin next week in Baku, Azerbaij…</p>
+                    <a href="https://www.globalsolarcouncil.org/news/global-solar-council-announces-2-terawatt-milestone-achieved-for-solar/" class="read-more-btn" target="_blank">
+                        Read More
+                    </a>
+                </div>
+            </article><article class="article-card">
+                <img src="https://www.digitaltrends.com/wp-content/uploads/2024/11/figure-02-robot.jpg?resize=1200%2C630&p=1" 
+                     alt="Article image" class="article-image">
+                <div class="article-content">
+                    <h3>Watch Figure’s latest humanoid robot performing tasks autonomously</h3>
+                    <p>Robotics startup Figure has shared a new video showing several of its humanoid robots performing a task that could be applied to the automotive industry.</p>
+                    <a href="https://www.digitaltrends.com/cars/figure-humanoid-robot-autonomous-tasks/" class="read-more-btn" target="_blank">
+                        Read More
+                    </a>
+                </div>
+            </article><article class="article-card">
+                <img src="https://regmedia.co.uk/2023/05/25/shutterstock_met_camera.jpg" 
+                     alt="Article image" class="article-image">
+                <div class="article-content">
+                    <h3>Smile! UK cops spend tens of millions on live facial recognition tech</h3>
+                    <p>Labour government keen, though critics paint it as a severe threat to privacy
+UK government has launched a £20 million ($25 million) competition for tech companies to provide live facial recognition to a number of police forces.…</p>
+                    <a href="https://www.theregister.com/2024/11/25/uk_police_lfr_tender/" class="read-more-btn" target="_blank">
+                        Read More
+                    </a>
+                </div>
+            </article><article class="article-card">
+                <img src="https://i.kinja-img.com/image/upload/c_fill,h_675,pg_1,q_80,w_1200/62d528881d81254eca0f822604d5223d.jpg" 
+                     alt="Article image" class="article-image">
+                <div class="article-content">
+                    <h3>JPMorgan Chase and Capital One are winning at AI banking — and their lead is getting bigger</h3>
+                    <p>The artificial intelligence race in the banking sector is picking up speed, with the top performing financial institutions integrating the new technology at twice the rate of rivals.Read more...</p>
+                    <a href="https://qz.com/ai-banking-jpmorgan-chase-capital-one-evident-index-1851707238" class="read-more-btn" target="_blank">
+                        Read More
+                    </a>
+                </div>
+            </article><article class="article-card">
+                <img src="https://biztoc.com/cdn/808/og.png" 
+                     alt="Article image" class="article-image">
+                <div class="article-content">
+                    <h3>Goldman Sachs Banker Sees ‘Massive’ Potential for 2025 IPO Uptick</h3>
+                    <p>A senior Goldman Sachs banker believes 2025 will see more technology companies go public.
+The number of initial public offerings (IPOs) in the tech sector will “likely more than double” next year, with the rate of companies listing by the year’s end coming cl…</p>
+                    <a href="https://biztoc.com/x/8796e5d5cf5c1844" class="read-more-btn" target="_blank">
+                        Read More
+                    </a>
+                </div>
+            </article><article class="article-card">
+                <img src="https://s.yimg.com/ny/api/res/1.2/urMM2VzBkSHT98G0um.0Eg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyMDA7aD02NzM-/https://media.zenfs.com/en/insidermonkey.com/78ee81d4d8cbe53924c848faf9b29aa4" 
+                     alt="Article image" class="article-image">
+                <div class="article-content">
+                    <h3>Advanced Micro Devices (AMD) Accelerates AI Development: New ROCm Software Enhances GPU Performance</h3>
+                    <p>We recently published a list of 15 AI News Updates Wall Street Is Monitoring. In this article, we are going to take a look at where Advanced Micro Devices...</p>
+                    <a href="https://finance.yahoo.com/news/advanced-micro-devices-amd-accelerates-110124426.html" class="read-more-btn" target="_blank">
+                        Read More
+                    </a>
+                </div>
+            </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div>
+                <h3>About CurioDaily</h3>
+                <p>Stay ahead of the curve with our curated weekly insights.</p>
+            </div>
+            <div>
+                <h3>Follow Us</h3>
+                <div class="social-links_weekly">
+                    <a href="#" class="social-link-weekly"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link-weekly"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="social-link-weekly"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div>
+                <h3>Subscribe</h3>
+                <p>Get weekly updates delivered to your inbox - 
+                <a href="https://www.thecuriodaily.com" class="read-more">
+                    Visit CurioDaily
+                </a> </p>
+            </div>
+        </div>
+    </footer>
+    <script src="/static/scripts/main.js"></script>
+</body>
+</html>

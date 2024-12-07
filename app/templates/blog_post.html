@@ -1,0 +1,107 @@
+<!-- app/templates/blog_post.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }} - CurioDaily</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles/main.css">
+    <link rel="stylesheet" href="/static/styles/blog.css">
+    <link rel="stylesheet" href="/static/styles/blog_post.css">
+    <meta name="base-url" content="{{ base_url }}">
+    <meta name="post-id" content="{{ post.id }}">
+</head>
+<body>
+    {% include "components/header.html" %}
+
+    <main class="container">
+        <article class="blog-post">
+            <div class="post-header">
+                <a href="{{ base_url }}/api/blog" class="back-link">
+                    <i class="fas fa-chevron-left"></i> Back to Posts
+                </a>
+
+                <!--button id="likeButton" class="like-btn" aria-pressed="false" data-post-id="{{ post.id }}">
+                    <i class="fas fa-heart"></i>
+                    <span id="likeCount">{{ post.like_count }}</span>
+                </button-->
+            </div>
+
+            <h1 class="post-title">{{ post.title }}</h1>
+            <div class="post-meta">
+                <span class="post-date">{{ post.created_at.strftime('%B %d, %Y') }}</span>
+            </div>
+
+            {% if post.image_url %}
+            <div class="post-hero-image">
+                <img src="{{ post.image_url }}" alt="{{ post.title }}">
+            </div>
+            {% endif %}
+
+            <div class="post-content">
+                <div class="post-content markdown-content">
+                    {{ post.content | safe }}
+                </div>
+
+                <div class="post-actions">
+                    <div class="action-buttons">
+                        <div class="like-section">
+                            <button id="likeButton" class="like-btn" aria-pressed="false" data-post-id="{{ post.id }}">
+                                <i class="fas fa-heart"></i>
+                                <span id="likeCount">{{ post.like_count }}</span>
+                            </button>
+                            {% if post.recent_likes %}
+                            <!--div class="recent-likes">
+                                <small>Recent likes by:</small>
+                                <div class="recent-likers">
+                                    {% for like in post.recent_likes[:5] %}
+                                    <span title="{{ like.user_email }}">
+                                        {{ like.user_email.split('@')[0] }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            </div-->
+                            {% endif %}
+                        </div>
+
+                        <!--button class="share-btn" onclick="sharePost()">
+                            <i class="fab fa-linkedin"></i> Share on LinkedIn
+                        </button-->
+                    </div>
+                </div>
+            </div>
+        </article>
+ 
+    </main>
+
+    <!--div id="subscribeModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Subscribe to CurioDaily</h2>
+            <p>Get your daily dose of interesting news delivered straight to your inbox!</p>
+            <form id="subscribeForm">
+                <input type="text" id="nameInput" placeholder="Enter your name" required>
+                <input type="email" id="emailInput" placeholder="Enter your email" required>
+                <div id="emailError" class="error-message" style="display: none;">Please enter a valid email address.</div>
+                <div id="topicGroups" class="topic-groups">
+
+                </div>
+                <div id="topicError" class="error-message" style="display: none;">Please select at least one topic.</div>
+                <button type="submit">Subscribe</button>
+            </form>
+        </div>
+    </div-->
+    
+    {% include "components/footer.html" %}
+    <script src="/static/scripts/main.js"></script>
+    <script src="/static/scripts/blog.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-583RG4CHLK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-583RG4CHLK');
+    </script>
+</body>
+</html>

@@ -19,6 +19,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 
+
+
 from app.api.api import api_router
 from app.core.config import settings
 from app.db.base import Base
@@ -28,7 +30,7 @@ from app.crud.crud_topic import seed_initial_topics
 from app import crud
 from app.utils.sitemap_generator import generate_sitemap
 from markupsafe import Markup
-from app.api.endpoints import weekly_newsletter, weekly_newsletter_topics
+#from app.api.endpoints import weekly_newsletter, weekly_newsletter_topics
 
 
 # Adjust the path to ensure imports work correctly
@@ -91,8 +93,8 @@ app.mount("/static", StaticFiles(directory=static_dir, html=True), name="static"
 
 
 #templates = Jinja2Templates(directory="templates")
-templates = Jinja2Templates(directory=os.path.join(current_dir, "templates"))
-
+#templates = Jinja2Templates(directory=os.path.join(current_dir, "templates"))
+templates = Jinja2Templates(directory="app/templates")
 
 logger.info(f"Created static directory at Dhamu {current_dir}")
 
@@ -125,6 +127,33 @@ if settings.BACKEND_CORS_ORIGINS:
 else:
     logger.warning("No CORS origins specified. CORS middleware not added.")
 
+
+'''
+@app.get("/diary", response_class=HTMLResponse)
+async def diary_page(request: Request, db: Session = Depends(deps.get_db)):
+
+    try:
+        # Fetch latest diary entries
+        latest_entry = crud_diary.get_latest_entry(db)
+        recent_entries = crud_diary.get_recent_entries(db, limit=3)
+        
+        return templates.TemplateResponse(
+            "diaryindex.html",
+            {
+                "request": request,
+                "latest_entry": latest_entry,
+                "recent_entries": recent_entries,
+                "current_date": datetime.now().strftime("%B %d, %Y"),
+                "base_url": settings.BASE_URL
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error loading diary page: {e}")
+        raise HTTPException(
+            status_code=500, 
+            detail="Error loading diary page"
+        )
+        '''
 
 @app.get("/api/newsletters/{article_id}", response_class=HTMLResponse)
 async def view_newsletter(
@@ -287,19 +316,75 @@ async def add_request_id_header(request: Request, call_next):
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
-
-
-    csp = (
-        "default-src 'self' https://www.thecuriodaily.com https://thecuriodaily.com https://autonomous-newsletter-457954888435.us-central1.run.app; "
-        "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; "
-        "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; "
-        "img-src 'self' https://storage.googleapis.com https://storage.cloud.google.com https://*.googleusercontent.com https://*; "
-        "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; "
-        "connect-src 'self' https://www.google-analytics.com https://www.thecuriodaily.com https://thecuriodaily.com https://autonomous-newsletter-457954888435.us-central1.run.app; "
+    
+    # Define CSP directives with improved security
+    csp_directives = [
+        # Default source restrictions
+        "default-src 'self' https://www.thecuriodaily.com https://thecuriodaily.com "
+        "https://autonomous-newsletter-457954888435.us-central1.run.app",
+        
+        # Style sources - allow specific CDNs and inline styles
+        "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com",
+        "style-src-elem 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com",
+        
+        # Script sources - allow specific scripts and analytics
+        "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
+        "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
+        
+        # Image sources - allow specific sources and data URLs
+        "img-src 'self' data: https: https://storage.googleapis.com https://storage.cloud.google.com "
+        "https://*.googleusercontent.com",
+        
+        # Font sources
+        "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com",
+        
+        # Connect sources for API and analytics
+        "connect-src 'self' https://www.google-analytics.com https://www.thecuriodaily.com "
+        "https://thecuriodaily.com https://autonomous-newsletter-457954888435.us-central1.run.app",
+        
+        # Frame sources
+        "frame-src 'none'",
+        
+        # Object sources
+        "object-src 'none'",
+        
+        # Media sources
+        "media-src 'self'",
+        
+        # Form action restrictions
+        "form-action 'self'",
+        
+        # Base URI restrictions
+        "base-uri 'self'",
+        
+        # Force HTTPS
         "upgrade-insecure-requests"
-    )
+    ]
 
-    response.headers["Content-Security-Policy"] = csp
+    # Add security headers
+    response.headers.update({
+        # Content Security Policy
+        "Content-Security-Policy": "; ".join(csp_directives),
+        
+        # Prevent MIME type sniffing
+        "X-Content-Type-Options": "nosniff",
+        
+        # Enable browser XSS protection
+        "X-XSS-Protection": "1; mode=block",
+        
+        # Control iframe embedding
+        "X-Frame-Options": "DENY",
+        
+        # HSTS (uncomment in production)
+        # "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+        
+        # Referrer Policy
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        
+        # Permissions Policy
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    })
+
     return response
 
 @app.get("/api/placeholder/{width}/{height}")

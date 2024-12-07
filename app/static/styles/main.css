@@ -29,7 +29,10 @@ header {
     color: #fff;
     padding: 1rem 0;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1002; /* Higher than side menu */
 }
+
 
 header .container {
     display: flex;
@@ -46,7 +49,10 @@ header h1 {
 .logo-title {
     display: flex;
     align-items: center;
+    position: relative;
+    z-index: 1003; /* Higher than header */
 }
+
 
 .logo {
     height: 40px;
@@ -170,58 +176,28 @@ main {
     color: var(--secondary-color);
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-}
 
-.modal-content {
-    background-color: #ffffff;
-    margin: 5% auto;
-    padding: 2rem;
-    border-radius: 12px;
-    max-width: 500px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-}
 
-.close {
-    color: #777;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
 
-.close:hover,
-.close:focus {
-    color: #333;
-}
+
+
 
 #subscribeForm {
     display: flex;
     flex-direction: column;
 }
 
+/* Form Input Styles */
 #subscribeForm input[type="text"],
 #subscribeForm input[type="email"] {
     width: 100%;
+    max-width: 300px; /* Reduce max width */
     padding: 12px;
-    margin-bottom: 1rem;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 16px;
-    transition: border-color 0.3s ease;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
 }
 
 #subscribeForm input[type="text"]:focus,
@@ -230,11 +206,17 @@ main {
     outline: none;
 }
 
+/* Form container */
+#subscribeForm {
+    max-width: 400px; /* Constrain overall form width */
+    margin: 0 auto;
+}
+
 .topic-groups {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
+    gap: .5rem;
+    margin-bottom: .5rem;
 }
 
 .topic-group h3 {
@@ -276,6 +258,21 @@ main {
 #subscribeForm button:disabled {
     background-color: #bdc3c7;
     cursor: not-allowed;
+}
+
+
+.close {
+    color: #777;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover,
+.close:focus {
+    color: #333;
 }
 
 .error-message {
@@ -463,21 +460,24 @@ footer {
     padding: 0.5rem;
 }
 
+/* Side Menu Adjustments */
 .side-menu {
     position: fixed;
     top: 0;
-    left: -300px;
-    width: 300px;
+    left: -100%;
+    width: 85%;
+    max-width: 300px;
     height: 100%;
     background: linear-gradient(to bottom, #3498db, #2c3e50);
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
     transition: left 0.3s ease-in-out;
-    z-index: 1001;
+    z-index: 1001; /* Lower than header */
     overflow-y: auto;
     color: #fff;
-    display: flex;
-    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
 }
+
 
 .side-menu.active {
     left: 0;
@@ -597,9 +597,8 @@ footer {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    z-index: 1000; /* Lower than side menu */
 }
-
 .menu-overlay.active {
     display: block;
 }
@@ -645,6 +644,137 @@ footer {
     font-size: 1.2em;
 }
 
+.menu-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 10px 0;
+}
+
+.error-message {
+    color: #ff6b6b;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+}
+
+.error-message i {
+    margin-right: 8px;
+}
+
+/* Additional accessibility improvements */
+.modal:focus {
+    outline: none;
+}
+
+.modal-content:focus {
+    outline: none;
+}
+
+.modal.show {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000; /* Higher than header */
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.6);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal.show {
+    display: block;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Mobile Specific Adjustments */
+@media screen and (max-width: 767px) {
+    .modal-content {
+        padding-top: 60px; /* Space for close button */
+        padding-bottom: 100px; /* Space for subscribe button */
+    }
+
+    .modal .close {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        z-index: 2001;
+        cursor: pointer;
+    }
+
+    #subscribeForm button {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        width: calc(100% - 40px);
+        padding: 15px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        z-index: 2001;
+    }
+    #subscribeForm input[type="text"],
+    #subscribeForm input[type="email"] {
+        max-width: 100%; /* Full width on mobile */
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    #subscribeForm {
+        padding: 0 10px; /* Add some padding */
+    }
+}
+
+/* Desktop Styles */
+@media screen and (min-width: 768px) {
+    .modal {
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        margin: 40px auto;
+        max-width: 500px;
+        height: auto;
+        max-height: 90vh;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+}
 /*
 @media (max-width: 600px) {
     .footer-bottom {
@@ -718,17 +848,15 @@ footer {
 @media only screen and (max-width: 767px) {
     /* Header adjustments */
     header .container {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 10px;
+        position: relative;
+        z-index: 1003;
     }
+
   
     .logo-title {
-      flex-direction: row;
-      align-items: center;
-      margin-bottom: 10px;
+        margin-bottom: 0; /* Remove bottom margin on mobile */
     }
-  
+
     .logo {
       height: 30px;
       margin-right: 10px;
@@ -747,11 +875,10 @@ footer {
       margin-top: 10px;
     }
   
-    /* Menu button positioning */
+    /* Ensure menu button stays above side menu */
     .menu-container {
-      position: absolute;
-      top: 10px;
-      right: 10px;
+        position: relative;
+        z-index: 1004;
     }
   
     /* Topic section adjustments */
@@ -784,7 +911,7 @@ footer {
     .modal-content {
       width: 85%;
       margin: 5% auto;
-      padding: 1.5rem;
+      padding: .5rem;
     }
   
     /* Footer adjustments */
@@ -814,12 +941,11 @@ footer {
   
     /* Side menu adjustments */
     .side-menu {
-      width: 80%;
-      max-width: 300px;
+        padding-top: 80px; /* Increased padding to avoid overlap with header */
     }
   
     /* Improve touch targets */
-    .menu-item, .social-links a, .menu-close, .search-bar button {
+    .menu-item, .social-links a,.search-bar button {
       min-height: 44px;
       min-width: 44px;
       display: flex;
@@ -827,6 +953,13 @@ footer {
       justify-content: left;
     }
   
+    .menu-close {
+        top: 85px; /* Adjust close button position to be below header */
+        right: 10px;
+        font-size: 28px;
+        z-index: 1002;
+    }
+
     /* Add some spacing between articles */
     .article-list li {
       margin-bottom: 15px;
@@ -851,10 +984,6 @@ footer {
 
   /* Mobile-specific adjustments */
 @media only screen and (max-width: 767px) {
-    .side-menu {
-        width: 85%;
-        max-width: 300px;
-    }
 
     .menu-header h2 {
         font-size: 1.3rem;
@@ -872,3 +1001,61 @@ footer {
         font-size: 1.3rem;
     }
 }
+
+
+
+
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    padding: 2rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-container {
+    text-align: center;
+    padding: 2rem;
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.error-container i {
+    color: #e74c3c;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.retry-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background-color 0.3s;
+}
+
+.retry-button:hover {
+    background-color: #2980b9;
+}
+
+

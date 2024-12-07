@@ -109,42 +109,9 @@ function showUnsubscribeMessage() {
     }
 }
 
-function trackPageView(url, title) {
-    if (typeof gtag !== 'undefined') {
-        gtag('config', 'G-583RG4CHLK', {
-            'page_path': url,
-            'page_title': title
-        });
-    }
-    console.log(`Page viewed: ${url}, Title: ${title}`);
-    
-    fetch(`${API_BASE}/api/analytics/track-pageview`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url, title }),
-    }).catch(error => console.error('Error tracking page view:', error));
-}
 
-function trackEvent(category, action, label) {
-    if (typeof gtag !== 'undefined') {
-        gtag('event', action, {
-            'event_category': category,
-            'event_label': label
-        });
-    }
-    
-    console.log(`Event: Category - ${category}, Action - ${action}, Label - ${label}`);
-    
-    fetch(`${API_BASE}/api/analytics/track-event`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ category, action, label }),
-    }).catch(error => console.error('Error tracking event:', error));
-}
+
+
 
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -319,6 +286,7 @@ function createPreviousUpdatesHTML(articles) {
 }
 
 function addReadMoreEventListeners(section, articles) {
+ 
     section.querySelectorAll('.read-more').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -359,13 +327,61 @@ async function fetchTopics() {
     }
 }
 
+
 function fetchWeeklyTopics() {
+   //alert("..."+1)
     fetch('/api/weekly-newsletter-topics/active')
         .then(response => response.json())
         .then(topics => {
             const topicsList = document.getElementById('weeklyTopicsList');
             topicsList.innerHTML = ''; // Clear existing items
+            
+            // First add My Personal Diary as a special entry
+            const diaryLi = document.createElement('li');
+            diaryLi.innerHTML = `
+                <a href="/api/blog" class="menu-item" data-page="personal-diary">
+                    <i class="fas fa-book"></i> My Personal Diary
+                </a>
+            `;
+            // Add diary click handler
+            diaryLi.querySelector('a').addEventListener('click', (e) => {
+                e.preventDefault();
+                // Track the page view
+             
+                // Navigate to diary page
+                window.location.href = `${API_BASE}/api/blog`;
+                // Close the side menu if it's open
+                const sideMenu = document.getElementById('sideMenu');
+                const overlay = document.querySelector('.menu-overlay');
+                if (sideMenu && sideMenu.classList.contains('active')) {
+                    sideMenu.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            });
+            topicsList.appendChild(diaryLi);
+            
+            // Add a divider
+            const divider = document.createElement('li');
+            divider.className = 'menu-divider';
+            topicsList.appendChild(divider);
+            
             topics.forEach(topic => {
+                const iconWeeklyClass = getWeeklyTopicIcon(topic.name);
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <a href="#" class="menu-item" data-topic-id="${topic.id}">
+                        <i class="${iconWeeklyClass}"></i> ${topic.name}
+                    </a>
+                `;
+                li.querySelector('a').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openWeeklyNewsletter(topic.id);
+                });
+                topicsList.appendChild(li);
+            });
+            
+            // Then add all other weekly topics
+            /*topics.forEach(topic => {
                 const iconWeeklyClass = getWeeklyTopicIcon(topic.name);
                 const li = document.createElement('li');
                 li.innerHTML = `<a href="#" class="menu-item"><i class="${iconWeeklyClass}"></i> ${topic.name}</a>`;
@@ -374,10 +390,20 @@ function fetchWeeklyTopics() {
                     openWeeklyNewsletter(topic.id);
                 });
                 topicsList.appendChild(li);
-            });
+            });*/
             setupWeeklyTopicsListeners();
         })
-        .catch(error => console.error('Error fetching weekly topics:', error));
+        .catch(error => {
+            console.error('Error fetching weekly topics:', error);
+            // Add error handling UI if needed
+            const topicsList = document.getElementById('weeklyTopicsList');
+            topicsList.innerHTML = `
+                <li class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Failed to load topics. Please try again later.
+                </li>
+            `;
+        });
 }
 
 function setupWeeklyTopicsListeners() {
@@ -397,7 +423,49 @@ function setupWeeklyTopicsListeners() {
     });
 }
 
+
 function openWeeklyNewsletter(topicId) {
+    if (!topicId) {
+        console.error('Invalid topicId provided');
+        return;
+    }
+
+    const baseUrl = window.location.origin;
+    const encodedTopicId = encodeURIComponent(topicId);
+    const newsletterUrl = `${baseUrl}/api/weekly-newsletter/topic/${encodedTopicId}/render`;
+    
+    console.log('Navigating to weekly newsletter URL:', newsletterUrl);
+    
+    try {
+        // Track the page view before navigation
+        const topicName = document.querySelector(`[data-topic-id="${topicId}"]`)?.textContent || 'Weekly Newsletter';
+      
+
+        // Close the side menu if it's open
+        const sideMenu = document.getElementById('sideMenu');
+        const overlay = document.querySelector('.menu-overlay');
+        if (sideMenu && sideMenu.classList.contains('active')) {
+            sideMenu.classList.remove('active');
+            overlay?.classList.remove('active');
+        }
+
+        // Navigate to the newsletter in the same tab
+        window.location.href = newsletterUrl;
+
+    } catch (error) {
+        console.error('Error navigating to weekly newsletter:', error);
+        alert('An error occurred while trying to open the newsletter. Please try again.');
+    }
+}
+
+// Add event listener for browser back/forward navigation
+window.addEventListener('popstate', (event) => {
+    if (event.state?.topicId) {
+        openWeeklyNewsletter(event.state.topicId);
+    }
+});
+
+/*function openWeeklyNewsletter(topicId) {
     if (!topicId) {
         console.error('Invalid topicId provided');
         return null;
@@ -419,7 +487,7 @@ function openWeeklyNewsletter(topicId) {
         console.error('Error opening weekly newsletter:', error);
         return null;
     }
-}
+}*/
 
 function populateTopicGroups(topics) {
     const topicGroupsContainer = document.getElementById('topicGroups');
@@ -523,8 +591,6 @@ function setupHomeButton() {
 document.addEventListener('DOMContentLoaded', fetchWeeklyTopics);
 
 document.addEventListener('DOMContentLoaded', () => {
-    trackPageView('/', 'CurioDaily - Your Daily Dose of Interesting');
-    
     initializeSubscribeForm();
     fetchTopicsAndArticles();
     setupHomeButton();
@@ -534,11 +600,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementsByClassName('close')[0];
     const footerSubscribeBtn = document.getElementById('footerSubscribeBtn');
     const footerEmailInput = document.getElementById('footerEmailInput');
+    const mainHeader = document.querySelector('header'); // Added header reference
 
     const menuBtn = document.getElementById('menuBtn');
     const menuClose = document.getElementById('menuClose');
     const sideMenu = document.getElementById('sideMenu');
     const overlay = document.querySelector('.menu-overlay');
+
+    // Updated modal display functions
+    const showModal = () => {
+        subscribeModal.style.display = 'block';
+        if (mainHeader) mainHeader.style.display = 'none';
+        window.scrollTo(0, 0);
+    };
+
+    const hideModal = () => {
+        subscribeModal.style.display = 'none';
+        if (mainHeader) mainHeader.style.display = 'block';
+    };
 
     function openMenu() {
         sideMenu.classList.add('active');
@@ -572,40 +651,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Updated subscribe button handler
     if (subscribeBtn) {
         subscribeBtn.onclick = () => {
-            subscribeModal.style.display = 'block';
-            trackEvent('Subscription', 'Open Modal', 'Header Button');
+            showModal();
         };
     } else {
         console.warn('Subscribe button not found');
     }
 
+    // Updated close button handler
     if (closeBtn) {
         closeBtn.onclick = () => {
-            subscribeModal.style.display = 'none';
-            trackEvent('Subscription', 'Close Modal', 'X Button');
+            hideModal();
         };
     } else {
         console.warn('Close button not found');
     }
 
+    // Updated window click handler
     window.onclick = (event) => {
         if (event.target == subscribeModal) {
-            subscribeModal.style.display = 'none';
-            trackEvent('Subscription', 'Close Modal', 'Outside Click');
+            hideModal();
         }
     }
 
+    // Updated footer subscribe button handler
     if (footerSubscribeBtn && footerEmailInput) {
         footerSubscribeBtn.addEventListener('click', () => {
             if (validateEmail(footerEmailInput.value)) {
-                subscribeModal.style.display = 'block';
                 document.getElementById('emailInput').value = footerEmailInput.value;
-                trackEvent('Subscription', 'Open Modal', 'Footer Button');
+                showModal();
             } else {
                 showValidationMessage(footerEmailInput, 'Please enter a valid email address.');
-                trackEvent('Subscription', 'Validation Error', 'Footer Email');
             }
         });
     } else {
@@ -626,15 +704,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     handleEmailUnsubscribe();
 
-    // Auto-open modal after 5 seconds
+    // Updated auto-open modal
     let hasShownModal = sessionStorage.getItem('hasShownModal');
     if (!hasShownModal) {
         setTimeout(() => {
-            subscribeModal.style.display = 'block';
+            showModal();
             sessionStorage.setItem('hasShownModal', 'true');
-            trackEvent('Subscription', 'Auto Open Modal', 'Timed');
-        }, 10000);
+        }, 20000);
     }
+
+    // Add escape key handler for modal
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && subscribeModal.style.display === 'block') {
+            hideModal();
+        }
+    });
 });
 
 function getUrlParameter(name) {
@@ -661,6 +745,7 @@ async function handleSubscribeFormSubmit(e) {
     const name = document.getElementById('nameInput').value;
     const email = document.getElementById('emailInput').value;
     const selectedTopicIds = Array.from(document.querySelectorAll('input[name="topics"]:checked')).map(el => parseInt(el.value));
+    const mainHeader = document.querySelector('header'); // Get header reference
     
     try {
         const response = await fetch(`${API_BASE}/api/subscriptions/`, {
@@ -681,14 +766,12 @@ async function handleSubscribeFormSubmit(e) {
         if (response.ok) {
             alert('Thank you for subscribing to CurioDaily!');
             document.getElementById('subscribeModal').style.display = 'none';
-            trackEvent('Subscription', 'Success', email);
+            if (mainHeader) mainHeader.style.display = 'block'; // Show header
         } else {
             if (response.status === 400 && data.detail.includes("already exists")) {
                 const updateSubscription = confirm('This email is already subscribed. Would you like to update your topic preferences?');
                 if (updateSubscription) {
                     console.log('Updating subscription for:', email);
-                    trackEvent('Subscription', 'Update', email);
-                    // Here you would add logic to update existing subscriptions
                 }
             } else {
                 throw new Error(data.detail || 'Subscription failed');
@@ -697,7 +780,6 @@ async function handleSubscribeFormSubmit(e) {
     } catch (error) {
         console.error('Subscription error:', error);
         alert(`An error occurred: ${error.message}`);
-        trackEvent('Subscription', 'Error', error.message);
     }
 }
 
@@ -706,7 +788,150 @@ if (typeof module !== 'undefined' && module.exports) {
         validateEmail,
         formatDate,
         getApiBaseUrl,
-        trackPageView,
-        trackEvent,
+    
     };
 }
+
+
+function createArticlePageContent(article) {
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+          <meta name="description" content="${article.title} - CurioDaily">
+          <meta name="keywords" content="daily news, AI news, tech updates, business insights, science discoveries">
+          <title>${article.title} - CurioDaily</title>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap">
+          <link rel="stylesheet" href="/static/styles/main.css">
+          <link rel="stylesheet" href="/static/styles/newsletter.css">
+      </head>
+      <body>
+          <!-- Header -->
+          <header>
+              <div class="container">
+                  <div class="logo-title">
+                      <img src="https://storage.googleapis.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
+                      <h1>CurioDaily: Your Daily Dose of Interesting</h1>
+                  </div>
+                  <a href="${API_BASE}" class="subscribe-btn">CurioDaily Home</a>
+                  <div class="menu-container">
+                      <button id="menuBtn" class="menu-btn">
+                          <i class="fas fa-bars"></i>
+                      </button>
+                      <nav id="sideMenu" class="side-menu">
+                          <div class="menu-header">
+                              <h2>CurioDaily</h2>
+                              <button class="menu-close" id="menuClose">&times;</button>
+                          </div>
+                          <h3 class="menu-section-title">This Week's Top Stories</h3>
+                          <ul id="weeklyTopicsList"></ul>
+                          <div class="menu-footer">
+                              <div class="social-links">
+                                  <a href="#"><i class="fab fa-twitter"></i></a>
+                                  <a href="#"><i class="fab fa-linkedin"></i></a>
+                                  <a href="#"><i class="fab fa-github"></i></a>
+                              </div>
+                          </div>
+                      </nav>
+                      <div class="menu-overlay"></div>
+                  </div>
+              </div>
+          </header>
+  
+          <!-- Main Content -->
+          <main class="container article-container">
+              <article class="full-article">
+                  <div class="article-content">
+                      ${article.content}
+                  </div>
+
+              </article>
+          </main>
+  
+          <!-- Footer -->
+          <footer>
+              <div class="footer-content">
+                  <div class="footer-logo">
+                      <img src="https://storage.googleapis.com/curiodaily_image/logo.jpeg" alt="CurioDaily Logo" class="logo">
+                      <h2>CurioDaily</h2>
+                  </div>
+                  <p>Get your daily dose of interesting news and updates on AI, Tech, Business, Science, and more. Join our community of curious minds!</p>
+  \
+              </div>
+              <div class="footer-bottom">
+                  <p>&copy; ${new Date().getFullYear()} CurioDaily. All rights reserved.</p>
+                  <div>
+                      <a href="#">Privacy Policy</a>
+                      <a href="#">Terms of Use</a>
+                  </div>
+              </div>
+          </footer>
+  
+          <!-- Scripts -->
+          <script src="/static/scripts/main.js"></script>
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-583RG4CHLK"></script>
+          <script>
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-583RG4CHLK');
+          </script>
+      </body>
+      </html>
+    `;
+  }
+  
+  function openArticle(article) {
+    // Update document title
+    document.title = `${article.title} - CurioDaily`;
+    
+    // Update URL
+    window.history.pushState(
+        { type: 'article', article: article },
+        article.title,
+        `/article/${encodeURIComponent(article.title.toLowerCase().replace(/\s+/g, '-'))}`
+    );
+
+    // Replace page content
+    document.body.innerHTML = createArticlePageContent(article);
+
+    // Reinitialize event listeners
+    initializeEventListeners();
+    fetchWeeklyTopics();
+
+    // Scroll to top
+    window.scrollTo(0, 0);
+}
+
+function initializeEventListeners() {
+    // Reinitialize menu functionality
+    const menuBtn = document.getElementById('menuBtn');
+    const menuClose = document.getElementById('menuClose');
+    const sideMenu = document.getElementById('sideMenu');
+    
+    if (menuBtn) {
+        menuBtn.addEventListener('click', () => {
+            sideMenu.classList.add('active');
+        });
+    }
+    
+    if (menuClose) {
+        menuClose.addEventListener('click', () => {
+            sideMenu.classList.remove('active');
+        });
+    }
+
+}
+/*
+// Handle browser back/forward navigation
+window.addEventListener('popstate', (event) => {
+    if (event.state && event.state.type === 'article') {
+        openArticle(event.state.article);
+    } else {
+        window.location.href = '/';
+    }
+});
+*/

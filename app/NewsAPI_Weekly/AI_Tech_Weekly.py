@@ -1,21 +1,20 @@
 import os
 import requests
+import json
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import logging
 from openai import OpenAI
 import psycopg2
 from psycopg2 import sql
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import asyncio
 import aiohttp
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-template_path = os.path.join(current_dir, 'weekly_newsletter_template.html')
 
 # Load environment variables
 load_dotenv()
@@ -24,273 +23,358 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 class AIWeeklyRoundupFetcher:
     def __init__(self):
         self.news_api_key = os.getenv('NEWS_API_KEY_Weekly')
-        if not self.news_api_key:
-            raise ValueError("NEWS_API_KEY not found in environment variables")
-        self.base_url = "https://newsapi.org/v2/everything"
         self.db_url = os.getenv('DATABASE_URL')
-        if not self.db_url:
-            raise ValueError("DATABASE_URL not found in environment variables")
+        self.openai_model = "gpt-4-1106-preview"
+        self.base_url = "https://newsapi.org/v2/everything"
+        
+        if not self.news_api_key or not self.db_url:
+            raise ValueError("Required environment variables not found")
+        
+        # Core AI categories for filtering
+        self.ai_categories = {
+            'GenAI': ['generative AI', 'GenAI', 'GPT-4', 'DALL-E', 'foundation models'],
+            'Robotics': ['humanoid robot', 'Tesla Bot', 'Figure AI', 'Boston Dynamics'],
+            'BigTech': ['OpenAI', 'Microsoft AI', 'Google AI', 'Meta AI', 'Anthropic'],
+            'Research': ['LLM', 'AI model', 'deep learning', 'AI breakthrough'],
+            'Ethics': ['AI safety', 'AI regulation', 'AI ethics', 'AI bias']
+        }
 
-    async def fetch_news(self, start_date: datetime, end_date: datetime, language: str = 'en', sort_by: str = 'relevancy') -> List[Dict[str, Any]]:
-        # Split the query into smaller chunks
+    async def fetch_news(self, start_date: datetime, end_date: datetime) -> List[Dict[str, Any]]:
+        """Fetch news articles asynchronously."""
         queries = [
-            "artificial intelligence OR AI OR machine learning",
-            "deep learning OR neural networks OR natural language processing OR NLP",
-            "computer vision OR robotics OR autonomous systems",
-            "AI ethics OR AI regulation OR AI applications",
-            "AI research OR AI startups OR AI in business",
-            "AI in healthcare OR AI in finance OR AI algorithms",
-            "generative AI OR AI assistants OR AI chatbots",
-            "AI and big data OR AI and IoT OR AI and cloud computing",
-            "AI and cybersecurity OR AI and quantum computing"
+            'AI breakthrough OR AI advancement',
+            'AI Humanoid OR Robotics',
+            'LLM OR large language model OR GPT',
+            'AI ethics OR AI alignment OR AI safety',
+            'AI research OR AI conference',
+            'AI application OR AI use case',
+            'AI in healthcare OR AI in finance OR AI in education',
+            'Autonomous systems OR computer vision',
+            'OpenAI OR DeepMind OR Google AI OR Microsoft AI OR Anthropic'
         ]
 
-        all_articles = []
         async with aiohttp.ClientSession() as session:
-            tasks = [self._fetch_news(session, query, start_date, end_date, language, sort_by) for query in queries]
+            tasks = [
+                self._fetch_news_batch(session, query, start_date, end_date)
+                for query in queries
+            ]
             results = await asyncio.gather(*tasks)
-            for articles in results:
-                all_articles.extend(articles)
+            
+        # Combine and deduplicate articles
+        seen_titles = set()
+        unique_articles = []
+        
+        for articles in results:
+            for article in articles:
+                title = article.get('title', '').lower()
+                if title and title not in seen_titles:
+                    seen_titles.add(title)
+                    unique_articles.append(article)
+        
+        return unique_articles
 
-        filtered_articles = [
-            article for article in all_articles
-            if article.get('title') and article.get('description') and article.get('urlToImage')
-        ]
-
-        sorted_articles = self.filter_and_sort_articles(filtered_articles)
-        return sorted_articles[:10]  # Return only top 10 articles
-
-    async def _fetch_news(self, session: aiohttp.ClientSession, query: str, start_date: datetime, end_date: datetime, language: str, sort_by: str) -> List[Dict[str, Any]]:
+    async def _fetch_news_batch(self, session: aiohttp.ClientSession, query: str, 
+                              start_date: datetime, end_date: datetime) -> List[Dict[str, Any]]:
+        """Fetch a batch of news articles."""
         params = {
             'q': query,
             'from': start_date.isoformat(),
             'to': end_date.isoformat(),
-            'language': language,
-            'sortBy': sort_by,
-            'pageSize': 10,
+            'language': 'en',
+            'sortBy': 'relevancy',
+            'pageSize': 20,
             'apiKey': self.news_api_key
         }
 
         try:
             async with session.get(self.base_url, params=params) as response:
-                response.raise_for_status()
-                data = await response.json()
-                return data.get('articles', [])
-        except aiohttp.ClientError as e:
-            logger.error(f"Error fetching news: {e}")
+                if response.status == 200:
+                    data = await response.json()
+                    return [
+                        {
+                            'title': article.get('title', ''),
+                            'description': article.get('description', '')[:150],
+                            'url': article.get('url', ''),
+                            'urlToImage': article.get('urlToImage', ''),
+                            'source': article.get('source', {}).get('name', ''),
+                            'category': self._categorize_article(article)
+                        }
+                        for article in data.get('articles', [])
+                        if article.get('title') and article.get('description')
+                    ]
+                return []
+        except Exception as e:
+            logger.error(f"Error fetching news batch: {e}")
             return []
 
-    def filter_and_sort_articles(self, articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        def relevance_score(article: Dict[str, Any]) -> int:
-            title = article.get('title', '').lower()
-            description = article.get('description', '').lower()
-            content = (title + ' ' + description)
-            
-            priority_topics = [
-                'artificial intelligence', 'AI', 'machine learning', 'deep learning',
-                'neural networks', 'natural language processing', 'NLP', 'computer vision',
-                'robotics', 'autonomous systems', 'AI ethics', 'AI regulation',
-                'AI applications', 'AI research', 'AI startups', 'AI in business',
-                'AI in healthcare', 'AI in finance', 'AI algorithms', 'AI models',
-                'generative AI', 'AI assistants', 'AI chatbots', 'AI in education',
-                'AI and big data', 'AI and IoT', 'AI and cloud computing',
-                'AI and cybersecurity', 'AI and quantum computing', 'GPT',
-                'transformer models', 'reinforcement learning', 'AI benchmarks'
-            ]
-            
-            return sum(content.count(topic.lower()) for topic in priority_topics)
+    def _categorize_article(self, article: Dict[str, Any]) -> str:
+        """Categorize article based on content."""
+        text = f"{article.get('title', '')} {article.get('description', '')}".lower()
+        
+        for category, terms in self.ai_categories.items():
+            if any(term.lower() in text for term in terms):
+                return category
+        return 'General'
 
-        return sorted(articles, key=relevance_score, reverse=True)
+    async def process_articles_with_ai(self, articles: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Process articles using AI for analysis."""
+        if not articles:
+            return self._get_empty_response()
 
-    def generate_highlights(self, articles):
-        highlights = []
+        filtered_articles = self._prefilter_articles(articles)
+        if not filtered_articles:
+            return self._get_empty_response()
 
-        for article in articles:
-            title = article.get('title', 'Untitled Article')
-            prompt = f"""
-            Based on the following AI-related news article title:
-
-            Title: {title}
-
-            1. Create a concise highlight of maximum 130 characters that captures the essence of the AI-related news or insight.
-            2. Suggest an appropriate icon name that represents this highlight, focusing on AI and technology themes. The icon should be simple and widely available (e.g., from Font Awesome).
-            3. Suggest a vibrant color for the icon (use hexadecimal color code) that fits the AI and technology theme.
-
-            Respond in the following format:
-            Highlight: [Your rephrased highlight]
-            Icon: [Your suggested icon name]
-            Color: [Hexadecimal color code]
-            """
-
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4-1106-preview",
-                    messages=[
-                        {"role": "system", "content": "You are an AI assistant that creates concise AI-related news highlights and suggests relevant icons and colors."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    max_tokens=150,
-                    n=1,
-                    stop=None,
-                    temperature=0.7,
-                )
-                result = response.choices[0].message.content.strip().split('\n')
-                rephrased_highlight = result[0].split(': ')[1]
-                icon = result[1].split(': ')[1]
-                color = result[2].split(': ')[1]
-
-                if len(rephrased_highlight) > 130:
-                    rephrased_highlight = rephrased_highlight[:127] + "..."
-                
-                highlights.append((rephrased_highlight, icon, color))
-            except Exception as e:
-                logger.error(f"Error generating highlight with OpenAI: {e}")
-                short_title = title[:127] + "..." if len(title) > 130 else title
-                highlights.append((short_title, "robot", "#00A86B"))  # Using a robot icon and a tech green color
-
-        return highlights
-
-    def generate_dynamic_overview(self, highlights):
-        highlight_texts = [highlight[0] for highlight in highlights[:7]]
-        prompt = f"""
-        Based on the following AI-related news highlights, generate a catchy and informative overview
-        that summarizes the main themes or most significant developments. The overview should
-        be engaging and specific to AI developments mentioned in the highlights.
-
-        Highlights:
-        {', '.join(highlight_texts)}
-
-        Generate an overview in the format: "AI Weekly Roundup: [Theme]: [Specific Detail]"
-        For example: "AI Weekly Roundup: Breakthrough in NLP: New Model Achieves Human-Level Understanding"
-
-        The overview should be 2-3 sentences long, capturing the essence of the week's AI developments based on the highlights.
-        """
+        articles_text = self._prepare_articles_for_ai(filtered_articles)
 
         try:
-            response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
-                messages=[
-                    {"role": "system", "content": "You are an AI assistant that creates engaging overviews for AI-related news summaries."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=200,
-                n=1,
-                stop=None,
-                temperature=0.5,
-            )
-            return response.choices[0].message.content.strip()
-        except Exception as e:
-            logger.error(f"Error generating overview with OpenAI: {e}")
-            return "AI Weekly Roundup: Significant developments reshape the landscape of artificial intelligence and its applications."
+            messages = [
+                {"role": "system", "content": """AI news curator. Output JSON:
+{
+  "filtered_indices": [0-based indices],
+  "highlights": [{"text": "max 170 chars", "category": "cat", "icon": "icon", "color": "hex"}],
+  "title": "AI Weekly: [Theme]",
+  "summary": "2-line summary"
+}"""},
+                {"role": "user", "content": f"Select top AI news:\n{articles_text}"}
+            ]
 
-    def store_weekly_newsletter(self, title, content, key_highlight, topic_id):
+            response = await asyncio.to_thread(
+                client.chat.completions.create,
+                model=self.openai_model,
+                messages=messages,
+                temperature=0.7,
+                max_tokens=1000,
+                response_format={"type": "json_object"}
+            )
+
+            return self._process_ai_response(response, filtered_articles)
+
+        except Exception as e:
+            logger.error(f"Error in AI processing: {e}")
+            return self._fallback_processing(filtered_articles)
+
+    def _prefilter_articles(self, articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Pre-filter articles to reduce input tokens."""
+        filtered = []
+        seen_titles = set()
+        
+        for article in articles:
+            if not article or not article.get('title') or not article.get('description'):
+                continue
+                
+            title = article['title'].lower()
+            if title in seen_titles:
+                continue
+                
+            seen_titles.add(title)
+            filtered.append({
+                'title': article['title'],
+                'description': article['description'][:150],
+                'category': article.get('category', 'General'),
+                'url': article.get('url', ''),
+                'urlToImage': article.get('urlToImage', ''),
+                'source': article.get('source', '')
+            })
+            
+            if len(filtered) >= 15:
+                break
+                
+        return filtered
+
+    def _prepare_articles_for_ai(self, articles: List[Dict[str, Any]]) -> str:
+        """Prepare articles in a compressed format."""
+        return "\n".join([
+            f"[{i}] {a['title']} | {a['description']} | {a['category']}"
+            for i, a in enumerate(articles)
+        ])
+
+    def _process_ai_response(self, response: Any, articles: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Process AI response and format results."""
+        try:
+            result = json.loads(response.choices[0].message.content)
+            
+            filtered_articles = [
+                articles[idx] for idx in result.get('filtered_indices', [])[:10]
+                if 0 <= idx < len(articles)
+            ]
+            
+            highlights = [
+                {
+                    'text': str(h.get('text', ''))[:170],
+                }
+                for h in result.get('highlights', [])[:5]
+                if h.get('text') and h.get('category')
+            ]
+
+            return {
+                'filtered_articles': filtered_articles,
+                'highlights': highlights,
+                'title': str(result.get('title', "This Week in AI")),
+                'summary': str(result.get('summary', "Latest AI developments."))
+            }
+        except Exception as e:
+            logger.error(f"Error processing AI response: {e}")
+            return self._fallback_processing(articles)
+
+    def _get_empty_response(self) -> Dict[str, Any]:
+        """Return empty response template."""
+        return {
+            'filtered_articles': [],
+            'highlights': [],
+            'title': "This Week in AI",
+            'summary': "No articles available."
+        }
+
+    def _fallback_processing(self, articles: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Fallback processing when AI processing fails."""
+        filtered = articles[:10]
+        highlights = [
+            {
+                'text': article['title'][:170],
+            }
+            for article in filtered[:10]
+        ]
+        
+        return {
+            'filtered_articles': filtered,
+            'highlights': highlights,
+            'title': "This Week in AI Technology",
+            'summary': "Latest developments in AI technology and research."
+        }
+
+    def generate_html_content(self, title: str, summary: str, highlights: List[Dict[str, Any]], 
+                            articles: List[Dict[str, Any]]) -> str:
+        """Generate HTML content for the newsletter."""
+        template_path = os.path.join(os.path.dirname(__file__), 'weekly_newsletter_template.html')
+        base_url = os.getenv('BASE_URL', 'https://www.thecuriodaily.com')
+        
+
+
+        highlights_html = "".join([
+            f"""<li class="highlight-item">
+                <i class="fas fa-circle"></i>
+                <span class="highlight-text">{h['text']}</span>
+    
+            </li>"""
+            for h in highlights
+        ])
+        
+        articles_html = "".join([
+            f"""<article class="article-card">
+                <img src="{article.get('urlToImage', '/api/placeholder/400/300')}" 
+                     alt="Article image" class="article-image">
+                <div class="article-content">
+                    <div class="article-metadata">
+                        <span class="article-category">{article.get('category', 'General')}</span>
+                        <span class="article-source">{article.get('source', '')}</span>
+                    </div>
+                    <h3>{article.get('title', '')}</h3>
+                    <p>{article.get('description', '')}</p>
+                    <a href="{article.get('url', '#')}" class="read-more-btn" target="_blank">
+                        Read More
+                    </a>
+                </div>
+            </article>"""
+            for article in articles
+        ])
+
+        try:
+            with open(template_path, "r", encoding="utf-8") as f:
+                template = f.read()
+            
+            return template.replace(
+                '{{title}}', title
+            ).replace(
+                '{{summary}}', summary
+            ).replace(
+                '{{highlights}}', highlights_html
+            ).replace(
+                '{{articles}}', articles_html
+            ).replace(
+                '{{base_url}}', base_url
+            ).replace(
+                '{{topic}}', "AI Weekly Roundup"
+            ).replace(
+                '{{date}}', datetime.now().strftime("%b %d, %Y")
+            )
+        except Exception as e:
+            logger.error(f"Error generating HTML content: {e}")
+            return ""
+
+    def store_weekly_newsletter(self, title: str, content: str, highlights: List[Dict[str, Any]], 
+                            topic_id: int) -> Optional[int]:
+        """Store newsletter in database."""
         try:
             with psycopg2.connect(self.db_url) as conn:
                 with conn.cursor() as cur:
-                    insert_query = sql.SQL("""
+                    cur.execute("""
                         INSERT INTO public.weekly_newsletter 
                         (title, content, weeklynewsletter_topic_id, key_highlight)
                         VALUES (%s, %s, %s, %s)
                         RETURNING id
-                    """)
-                    cur.execute(insert_query, (title, content, topic_id, key_highlight))
-                    inserted_id = cur.fetchone()[0]
+                    """, (
+                        title,
+                        content,
+                        topic_id,
+                        ", ".join(h['text'] for h in highlights[:3])  # Only store highlights as text
+                    ))
+                    
+                    newsletter_id = cur.fetchone()[0]
                     conn.commit()
-                    logger.info(f"Weekly newsletter stored in database with ID: {inserted_id}")
-                    return inserted_id
+                    return newsletter_id
         except Exception as e:
-            logger.error(f"Error storing weekly newsletter in database: {e}")
+            logger.error(f"Error storing newsletter: {e}")
             return None
 
-    def generate_html_content(self, dynamic_overview, highlights, articles):
-        base_url = os.getenv('BASE_URL', 'https://www.curiodaily.com')
-        
-        highlights_html = "".join([
-            f"<li>{highlight}</li>"
-            for highlight, _, _ in highlights[:7]
-        ])
-        
-        articles_html = "".join([
-            f"""
-            <article class="article-card">
-                <img src="{article.get('urlToImage', '/api/placeholder/400/300')}" alt="{article.get('title', 'Article image')}" class="article-image">
-                <div class="article-content">
-                    <h3>{article.get('title', 'Untitled Article')}</h3>
-                    <p>{article.get('description', 'No description available.')[:100]}...</p>
-                    <a href="{article.get('url', '#')}" class="read-more-btn" target="_blank">Read More</a>
-                </div>
-            </article>
-            """
-            for article in articles
-            if article.get('title') and article.get('description') and article.get('url')
-        ])
-
-        current_date = datetime.now()
-        formatted_date = current_date.strftime("%b %d, %Y")
-
-        with open(template_path, "r", encoding="utf-8") as f:
-            template = f.read()
-        
-        template = template.replace('{{dynamic_overview}}', dynamic_overview)
-        template = template.replace('{{highlights}}', highlights_html)
-        template = template.replace('{{articles}}', articles_html)
-        template = template.replace('{{base_url}}', base_url)
-        template = template.replace('{{topic}}', "AI Weekly Roundup")
-        template = template.replace('{{date}}', formatted_date)
-            
-        return template
-
-def store_html_content(html_content, filename):
-    try:
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write(html_content)
-        logger.info(f"HTML content successfully stored in {filename}")
-    except Exception as e:
-        logger.error(f"Error storing HTML content in file: {e}")
-
 async def main():
-    fetcher = AIWeeklyRoundupFetcher()
-    today = datetime.now().date()
-    last_week = today - timedelta(days=7)
-    
-    logger.info(f"Fetching top 10 AI Weekly Roundup news articles for the week {last_week} to {today}...")
-    articles = await fetcher.fetch_news(last_week, today)
+    """Main execution function."""
+    try:
+        fetcher = AIWeeklyRoundupFetcher()
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=7)
+        
+        logger.info(f"Fetching AI news for {start_date.date()} to {end_date.date()}")
+        
+        articles = await fetcher.fetch_news(start_date, end_date)
+        if not articles:
+            logger.warning("No articles found")
+            return
 
-    if articles:
-        highlights = fetcher.generate_highlights(articles)
-        logger.info(f"Highlights: {highlights}")
+        processed_results = await fetcher.process_articles_with_ai(articles)
+        if not processed_results['filtered_articles']:
+            logger.warning("No articles passed AI filtering")
+            return
 
-        dynamic_overview = fetcher.generate_dynamic_overview(highlights)
-        logger.info(f"Dynamic Overview: {dynamic_overview}")
-
-        html_content = fetcher.generate_html_content(dynamic_overview, highlights, articles)
+        html_content = fetcher.generate_html_content(
+            title=processed_results['title'],
+            summary=processed_results['summary'],
+            highlights=processed_results['highlights'],
+            articles=processed_results['filtered_articles']
+        )
 
         if html_content:
-            filename = f"weekly_AI_Roundup_{today.strftime('%Y%m%d')}.html"
-            store_html_content(html_content, filename)
-            logger.info(f"Newsletter generated and saved as {filename}")
-
-            key_highlight = highlights[0][0] if highlights else ""
-            inserted_id = fetcher.store_weekly_newsletter(
-                title=dynamic_overview,
+            #filename = f"AI_Weekly_{end_date.strftime('%Y%m%d')}.html"
+            #with open(filename, 'w', encoding='utf-8') as f:
+            #    f.write(html_content)
+            
+            newsletter_id = fetcher.store_weekly_newsletter(
+                title=processed_results['title'],
                 content=html_content,
-                key_highlight=", ".join([h[0] for h in highlights[:3]]),
+                highlights=processed_results['highlights'],
                 topic_id=1
             )
-
-            if inserted_id:
-                logger.info(f"Newsletter stored in database with ID: {inserted_id}")
+            
+            if newsletter_id:
+                logger.info(f"Newsletter generated and stored. ID: {newsletter_id}")
             else:
-                logger.error("Failed to store newsletter in database")
-
+                logger.error("Failed to store newsletter")
         else:
             logger.error("Failed to generate HTML content")
 
-        logger.info(f"Found {len(articles)} unique articles for the week {last_week} to {today}.")
-    else:
-        logger.info(f"No articles found for the week {last_week} to {today}.")
-
-    logger.info("Weekly AI news fetching, summarization, and newsletter generation complete.")
+    except Exception as e:
+        logger.error(f"Error in main execution: {e}")
+        raise
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -1,0 +1,1 @@
+uvicorn app.main:app --host 0.0.0.0 --port 8443 --ssl-keyfile /Users/kalaidhamu/Desktop/KalaiDhamu/LLM/General/autonomous_newsletter/ssl/key.pem --ssl-certfile /Users/kalaidhamu/Desktop/KalaiDhamu/LLM/General/autonomous_newsletter/ssl/cert.pem --log-level info

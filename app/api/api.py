@@ -1,8 +1,19 @@
 # app/api/api.py
 
 import logging
+from fastapi import Request  # Add at the top of the file
 from fastapi import APIRouter
-from app.api.endpoints import topics, newsletters, subscriptions, analytics ,  weekly_newsletter , weekly_newsletter_topics
+from app.api.endpoints import (
+    topics,
+    newsletters,
+    subscriptions,
+    analytics,
+    weekly_newsletter,
+    weekly_newsletter_topics,
+    blog_posts,
+)
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -38,6 +49,16 @@ try:
     logger.info("weekly_newsletter router included successfully")
 except Exception as e:
     logger.error(f"Failed to include weekly_newsletter router: {str(e)}", exc_info=True)
+
+try:
+    api_router.include_router(
+        blog_posts.router,
+        prefix="/blog",
+        tags=["blog"]
+    )
+    logger.info("Blog posts router included successfully")
+except Exception as e:
+    logger.error(f"Failed to include blog posts router: {str(e)}", exc_info=True)
 
 
 

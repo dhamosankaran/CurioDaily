@@ -1,0 +1,35 @@
+<!-- app/templates/components/blog_entry.html -->
+{% macro render_entry(post, is_first=False) %}
+<div class="blog-card" data-post-id="{{ post.id }}">
+    {% if post.image_url %}
+    <div class="blog-image">
+        <img src="{{ post.image_url }}" alt="{{ post.title }}">
+    </div>
+    {% else %}
+    <div class="blog-image">
+        <img src="/api/placeholder/400/300" alt="Placeholder">
+    </div>
+    {% endif %}
+    <div class="blog-content">
+        <h2 class="blog-title">{{ post.title }}</h2>
+        <div class="blog-meta">
+            <span class="blog-date">{{ post.created_at.strftime('%m/%d/%Y') }}</span>
+        </div>
+        <div class="blog-summary">
+            {% if is_first %}
+                <p>{{ post.content[:200] if post.content else '' }}...</p>
+            {% else %}
+                <p>{{ post.content[:150] if post.content else '' }}...</p>
+            {% endif %}
+        </div>
+        <div class="blog-actions">
+            <a href="{{ base_url }}/api/blog/{{ post.id }}" class="blog-action read-more">Read More</a>
+            <button id="likeButton" class="like-btn" aria-pressed="false" data-post-id="{{ post.id }}">
+                <i class="fas fa-heart"></i>
+                <span id="likeCount">{{ post.like_count }}</span>
+            </button>
+            <!--a href="#" class="blog-action share-linkedin" onclick="blogManager.sharePost('{{ post.id }}')">Share on LinkedIn</a-->
+        </div>
+    </div>
+</div>
+{% endmacro %}

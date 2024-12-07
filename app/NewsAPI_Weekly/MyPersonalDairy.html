@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Diary - CurioDaily</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            height: 10vh;
+        }
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .recent-post {
+            background-color: #f0f0f0;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            height: 30vh;
+        }
+        .recent-post img {
+            max-width: 150px;
+            margin-right: 20px;
+        }
+        .previous-posts {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            height: 60vh;
+            overflow-y: auto;
+        }
+        .post {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .post img {
+            max-width: 100%;
+            height: auto;
+        }
+        .read-more {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .recent-post {
+                flex-direction: column;
+                text-align: center;
+            }
+            .recent-post img {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>My Personal Diary</h1>
+    </header>
+    <main>
+        <section class="recent-post">
+            <img src="https://via.placeholder.com/150" alt="Recent post thumbnail">
+            <div>
+                <h2>My Latest Adventure</h2>
+                <p>Yesterday, I embarked on an unexpected journey that led me to discover a hidden gem in our city...</p>
+                <a href="#" class="read-more">Read More</a>
+            </div>
+        </section>
+        <section class="previous-posts">
+            <!-- Previous posts will be dynamically inserted here -->
+        </section>
+    </main>
+
+    <script>
+        // Sample data for previous posts
+        const previousPosts = [
+            {
+                title: "Reflections on a Quiet Sunday",
+                summary: "As I sat in my favorite coffee shop this Sunday, I couldn't help but notice the subtle changes in the world around me. The aroma of freshly brewed coffee mingled with the soft chatter of patrons, creating a comforting ambiance. I found myself lost in thought, contemplating the week that had passed and the one that lay ahead. It's in these quiet moments that I often find the most clarity...",
+                image: "https://via.placeholder.com/300x200"
+            },
+            {
+                title: "A Unexpected Encounter",
+                summary: "Today, while taking my usual route through the park, I stumbled upon a situation that reminded me of the kindness inherent in humanity. An elderly gentleman had fallen, and without hesitation, strangers from all walks of life rushed to his aid. It was a beautiful display of compassion that restored my faith in the goodness of people...",
+                image: "https://via.placeholder.com/300x200"
+            },
+            {
+                title: "Learning to Cook: A Culinary Adventure",
+                summary: "I've always been intimidated by the kitchen, but today I decided to face my fears and attempt to cook a complex recipe. Armed with ingredients and determination, I set out on this culinary adventure. There were moments of doubt, a few minor disasters, and plenty of laughter. In the end, the meal might not have been perfect, but the sense of accomplishment was priceless...",
+                image: "https://via.placeholder.com/300x200"
+            }
+        ];
+
+        // Function to create post elements
+        function createPostElement(post) {
+            const postElement = document.createElement('div');
+            postElement.className = 'post';
+            postElement.innerHTML = `
+                <h3>${post.title}</h3>
+                <img src="${post.image}" alt="${post.title}">
+                <p>${post.summary}</p>
+                <a href="#" class="read-more">Read More</a>
+            `;
+            return postElement;
+        }
+
+        // Populate previous posts
+        const previousPostsSection = document.querySelector('.previous-posts');
+        previousPosts.forEach(post => {
+            previousPostsSection.appendChild(createPostElement(post));
+        });
+    </script>
+</body>
+</html>

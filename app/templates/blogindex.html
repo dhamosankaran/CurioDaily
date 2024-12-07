@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="description" content="CurioDaily Personal Diary: Track your daily thoughts and reflections">
+    <meta name="keywords" content="diary, personal journal, daily entries, reflections">
+    <title>Personal Diary - CurioDaily</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap">
+    <link rel="stylesheet" href="/static/styles/main.css">
+    <link rel="stylesheet" href="/static/styles/blog.css">
+    <meta name="base-url" content="{{ base_url }}">
+</head>
+<body>
+    {% include "components/header.html" %}
+
+    <!-- Import the macro at the top of the template -->
+    {% from "components/blog_entry.html" import render_entry %}
+
+    <main class="container">
+    
+        <div class="diary-content" id="blogGrid">
+            {% for post in posts %}
+                {{ render_entry(post) }}
+            {% endfor %}
+
+        </div>
+    
+        <div class="blog-pagination" id="blogPagination">
+            <button class="load-more-btn" onclick="blogManager.loadMorePosts()" id="loadMoreBtn">
+                Load More
+            </button>
+        </div>
+    </main>
+
+    <div id="subscribeModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Subscribe to CurioDaily</h2>
+            <p>Get your daily dose of interesting news delivered straight to your inbox!</p>
+            <form id="subscribeForm">
+                <input type="text" id="nameInput" placeholder="Enter your name" required>
+                <input type="email" id="emailInput" placeholder="Enter your email" required>
+                <div id="emailError" class="error-message" style="display: none;">Please enter a valid email address.</div>
+                <div id="topicGroups" class="topic-groups">
+                </div>
+                <div id="topicError" class="error-message" style="display: none;">Please select at least one topic.</div>
+                <button type="submit">Subscribe</button>
+            </form>
+        </div>
+    </div>
+    
+    {% include "components/footer.html" %}
+
+    <script src="/static/scripts/main.js"></script>
+    <script src="/static/scripts/blog.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-583RG4CHLK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-583RG4CHLK');
+    </script>
+</body>
+</html>
